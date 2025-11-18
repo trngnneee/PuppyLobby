@@ -39,7 +39,7 @@ export const Header = () => {
         <div className="w-[200px] h-auto overflow-hidden">
           <img src="./logo.png" className="w-full h-full object-container" />
         </div>
-        <div className="flex gap-[57px] items-center">
+        <div className="flex gap-[57px] items-center flex-1 justify-center">
           {navList.map((item, index) => (
             <NavItem key={index} item={item} />
           ))}
