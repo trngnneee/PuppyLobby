@@ -5,7 +5,7 @@ import { ChevronRight, Facebook, Instagram, Mail } from "lucide-react"
 export const Footer = () => {
   return (
     <>
-      <div className="bg-[#F6FAF9] pt-[85px]">
+      <div className="bg-[#F6FAF9] pt-[85px] pb-[20px]">
         <div className="container mx-auto">
           <div className="text-[34px] text-center">Join us with Puppy Lobby</div>
           <div className="flex items-center gap-5 bg-white p-[33px] mt-[50px]">
@@ -34,7 +34,7 @@ export const Footer = () => {
               <div className="text-[18px] text-[#757777]">227 Nguyen Van Cu, District 5, Ho Chi Minh City</div>
             </div>
           </div>
-          <div className="flex justify-between my-[29px]">
+          <div className="flex justify-between mt-[29px]">
             <div className="text-[#414141]"> © 2025 PuppyLobby all rights reserved</div>
             <div className="flex items-center gap-[57px]">
               <div className="text-sm">Our services</div>
