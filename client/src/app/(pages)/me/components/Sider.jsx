@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Dog, Pill, User } from "lucide-react"
+import { ConciergeBell, Dog, ShoppingBag, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -19,14 +19,19 @@ export const Sider = () => {
       icon: Dog
     },
     {
-      title: "Appointment Management",
-      href: "/me/appointments",
-      icon: Pill
+      title: "Your Services",
+      href: "/me/services",
+      icon: ConciergeBell
+    },
+    {
+      title: "Your Cart",
+      href: "/me/cart",
+      icon: ShoppingBag
     },
   ]
   
   return (
-    <div className="rounded-[20px] shadow-2xl gap-5 border border-gray-200 h-screen p-5 sticky top-20 self-start">
+    <div className="rounded-[20px] shadow-2xl gap-5 border border-gray-200 p-5 sticky top-20 self-start">
       <div className="flex flex-col gap-3 top-20">
         {siderData.map((item, index) => (
           <Link

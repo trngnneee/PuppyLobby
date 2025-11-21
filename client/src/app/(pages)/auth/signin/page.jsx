@@ -39,7 +39,7 @@ export default function SiginPage() {
             />
             <Label htmlFor="rememberLogin" name="rememberLogin" className="text-sm text-[var(--main)]">Remember me</Label>
           </div>
-          <Link href="/auth/forgot-password" className="text-sm text-[var(--main)] font-medium hover:underline">Forgot password?</Link>
+          {/* <Link href="/auth/forgot-password" className="text-sm text-[var(--main)] font-medium hover:underline">Forgot password?</Link> */}
         </div>
         <div id="agreeContainer" className="mb-[33px]"></div>
         <Button className="w-full bg-[var(--main)] hover:bg-[var(--main-hover)]">Sign In</Button>

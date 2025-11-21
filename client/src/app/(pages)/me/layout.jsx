@@ -2,10 +2,10 @@ import { Sider } from "./components/Sider";
 
 export default function MeLayout({ children }) {
   return (
-    <div className="flex gap-10 container mx-auto justify-start mb-10">
+    <div className="flex gap-5 container mx-auto justify-start mb-10">
       <Sider />
       <div className="flex-1">
-        <div className="mx-auto container rounded-[20px] shadow-2xl gap-5 border border-gray-200 h-screen">
+        <div className="mx-auto container rounded-[20px] shadow-2xl gap-5 border border-gray-200">
           <div className="px-10 py-5">
             {children}
           </div>
