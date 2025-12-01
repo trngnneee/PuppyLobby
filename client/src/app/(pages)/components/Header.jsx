@@ -1,8 +1,18 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export const Header = () => {
+  const router = useRouter();
   const navList = [
+    {
+      name: "HOME",
+      link: "/"
+    },
     {
       name: "OUR SERVICES",
       link: "#"
@@ -24,7 +34,7 @@ export const Header = () => {
       link: "#"
     },
   ]
-  
+
   const NavItem = ({ item }) => {
     return (
       <Link href={item.link} className="animation text-sm font-bold">
@@ -32,7 +42,24 @@ export const Header = () => {
       </Link>
     )
   }
-  
+
+  const navigationLinks = [
+    {
+      items: [
+        {
+          description: "Sign in as Customer",
+          href: "/auth/signin",
+        },
+        {
+          description: "Sign in as Employee",
+          href: "/employee/auth/signin",
+        },
+      ],
+      label: "Sign In",
+      submenu: true,
+    }
+  ];
+
   return (
     <>
       <div className="container mx-auto flex my-10 justify-between items-center">
@@ -45,8 +72,51 @@ export const Header = () => {
           ))}
         </div>
         <div className="flex items-center gap-[20px]">
-          <Button className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">SIGN IN</Button>
-          <Button className="bg-[#C7E7E1] hover:bg-[#c4f5ecb9] text-[var(--main)] font-bold animation">SIGN IN</Button>
+          <NavigationMenu className="max-md:hidden" viewport={false}>
+            <NavigationMenuList className="gap-2">
+              {navigationLinks.map((link) => (
+                <NavigationMenuItem key={link.label}>
+                  {link.submenu ? (
+                    <>
+                      <NavigationMenuTrigger className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">
+                        <NavigationMenuLink href="/auth/signin" className="bg-transparent hover:bg-transparent">
+                          {link.label}
+                        </NavigationMenuLink>
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent className="data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16! z-50 p-1">
+                        <ul
+                          className={cn(
+                            link.type === "description"
+                              ? "min-w-64"
+                              : "min-w-48",
+                          )}
+                        >
+                          {link.items.map((item, index) => (
+                            <li key={index}>
+                              <NavigationMenuLink
+                                className="py-1.5"
+                                href={item.href}
+                              >
+                                {item.description}
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  ) : (
+                    <NavigationMenuLink
+                      className="py-1.5 font-medium text-muted-foreground hover:text-primary"
+                      href={link.href}
+                    >
+                      {link.label}
+                    </NavigationMenuLink>
+                  )}
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+          <Button onClick={() => router.push("/auth/signup")} className="bg-[#C7E7E1] hover:bg-[#c4f5ecb9] text-[var(--main)] font-bold animation">SIGN UP</Button>
         </div>
       </div>
     </>
