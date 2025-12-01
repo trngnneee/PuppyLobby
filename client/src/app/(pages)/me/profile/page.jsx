@@ -5,24 +5,100 @@ import { SectionHeader } from "../components/SectionHeader";
 import AvatarUploader from "./components/AvatarUploader";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getLocalTimeZone, today } from "@internationalized/date"
 import { Calendar } from "@/components/ui/calendar-rac";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import JustValidate from "just-validate";
 
 export default function MeProfilePage() {
+  const [avatar, setAvatar] = useState(null);
+  const [gender, setGender] = useState("male");
   const [date, setDate] = useState(today(getLocalTimeZone()))
   const [openDialog, setOpenDialog] = useState(false);
+  const [submit, setSubmit] = useState(false);
+
+  useEffect(() => {
+    const validation = new JustValidate("#profile-form");
+    validation
+      .addField("#fullname", [
+        {
+          rule: "required",
+          errorMessage: "Full name is required",
+        },
+        {
+          rule: "minLength",
+          value: 3,
+          errorMessage: "Full name must be at least 3 characters",
+        }
+      ])
+      .addField("#phone", [
+        {
+          rule: "required",
+          errorMessage: "Phone is required",
+        },
+        {
+          rule: 'customRegexp',
+          value: /(84|0[3|5|7|8|9])+([0-9]{8})\b/g,
+          errorMessage: 'Phone number is not valid',
+        }
+      ])
+      .addField("#citizenid", [
+        {
+          rule: "required",
+          errorMessage: "Citizen ID is required",
+        },
+        {
+          rule: "minLength",
+          value: 9,
+          errorMessage: "Citizen ID must be at least 9 characters",
+        }
+      ])
+      .onSuccess(() => {
+        setSubmit(true);
+      })
+  }, [])
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (submit) {
+      const fullname = e.target.fullname.value;
+      const phone = e.target.phone.value;
+      const citizenid = e.target.citizenid.value;
+      const dateOfBirth = date.toString();
+      console.log({ avatar, fullname, phone, citizenid, gender, dateOfBirth });
+    }
+  }
 
   return (
     <>
       <SectionHeader title="Profile" />
-      <form className="">
-        <div className="flex justify-center">
-          <AvatarUploader />
-        </div>
+      <form onSubmit={handleSubmit} className="" id="profile-form">
         <div className="mt-[30px]">
+          <div className="flex gap-10">
+            <div className="w-full">
+              <div className="mb-[15px] *:not-first:mt-2">
+                <Label htmlFor="username" className="text-sm font-medium text-[var(--main)]">Username</Label>
+                <Input
+                  type="text"
+                  id="username"
+                  name="username"
+                  readOnly
+                />
+              </div>
+            </div>
+            <div className="w-full">
+              <div className="flex justify-center">
+                <AvatarUploader
+                  avatar={avatar}
+                  setAvatar={setAvatar}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-5">
           <div className="flex gap-10">
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
@@ -41,6 +117,7 @@ export default function MeProfilePage() {
                   type="email"
                   id="email"
                   name="email"
+                  readOnly
                 />
               </div>
             </div>
@@ -79,9 +156,9 @@ export default function MeProfilePage() {
                   <SelectValue placeholder="Gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem onClick={() => setGender("male")} value="male">Male</SelectItem>
+                  <SelectItem onClick={() => setGender("female")} value="female">Female</SelectItem>
+                  <SelectItem onClick={() => setGender("other")} value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -107,7 +184,7 @@ export default function MeProfilePage() {
             </div>
           </div>
         </div>
-        <Button className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
+        <Button disabled={submit} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
       </form>
     </>
   )

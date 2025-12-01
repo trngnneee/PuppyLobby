@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
@@ -7,10 +9,12 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 export const PetsTable = () => {
   const currentPage = 1;
   const totalPages = 5;
+  const router = useRouter();
 
   return (
     <>
@@ -22,7 +26,7 @@ export const PetsTable = () => {
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Species</th>
               <th className="px-4 py-2 text-left">Breed</th>
-              <th className="px-4 py-2 text-left">Birth Date</th>
+              <th className="px-4 py-2 text-left">Age</th>
               <th className="px-4 py-2 text-left">Gender</th>
               <th className="px-4 py-2 text-left">Health Status</th>
               <th className="px-4 py-2 text-left"></th>
@@ -35,7 +39,7 @@ export const PetsTable = () => {
               <td className="px-4 py-2">Milo</td>
               <td className="px-4 py-2">Dog</td>
               <td className="px-4 py-2">Poodle</td>
-              <td className="px-4 py-2">2023-05-10</td>
+              <td className="px-4 py-2">2</td>
               <td className="px-4 py-2">Male</td>
               <td className="px-4 py-2">
                 <Badge variant="success">Healthy</Badge>
@@ -48,7 +52,7 @@ export const PetsTable = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/me/pets/update/1')}>Edit</DropdownMenuItem>
                     <DropdownMenuItem>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -60,7 +64,7 @@ export const PetsTable = () => {
               <td className="px-4 py-2">Mimi</td>
               <td className="px-4 py-2">Cat</td>
               <td className="px-4 py-2">British Shorthair</td>
-              <td className="px-4 py-2">2022-11-02</td>
+              <td className="px-4 py-2">3</td>
               <td className="px-4 py-2">Female</td>
               <td className="px-4 py-2">
                 <Badge variant="destructive">Under Treatment</Badge>
@@ -73,7 +77,7 @@ export const PetsTable = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/me/pets/update/1')}>Edit</DropdownMenuItem>
                     <DropdownMenuItem>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

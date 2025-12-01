@@ -8,7 +8,7 @@ export default function AuthLayout({ children }) {
         />
       </div>
 
-      <div className="flex-1 px-10 py-10">
+      <div className="flex-1 px-10 py-5">
         {children}
       </div>
     </div>

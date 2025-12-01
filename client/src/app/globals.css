@@ -138,3 +138,7 @@
   --main: #124C5F;
   --main-hover: #0E3744;
 }
+
+.just-validate-error-label {
+  font-size: 12px
+}

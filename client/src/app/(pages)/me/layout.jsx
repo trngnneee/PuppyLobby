@@ -1,6 +1,17 @@
+"use client"
+
+import { usePathname } from "next/navigation";
 import { Sider } from "./components/Sider";
 
 export default function MeLayout({ children }) {
+  const pathname = usePathname();
+
+  if (pathname.includes("/me/auth")) {
+    return (
+      <>{children}</>
+    )
+  }
+  
   return (
     <div className="flex gap-5 container mx-auto justify-start mb-10">
       <Sider />
