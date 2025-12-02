@@ -6,13 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import JustValidate from "just-validate";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PlusIcon } from "lucide-react";
+import { ScheduleBox } from "../../create/components/ScheduleBox";
+import { useParams } from "next/navigation";
 
 export default function VaccinePackageUpdatePage() {
   const [submit, setSubmit] = useState(false);
+  const [scheduleIndex, setScheduleIndex] = useState(1);
+  const [schedule, setSchedule] = useState([]);
   const { id } = useParams();
  
+  const handleScheduleChange = (data, index) => {
+    const newSchedule = [...schedule];
+    newSchedule[index] = data;
+    setSchedule(newSchedule);
+  }
+
+  const handleDeleteSchedule = (index) => {
+    const newSchedule = schedule.filter((_, i) => i !== index);
+    setSchedule(newSchedule);
+    setScheduleIndex(scheduleIndex - 1);
+  }
+
   useEffect(() => {
     const validation = new JustValidate('#vaccineCreateForm');
 
@@ -78,6 +94,7 @@ export default function VaccinePackageUpdatePage() {
       const original_price = e.target.original_price.value;
 
       console.log({ name, duration, description, discount_rate, original_price });
+      console.log({ schedule });
     }
   }
 
@@ -145,6 +162,10 @@ export default function VaccinePackageUpdatePage() {
             </div>
           </div>
         </div>
+        {[...Array(scheduleIndex)].map((_, index) => (
+          <ScheduleBox key={index} index={index} onChange={handleScheduleChange} onDelete={handleDeleteSchedule} />
+        ))}
+        <Button type="button" onClick={() => setScheduleIndex(scheduleIndex + 1)} className="mt-5 bg-[var(--main)] hover:bg-[var(--main-hover)] text-white">Add Schedule <PlusIcon/></Button>
         <Button disabled={submit} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
       </form>
     </>

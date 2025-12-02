@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Grid2X2, HeartHandshake, Syringe, User } from "lucide-react"
+import { BriefcaseMedicalIcon, Grid2X2, HeartHandshake, Syringe, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -27,6 +27,11 @@ export const EmployeeSider = () => {
       title: "Vaccine Dashboard",
       href: "/vaccine/manage",
       icon: Syringe
+    },
+    {
+      title: "Vaccine Package Dashboard",
+      href: "/vaccine-package/manage",
+      icon: BriefcaseMedicalIcon
     },
   ]
   
