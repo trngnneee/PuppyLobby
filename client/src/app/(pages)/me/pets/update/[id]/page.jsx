@@ -31,8 +31,8 @@ export default function CreatePetPage() {
       },
       {
         rule: 'maxLength',
-        value: 30,
-        errorMessage: 'Name must be less than 30 characters',
+        value: 100,
+        errorMessage: 'Name cannot exceed 100 characters',
       },
     ])
       .addField('#breed', [

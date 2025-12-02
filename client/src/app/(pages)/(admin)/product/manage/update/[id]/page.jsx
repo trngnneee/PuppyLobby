@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { speciesOptions } from "@/config/variable.config";
 import { formatDate } from "@/utils/date";
 import JustValidate from "just-validate";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProductUpdatePage() {
@@ -20,6 +21,7 @@ export default function ProductUpdatePage() {
   const [expireDate, setExpireDate] = useState(new Date());
   const [species, setSpecies] = useState("dog");
   const [submit, setSubmit] = useState(false);
+  const { id } = useParams();
 
   useEffect(() => {
     const validation = new JustValidate('#productCreateForm');
@@ -28,6 +30,16 @@ export default function ProductUpdatePage() {
       {
         rule: 'required',
         errorMessage: 'Name is required',
+      },
+      {
+        rule: 'minLength',
+        value: 2,
+        errorMessage: 'Name must be at least 2 characters',
+      },
+      {
+        rule: 'maxLength',
+        value: 100,
+        errorMessage: 'Name cannot exceed 100 characters',
       },
     ])
       .addField('#price', [
@@ -129,7 +141,7 @@ export default function ProductUpdatePage() {
   
   return (
     <>
-      <SectionHeader title="Add new Product" />
+      <SectionHeader title={`Update Product ${id}`} />
       <form className="mt-[30px]" id="productCreateForm" onSubmit={handleSubmit}>
         <div>
           <div className="flex gap-10">

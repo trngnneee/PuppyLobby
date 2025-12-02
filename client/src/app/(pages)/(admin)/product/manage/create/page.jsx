@@ -29,6 +29,16 @@ export default function ProductCreatePage() {
         rule: 'required',
         errorMessage: 'Name is required',
       },
+      {
+        rule: 'minLength',
+        value: 2,
+        errorMessage: 'Name must be at least 2 characters',
+      },
+      {
+        rule: 'maxLength',
+        value: 100,
+        errorMessage: 'Name cannot exceed 100 characters',
+      },
     ])
       .addField('#price', [
         {

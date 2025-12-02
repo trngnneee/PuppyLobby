@@ -6,19 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import JustValidate from "just-validate";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ServiceUpdatePage() {
   const [submit, setSubmit] = useState(false);
   const [branch, setBranch] = useState("1");
+  const { id } = useParams();
 
   useEffect(() => {
     const validation = new JustValidate('#serviceCreateForm');
     validation
       .addField('#name', [
         { rule: 'required', errorMessage: 'Name is required' },
-        { rule: 'minLength', value: 3, errorMessage: 'Name must be at least 3 characters' },
-        { rule: 'maxLength', value: 50, errorMessage: 'Name must be at most 50 characters' },
+        { rule: 'minLength', value: 2, errorMessage: 'Name must be at least 2 characters' },
+        { rule: 'maxLength', value: 100, errorMessage: 'Name cannot exceed 100 characters' },
       ]);
     validation.onSuccess(() => {
       setSubmit(true);
@@ -35,7 +37,7 @@ export default function ServiceUpdatePage() {
 
   return (
     <>
-      <SectionHeader title="Add new Service" />
+      <SectionHeader title={`Update Service ${id}`} />
       <form className="mt-[30px]" id="serviceCreateForm" onSubmit={handleSubmit}>
         <div className="">
           <div className="flex gap-10">

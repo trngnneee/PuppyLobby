@@ -58,44 +58,6 @@ export const ServiceTable = () => {
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between gap-3 mt-5">
-        <p className="grow text-sm text-muted-foreground" aria-live="polite">
-          Page <span className="text-foreground">{currentPage}</span> of{" "}
-          <span className="text-foreground">{totalPages}</span>
-        </p>
-        <Pagination className="w-auto">
-          <PaginationContent className="gap-3">
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === 1 ? true : undefined}
-                role={currentPage === 1 ? "link" : undefined}
-                asChild
-              >
-                <a
-                >
-                  Previous
-                </a>
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === totalPages ? true : undefined}
-                role={currentPage === totalPages ? "link" : undefined}
-                asChild
-              >
-                <a
-                >
-                  Next
-                </a>
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
     </>
   )
 }
