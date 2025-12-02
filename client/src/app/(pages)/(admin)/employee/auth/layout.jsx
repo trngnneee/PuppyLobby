@@ -3,8 +3,8 @@ export default function AuthLayout({ children }) {
     <div className="flex mx-auto my-15 container rounded-[20px] shadow-2xl gap-5 border border-gray-200">
       <div className="w-[800px] h-auto overflow-hidden">
         <img
-          src="/auth-bg.avif"
-          className="w-full h-full object-contain rounded-l-[20px] border-r-gray-200 border-r"
+          src="/auth-bg-2.jpg"
+          className="w-full h-full object-cover rounded-l-[20px] border-r-gray-200 border-r"
         />
       </div>
 

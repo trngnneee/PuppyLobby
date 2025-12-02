@@ -48,7 +48,7 @@ export const Header = () => {
       items: [
         {
           description: "Sign in as Customer",
-          href: "/auth/signin",
+          href: "/me/auth/signin",
         },
         {
           description: "Sign in as Employee",
@@ -79,7 +79,7 @@ export const Header = () => {
                   {link.submenu ? (
                     <>
                       <NavigationMenuTrigger className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">
-                        <NavigationMenuLink href="/auth/signin" className="bg-transparent hover:bg-transparent">
+                        <NavigationMenuLink href="/me/auth/signin" className="bg-transparent hover:bg-transparent">
                           {link.label}
                         </NavigationMenuLink>
                       </NavigationMenuTrigger>
@@ -116,7 +116,7 @@ export const Header = () => {
               ))}
             </NavigationMenuList>
           </NavigationMenu>
-          <Button onClick={() => router.push("/auth/signup")} className="bg-[#C7E7E1] hover:bg-[#c4f5ecb9] text-[var(--main)] font-bold animation">SIGN UP</Button>
+          <Button onClick={() => router.push("/me/auth/signup")} className="bg-[#C7E7E1] hover:bg-[#c4f5ecb9] text-[var(--main)] font-bold animation">SIGN UP</Button>
         </div>
       </div>
     </>

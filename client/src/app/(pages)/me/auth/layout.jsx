@@ -8,7 +8,7 @@ export default function AuthLayout({ children }) {
       <div className="w-[800px] h-auto overflow-hidden">
         <img
           src="/auth-bg.jpg"
-          className="w-full h-full object-contain rounded-r-[20px] border-l-gray-200 border-l"
+          className="w-full h-full object-cover rounded-r-[20px] border-l-gray-200 border-l"
         />
       </div>
     </div>

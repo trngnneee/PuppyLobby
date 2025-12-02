@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation";
-import { EmployeeSider } from "../components/EmployeeSider";
+import { EmployeeSider } from "./components/EmployeeSider";
 
 export default function EmployeeLayout({ children }) {
   const pathname = usePathname();
