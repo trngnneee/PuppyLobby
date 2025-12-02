@@ -1,7 +1,7 @@
 "use client"
 
 import { SearchBar } from "@/app/(pages)/components/SearchBar";
-import { SectionHeader } from "../../../../me/components/SectionHeader";
+import { SectionHeader } from "../../../me/components/SectionHeader";
 import { EmployeeTable } from "./components/EmployeeTable";
 import { CreateButton } from "@/app/(pages)/components/CreateButton";
 import { useState } from "react";

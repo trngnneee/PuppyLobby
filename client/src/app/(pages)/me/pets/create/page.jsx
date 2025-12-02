@@ -165,7 +165,7 @@ export default function CreatePetPage() {
             </div>
           </div>
         </div>
-        <Button className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
+        <Button className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Create</Button>
       </form>
     </>
   )

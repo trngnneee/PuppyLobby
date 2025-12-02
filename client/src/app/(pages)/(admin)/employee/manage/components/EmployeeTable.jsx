@@ -27,6 +27,7 @@ export const EmployeeTable = () => {
               <th className="px-4 py-2 text-left">Date of birth</th>
               <th className="px-4 py-2 text-left">Gender</th>
               <th className="px-4 py-2 text-left">Manager</th>
+              <th className="px-4 py-2 text-left">Current work</th>
               <th className="px-4 py-2 text-left"></th>
             </tr>
           </thead>
@@ -39,6 +40,9 @@ export const EmployeeTable = () => {
               <td className="px-4 py-2">Male</td>
               <td className="px-4 py-2">Alex</td>
               <td className="px-4 py-2">
+                <Badge variant={"destructive"}>Branch 1</Badge>
+              </td>
+              <td className="px-4 py-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="">
@@ -46,7 +50,8 @@ export const EmployeeTable = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/me/pets/update/1')}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/employee/manage/update/1')}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/employee/manage/assign/1')}>Assign</DropdownMenuItem>
                     <DropdownMenuItem>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
