@@ -19,14 +19,14 @@ export const EmployeeSider = () => {
       icon: Grid2X2
     },
     {
-      title: "Service Dashboard",
-      href: "/service/manage",
-      icon: HeartHandshake
-    },
-    {
       title: "Vaccine Dashboard",
       href: "/vaccine/manage",
       icon: Syringe
+    },
+    {
+      title: "Service Dashboard",
+      href: "/service/manage",
+      icon: HeartHandshake
     },
     {
       title: "Vaccine Package Dashboard",
