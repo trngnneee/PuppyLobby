@@ -1,5 +1,6 @@
 "use client"
 
+import { FileUploader } from "@/app/(pages)/components/FileUploader";
 import { SectionHeader } from "@/app/(pages)/me/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { speciesOptions } from "@/config/variable.config";
 import { formatDate } from "@/utils/date";
 import JustValidate from "just-validate";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ProductUpdatePage() {
   const [type, setType] = useState("medicine");
@@ -22,6 +24,8 @@ export default function ProductUpdatePage() {
   const [species, setSpecies] = useState("dog");
   const [submit, setSubmit] = useState(false);
   const { id } = useParams();
+  const [imageList, setImageList] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const validation = new JustValidate('#productCreateForm');
@@ -112,52 +116,127 @@ export default function ProductUpdatePage() {
     });
   }, [type]);
 
+  const [productDetail, setProductDetail] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/detail/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code == "success") {
+            setProductDetail(data.productDetail);
+            setManufactureDate(new Date(data.productDetail.manufacture_date));
+            setEntryDate(new Date(data.productDetail.entry_date));
+            setExpireDate(new Date(data.productDetail.expiry_date));
+            setType(data.productDetail.type);
+            setSpecies(data.productDetail.species || "dog");
+            const images = (data.productDetail.images || []).map((url, index) => ({
+              name: `image-${index + 1}.jpg`,
+              size: 0,
+              type: "image/jpeg",
+              url,
+              id: `image-${index}-${Date.now()}`
+            }));
+            setImageList(images);
+
+            setLoaded(true);
+          }
+        })
+    }
+    fetchData();
+  }, [])
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (submit)
-    {
-      const name = e.target.name.value;
-      const price = e.target.price.value;
-      console.log({ name, price, manufactureDate, entryDate, expireDate });
-      console.log(type);
+    if (submit) {
+      const formData = new FormData();
+      formData.append("type", type);
+      formData.append("name", e.target['name'].value);
+      formData.append("price", e.target['price'].value);
+      formData.append("manufacture_date", manufactureDate.toISOString().split('T')[0]);
+      formData.append("entry_date", entryDate.toISOString().split('T')[0]);
+      formData.append("expiry_date", expireDate.toISOString().split('T')[0]);
+      formData.append("stock", e.target['stock'].value);
       if (type == "medicine") {
-        const dosageUse = e.target["dosage-use"].value;
-        const sideEffect = e.target["side-effect"].value;
-        console.log({ species, dosageUse, sideEffect });
+        formData.append("species", species);
+        formData.append("dosage_use", e.target['dosage-use'].value);
+        formData.append("side_effect", e.target['side-effect'].value);
       }
       if (type == "food") {
-        const weight = e.target["weight"].value;
-        const nutritionDescription = e.target["nutrition-description"].value;
-        console.log({ species, weight, nutritionDescription });
+        formData.append("species", species);
+        formData.append("weight", e.target['weight'].value);
+        formData.append("nutrition_description", e.target['nutrition-description'].value);
       }
       if (type == "accessory") {
-        const size = e.target["size"].value;
-        const color = e.target["color"].value;
-        const material = e.target["material"].value;
-        console.log({ size, color, material });
+        formData.append("size", e.target['size'].value);
+        formData.append("color", e.target['color'].value);
+        formData.append("material", e.target['material'].value);
       }
+
+      const normalizedList = imageList.map((img) => {
+        if (img instanceof File) {
+          return {
+            id: `${img.name}-${Date.now()}`,
+            name: img.name,
+            size: img.size,
+            type: img.type,
+            url: URL.createObjectURL(img),
+            file: img,
+          };
+        }
+        return img;
+      });
+
+      const existingImages = normalizedList.filter((img) => img.url && !img.file);
+      const existingUrls = existingImages.map((img) => img.url);
+      formData.append("existingFiles", JSON.stringify(existingUrls));
+
+      const newImages = normalizedList.filter((img) => img.file);
+      newImages.forEach((img) => {
+        formData.append("files", img.file);
+      });
+
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/update/${id}`, {
+        method: "POST",
+        body: formData
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        })
+
+      toast.promise(promise, {
+        loading: 'Updating product...',
+        success: (data) => {
+          if (data.code == "success") {
+            setTimeout(() => {
+              router.push("/product/manage");
+            }, 1000);
+            return 'Product updated successfully';
+          }
+        },
+        error: 'Error updating product',
+      })
     }
   }
-  
+
   return (
     <>
-      <SectionHeader title={`Update Product ${id}`} />
+      <SectionHeader title={`Update Product ${productDetail ? productDetail.product_name : ''}`} />
       <form className="mt-[30px]" id="productCreateForm" onSubmit={handleSubmit}>
         <div>
           <div className="flex gap-10">
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
                 <Label htmlFor="fullname" className="text-sm font-medium text-[var(--main)]">Choose a product type</Label>
-                <Select defaultValue={type} onValueChange={setType}>
-                  <SelectTrigger id="productType">
-                    <SelectValue placeholder="Product Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="medicine">Medicine</SelectItem>
-                    <SelectItem value="food">Food</SelectItem>
-                    <SelectItem value="accessory">Accessory</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  type="text"
+                  id="type"
+                  name="type"
+                  value={type}
+                  readOnly
+                  className={"capitalize"}
+                />
               </div>
             </div>
           </div>
@@ -171,6 +250,7 @@ export default function ProductUpdatePage() {
                   type="text"
                   id="name"
                   name="name"
+                  defaultValue={productDetail ? productDetail.product_name : ''}
                 />
               </div>
             </div>
@@ -182,6 +262,7 @@ export default function ProductUpdatePage() {
                   min="0"
                   id="price"
                   name="price"
+                  defaultValue={productDetail ? productDetail.price : ''}
                 />
               </div>
             </div>
@@ -266,9 +347,26 @@ export default function ProductUpdatePage() {
               </div>
             </div>
             <div className="w-full">
-
+              <div className="mb-[15px] *:not-first:mt-2">
+                <Label htmlFor="stock" className="text-sm font-medium text-[var(--main)]">Stock</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  id="stock"
+                  name="stock"
+                  defaultValue={productDetail ? productDetail.stock : ''}
+                />
+              </div>
             </div>
           </div>
+        </div>
+        <div className="mt-5">
+          {loaded && (
+            <FileUploader
+              value={imageList.length > 0 ? imageList : []}
+              onChange={setImageList}
+            />
+          )}
         </div>
         {type == "medicine" ? (
           <>
@@ -300,6 +398,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="dosage-use"
                       name="dosage-use"
+                      defaultValue={productDetail ? productDetail.dosage_use : ''}
                     />
                   </div>
                 </div>
@@ -310,6 +409,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="side-effect"
                       name="side-effect"
+                      defaultValue={productDetail ? productDetail.side_effect : ''}
                     />
                   </div>
                 </div>
@@ -343,6 +443,7 @@ export default function ProductUpdatePage() {
                       min="0"
                       id="weight"
                       name="weight"
+                      defaultValue={productDetail ? productDetail.weight : ''}
                     />
                   </div>
                 </div>
@@ -357,6 +458,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="nutrition-description"
                       name="nutrition-description"
+                      defaultValue={productDetail ? productDetail.nutrition_description : ''}
                     />
                   </div>
                 </div>
@@ -374,6 +476,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="size"
                       name="size"
+                      defaultValue={productDetail ? productDetail.size : ''}
                     />
                   </div>
                 </div>
@@ -384,6 +487,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="color"
                       name="color"
+                      defaultValue={productDetail ? productDetail.color : ''}
                     />
                   </div>
                 </div>
@@ -394,6 +498,7 @@ export default function ProductUpdatePage() {
                       type="text"
                       id="material"
                       name="material"
+                      defaultValue={productDetail ? productDetail.material : ''}
                     />
                   </div>
                 </div>

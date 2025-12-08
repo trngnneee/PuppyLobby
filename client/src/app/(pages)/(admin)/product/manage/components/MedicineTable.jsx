@@ -84,7 +84,7 @@ export const MedicineTable = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => router.push('/product/manage/update/1')}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/product/manage/update/${item.product_id}`)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <DeleteButton 
                           api={`${process.env.NEXT_PUBLIC_API_URL}/product/delete/${item.product_id}`}

@@ -136,4 +136,95 @@ router.delete("/delete/:productId", async (req, res) => {
   })
 })
 
+router.get("/detail/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const productDetail = await db.select("*").from("product").where("product.product_id", productId).first();
+  const images = await db.select("image_url").from("productimage").where("product_id", productId);
+  productDetail.images = images.map(img => img.image_url);
+  if (productDetail.type === "medicine") {
+    const medicineDetail = await db.select("*").from("medicine").where("medicine.product_id", productId).first();
+    Object.assign(productDetail, medicineDetail);
+  }
+  if (productDetail.type === "food") {
+    const foodDetail = await db.select("*").from("food").where("food.product_id", productId).first();
+    Object.assign(productDetail, foodDetail);
+  }
+  if (productDetail.type === "accessory") {
+    const accessoryDetail = await db.select("*").from("accessory").where("accessory.product_id", productId).first();
+    Object.assign(productDetail, accessoryDetail);
+  }
+  res.json({
+    code: "success",
+    message: "Medicine detail fetched successfully",
+    productDetail: productDetail
+  })
+})
+
+router.post("/update/:productId", upload.array('files', 5), async (req, res) => {
+  const { productId } = req.params;
+  const {
+    type,
+    product_name,
+    price,
+    manufacture_date,
+    entry_date,
+    expiry_date,
+    stock,
+    existingFiles
+  } = req.body;
+
+  const t = await db.transaction();
+
+  const newImageUrls = req.files.map(file => file.path);
+  const keptImageUrls = JSON.parse(existingFiles || '[]');
+
+  await t('productimage')
+    .where('product_id', productId)
+    .whereNotIn('image_url', keptImageUrls)
+    .del();
+
+  if (newImageUrls.length > 0) {
+    const insertImages = newImageUrls.map(url => ({
+      product_id: productId,
+      image_url: url
+    }));
+    await t('productimage').insert(insertImages);
+  }
+
+  await t('product')
+    .where('product_id', productId)
+    .update({
+      product_name,
+      price: Number(price),
+      manufacture_date,
+      entry_date,
+      expiry_date,
+      stock: Number(stock)
+    });
+
+  if (type === 'medicine') {
+    const { species, dosage_use, side_effect } = req.body;
+    await t('medicine')
+      .where('product_id', productId)
+      .update({ species, dosage_use, side_effect });
+  } else if (type === 'food') {
+    const { species, weight, nutrition_description } = req.body;
+    await t('food')
+      .where('product_id', productId)
+      .update({ species, weight, nutrition_description });
+  } else if (type === 'accessory') {
+    const { size, color, material } = req.body;
+    await t('accessory')
+      .where('product_id', productId)
+      .update({ size, color, material });
+  }
+
+  await t.commit();
+
+  res.json({
+    code: "success",
+    message: "Product updated successfully"
+  });
+});
+
 export default router

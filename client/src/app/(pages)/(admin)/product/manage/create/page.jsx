@@ -328,7 +328,7 @@ export default function ProductCreatePage() {
         </div>
         <div className="mt-5">
           <FileUploader
-            value={imageList}
+            value={imageList.length > 0 ? imageList : []}
             onChange={setImageList}
           />
         </div>
