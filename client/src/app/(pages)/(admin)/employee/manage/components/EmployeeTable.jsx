@@ -10,19 +10,40 @@ import {
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { formatDate } from "@/utils/date";
+import { paramsBuilder } from "@/utils/params";
+import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 
-export const EmployeeTable = () => {
-  const currentPage = 1;
-  const totalPages = 5;
+export const EmployeeTable = ({ keyword }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const router = useRouter();
-  
+
+  const [employeeList, setEmployeeList] = useState([])
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/employee/list`, {
+        keyword: keyword || undefined,
+        page: currentPage,
+      });
+      const promise = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await promise.json();
+      setEmployeeList(data.employeeList);
+      setTotalPages(data.totalPages);
+    };
+    fetchData();
+  }, [keyword, currentPage])
+
   return (
     <>
       <div className="w-full overflow-x-auto rounded-xl border mt-5">
         <table className="min-w-full text-sm">
           <thead className="">
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Full name</th>
               <th className="px-4 py-2 text-left">Date of birth</th>
               <th className="px-4 py-2 text-left">Gender</th>
@@ -33,30 +54,36 @@ export const EmployeeTable = () => {
           </thead>
 
           <tbody>
-            <tr className="border-t">
-              <td className="px-4 py-2">E001</td>
-              <td className="px-4 py-2">Joe</td>
-              <td className="px-4 py-2">1/1/2005</td>
-              <td className="px-4 py-2">Male</td>
-              <td className="px-4 py-2">Alex</td>
-              <td className="px-4 py-2">
-                <Badge variant={"destructive"}>Branch 1</Badge>
-              </td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/employee/manage/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/employee/manage/assign/1')}>Assign</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
+            {employeeList.length > 0 && employeeList.map((item, index) => (
+              <tr className="border-t" key={index}>
+                <td className="px-4 py-2">{item.employee_name}</td>
+                <td className="px-4 py-2">{formatDate(item.date_of_birth)}</td>
+                <td className="px-4 py-2 capitalize">{item.gender}</td>
+                <td className="px-4 py-2">{item.manager_name || "-"}</td>
+                <td className="px-4 py-2">
+                  {/* <Badge variant={"destructive"}>Branch 1</Badge> */}
+                  -
+                </td>
+                <td className="px-4 py-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => router.push(`/employee/manage/update/${item.employee_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/employee/manage/assign/${item.employee_id}`)}>Assign</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DeleteButton
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/employee/delete/${item.employee_id}`}
+                        />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -76,6 +103,11 @@ export const EmployeeTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => {
+                    if (currentPage > 1) {
+                      setCurrentPage(currentPage - 1);
+                    }
+                  }}
                 >
                   Previous
                 </a>
@@ -90,6 +122,11 @@ export const EmployeeTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      setCurrentPage(currentPage + 1);
+                    }
+                  }}
                 >
                   Next
                 </a>

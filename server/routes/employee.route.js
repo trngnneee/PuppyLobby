@@ -130,4 +130,120 @@ router.post('/manage/create', async (req, res) => {
   res.json(result.rows[0].result);
 })
 
+router.get("/list", async (req, res) => {
+  const query = db.select('*').from('employee');
+ 
+  if (req.query.keyword)
+  {
+    const keyword = req.query.keyword?.trim();
+    query.whereRaw(
+      "fts @@ to_tsquery('english', remove_accents(?) || ':*')",
+      [keyword]
+    )
+  }
+  const pageSize = 5;
+  const countResult = await db('employee').count('* as count').first();
+  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
+  if (req.query.page)
+  {
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * pageSize;
+    query.limit(pageSize).offset(offset);
+  }
+  const rawEmployees = await query;
+
+  const employeeList = [];
+  for (const emp of rawEmployees) {
+    const managerDetail = await db.select('employee_name').from('employee').where({ employee_id: emp.manager_id }).first();
+    employeeList.push({
+      employee_id: emp.employee_id,
+      employee_name: emp.employee_name,
+      date_of_birth: emp.date_of_birth,
+      gender: emp.gender,
+      manager_id: emp.manager_id,
+      manager_name: managerDetail ? managerDetail.employee_name : null,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Employee list retrieved successfully",
+    employeeList: employeeList,
+    totalPages: totalPages,
+  })
+})
+
+router.delete('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+
+  await db('employee').where({ employee_id: id }).del();
+
+  res.json({
+    code: "success",
+    message: "Employee deleted successfully",
+  })
+})
+
+router.get('/detail/:id', async (req, res) => {
+  const { id } = req.params;
+  const existEmployee = await db.select('*').from('employee').where({ employee_id: id }).first();
+  const existVeterinarian = await db.select('*').from('veterinarian').where({ employee_id: id }).first();
+  if (existVeterinarian) {
+    existEmployee.degree = existVeterinarian.degree;
+    existEmployee.specialization = existVeterinarian.specialization;
+  }
+
+  if (!existEmployee) {
+    return res.json({
+      code: "error",
+      message: "Employee not found",
+    })
+  }
+
+  res.json({
+    code: "success",
+    message: "Employee detail retrieved successfully",
+    employeeDetail: existEmployee,
+  })
+})
+
+router.post('/manage/update/:id', async (req, res) => {
+  const { id } = req.params;
+
+  await db('employee').where({ employee_id: id }).update({
+    employee_name: req.body.fullname,
+    date_of_birth: req.body.date_of_birth,
+    gender: req.body.gender,
+    manager_id: req.body.managerID === "manager" ? null : req.body.managerID,
+  });
+
+  if (req.body.type === "veterinarian") {
+    const existVeterinarian = await db.select('*').from('veterinarian').where({ employee_id: id }).first();
+    if (existVeterinarian) {
+      await db('veterinarian').where({ employee_id: id }).update({
+        degree: req.body.degree,
+        specialization: req.body.specialization,
+      });
+    } else {
+      await db('veterinarian').insert({
+        employee_id: id,
+        degree: req.body.degree,
+        specialization: req.body.specialization,
+      });
+    }
+  }
+  else
+  {
+    const existVeterinarian = await db.select('*').from('veterinarian').where({ employee_id: id }).first();
+    if (existVeterinarian) {
+      await db('veterinarian').where({ employee_id: id }).del();
+    }
+  }
+
+  res.json({
+    code: "success",
+    message: "Employee updated successfully",
+  })
+})
+
 export default router;

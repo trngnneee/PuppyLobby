@@ -19,7 +19,7 @@ export default function EmployeeManagePage() {
         />
         <SearchBar keyword={keyword} setKeyword={setKeyword} />
       </div>
-      <EmployeeTable />
+      <EmployeeTable keyword={keyword} />
     </>
   )
 }
