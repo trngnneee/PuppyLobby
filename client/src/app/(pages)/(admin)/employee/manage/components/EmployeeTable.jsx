@@ -61,8 +61,11 @@ export const EmployeeTable = ({ keyword }) => {
                 <td className="px-4 py-2 capitalize">{item.gender}</td>
                 <td className="px-4 py-2">{item.manager_name || "-"}</td>
                 <td className="px-4 py-2">
-                  {/* <Badge variant={"destructive"}>Branch 1</Badge> */}
-                  -
+                  {item.working_branch ? (
+                    <Badge variant={"destructive"}>{`${item.working_branch}`}</Badge>
+                  ): (
+                    <>-</>
+                  )}
                 </td>
                 <td className="px-4 py-2">
                   <DropdownMenu>

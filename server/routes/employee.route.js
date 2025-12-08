@@ -22,7 +22,7 @@ router.post('/auth/signin', async (req, res) => {
 
   const existEmail = await db.raw(
     `SELECT checkEmailExists(?) AS exists`,
-    [email] 
+    [email]
   );
   if (!existEmail.rows[0].exists) {
     return res.json({
@@ -31,8 +31,8 @@ router.post('/auth/signin', async (req, res) => {
     })
   }
 
-  const existAccount = await db.select('*').from('account').where({ username, email, password }).first();
-  if (existAccount.password !== password) {
+  const existAccount = await db.select('*').from('account').where({ username, email }).first();
+  if (existAccount.password !== req.body.password) {
     return res.json({
       code: "error",
       message: "Incorrect password",
@@ -40,7 +40,7 @@ router.post('/auth/signin', async (req, res) => {
   }
 
   const employeeToken = jwt.sign(
-    { id: existAccount.id, username: existAccount.username, email: existAccount.email },
+    { account_id: existAccount.account_id, username: existAccount.username, email: existAccount.email },
     process.env.JWT_SECRET,
     { expiresIn: rememberLogin ? '7d' : '1d' }
   )
@@ -59,7 +59,7 @@ router.post('/auth/signin', async (req, res) => {
   })
 });
 
-router.get('/auth/verify', (req, res) => {
+router.get('/auth/verify', async (req, res) => {
   const token = req.cookies.employeeToken;
   if (!token) {
     return res.json({
@@ -69,13 +69,13 @@ router.get('/auth/verify', (req, res) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { id, username, email } = decoded;
-    const existUser = db('account').where({ id, username, email }).first();
+    const { account_id, username, email } = decoded;
+    const existUser = await db('account').where({ account_id, username, email }).first();
     return res.json({
       code: "success",
       message: "Token is valid",
       userInfo: {
-        id: existUser.id,
+        id: existUser.account_id,
         username: existUser.username,
         email: existUser.email,
       },
@@ -132,9 +132,8 @@ router.post('/manage/create', async (req, res) => {
 
 router.get("/list", async (req, res) => {
   const query = db.select('*').from('employee');
- 
-  if (req.query.keyword)
-  {
+
+  if (req.query.keyword) {
     const keyword = req.query.keyword?.trim();
     query.whereRaw(
       "fts @@ to_tsquery('english', remove_accents(?) || ':*')",
@@ -144,8 +143,7 @@ router.get("/list", async (req, res) => {
   const pageSize = 5;
   const countResult = await db('employee').count('* as count').first();
   const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page)
-  {
+  if (req.query.page) {
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * pageSize;
     query.limit(pageSize).offset(offset);
@@ -155,6 +153,7 @@ router.get("/list", async (req, res) => {
   const employeeList = [];
   for (const emp of rawEmployees) {
     const managerDetail = await db.select('employee_name').from('employee').where({ employee_id: emp.manager_id }).first();
+    const workingDetail = await db.select('branch_name').from('employeehistory').join('branch', 'employeehistory.branch_id', 'branch.branch_id').where({ employee_id: emp.employee_id }).orderBy('start_date', 'desc').first();
     employeeList.push({
       employee_id: emp.employee_id,
       employee_name: emp.employee_name,
@@ -162,6 +161,7 @@ router.get("/list", async (req, res) => {
       gender: emp.gender,
       manager_id: emp.manager_id,
       manager_name: managerDetail ? managerDetail.employee_name : null,
+      working_branch: workingDetail ? workingDetail.branch_name : null,
     });
   }
 
@@ -232,8 +232,7 @@ router.post('/manage/update/:id', async (req, res) => {
       });
     }
   }
-  else
-  {
+  else {
     const existVeterinarian = await db.select('*').from('veterinarian').where({ employee_id: id }).first();
     if (existVeterinarian) {
       await db('veterinarian').where({ employee_id: id }).del();
@@ -243,6 +242,19 @@ router.post('/manage/update/:id', async (req, res) => {
   res.json({
     code: "success",
     message: "Employee updated successfully",
+  })
+})
+
+router.post('/assign', async (req, res) => {
+  const { branch_id, employee_id, position, start_date, end_date, salary } = req.body;
+
+  await db.raw(`
+    SELECT assignEmployeeToBranch(?, ?, ?, ?, ?, ?) AS result
+  `, [branch_id, employee_id, position, start_date, end_date, salary]);
+
+  res.json({
+    code: "success",
+    message: "Employee assigned successfully",
   })
 })
 

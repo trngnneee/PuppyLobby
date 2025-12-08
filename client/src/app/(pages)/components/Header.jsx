@@ -2,12 +2,10 @@
 
 import { Button } from "@/components/ui/button"
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu"
-import { useEmployeeAuth } from "@/hooks/useEmployeeAuth"
 import { cn } from "@/lib/utils"
 import { useEmployeeAuthContext } from "@/provider/employee.provider"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 export const Header = () => {
