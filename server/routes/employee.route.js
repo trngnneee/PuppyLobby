@@ -71,6 +71,10 @@ router.get('/auth/verify', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { account_id, username, email } = decoded;
     const existUser = await db('account').where({ account_id, username, email }).first();
+    const is_manager = await db.raw(
+      `SELECT checkManager(?) AS is_manager`,
+      [account_id]
+    );
     return res.json({
       code: "success",
       message: "Token is valid",
@@ -78,6 +82,7 @@ router.get('/auth/verify', async (req, res) => {
         id: existUser.account_id,
         username: existUser.username,
         email: existUser.email,
+        is_manager: is_manager.rows[0].is_manager,
       },
     });
   } catch (err) {

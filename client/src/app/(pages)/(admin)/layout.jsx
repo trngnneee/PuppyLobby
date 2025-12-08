@@ -1,7 +1,9 @@
 "use client"
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { EmployeeSider } from "./components/EmployeeSider";
+import { useEffect } from "react";
+import { useEmployeeAuthContext } from "@/provider/employee.provider";
 
 export default function EmployeeLayout({ children }) {
   const pathname = usePathname();
@@ -11,7 +13,21 @@ export default function EmployeeLayout({ children }) {
       <>{children}</>
     )
   }
-  
+
+  const { userInfo } = useEmployeeAuthContext();
+  const router = useRouter();
+  useEffect(() => {
+    if (userInfo === null || userInfo === undefined) return;
+
+    if (userInfo.is_manager === false) {
+      router.push("/");
+    }
+  }, [userInfo, router]);
+
+  if (!userInfo || (userInfo && userInfo.is_manager === false)) {
+    return <></>;
+  }
+
   return (
     <div className="flex gap-5 container mx-auto justify-start mb-10">
       <EmployeeSider />

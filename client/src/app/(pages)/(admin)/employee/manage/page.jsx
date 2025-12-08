@@ -7,8 +7,8 @@ import { CreateButton } from "@/app/(pages)/components/CreateButton";
 import { useState } from "react";
 
 export default function EmployeeManagePage() {
-  const [keyword, setKeyword] = useState("")
-
+  const [keyword, setKeyword] = useState("")  
+  
   return (
     <>
       <SectionHeader title={"Employee Management"} />

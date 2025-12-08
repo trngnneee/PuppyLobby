@@ -62,7 +62,7 @@ export const Header = () => {
     }
   ];
 
-  const { isLogin } = useEmployeeAuthContext();
+  const { isLogin, userInfo } = useEmployeeAuthContext();
 
   return (
     <>
@@ -125,7 +125,11 @@ export const Header = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <Button onClick={() => router.push("/employee/manage")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE DASHBOARD</Button>
+            {
+              userInfo.is_manager && (
+                <Button onClick={() => router.push("/employee/manage")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE DASHBOARD</Button>
+              )
+            }
             <Button
               variant={"destructive"}
               className={"animation"}
