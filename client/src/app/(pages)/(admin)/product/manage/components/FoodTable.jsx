@@ -10,20 +10,42 @@ import {
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/utils/date";
+import { useEffect, useState } from "react";
+import { paramsBuilder } from "@/utils/params";
+import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 
 export const FoodTable = () => {
-  const currentPage = 1;
-  const totalPages = 5;
   const router = useRouter();
-  
+
+  const [productList, setProductList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/food/list`, {
+        page: currentPage,
+      });
+      await fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code == "success") {
+            setProductList(data.productList);
+            setTotalPages(data.totalPages);
+          }
+        })
+    }
+    fetchData();
+  }, [currentPage])
+
   return (
     <>
       <div className="w-full overflow-x-auto rounded-xl border mt-5">
         <table className="min-w-full text-[10px]">
           <thead className="">
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Name</th>
+              <th className="px-4 py-2 text-left">Image</th>
               <th className="px-4 py-2 text-left">Price</th>
               <th className="px-4 py-2 text-left text-nowrap">Manufacture date</th>
               <th className="px-4 py-2 text-left">Entry date</th>
@@ -36,36 +58,43 @@ export const FoodTable = () => {
           </thead>
 
           <tbody>
-            <tr className="border-t">
-              <td className="px-4 py-2">F001</td>
-              <td className="px-4 py-2">Premium Chicken Dry Food</td>
-              <td className="px-4 py-2">120000</td>
-              <td className="px-4 py-2 text-nowrap">2024-05-12</td>
-              <td className="px-4 py-2 text-nowrap">2024-06-01</td>
-              <td className="px-4 py-2 text-nowrap">2026-05-12</td>
-              <td className="px-4 py-2">2kg</td>
-              <td className="px-4 py-2">
-                <div className="flex flex-wrap">
-                  <Badge className="mr-1 mb-1 text-[8px]">Dog</Badge>
-                  <Badge className="mr-1 mb-1 text-[8px]">Cat</Badge>
-                  <Badge className="mr-1 mb-1 text-[8px]">Bird</Badge>
-                </div>
-              </td>
-              <td className="px-4 py-2">High-protein chicken formula with omega-3 and vitamins</td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/product/manage/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
+            {productList.length > 0 && productList.map((item, index) => (
+              <tr key={index} className="border-t">
+                <td className="px-4 py-2">{item.product_name}</td>
+                <td className="px-4 py-2">
+                  <img
+                    src={item.images[0]}
+                    className="w-[50px] h-[50px] object-cover"
+                  />
+                </td>
+                <td className="px-4 py-2">{parseInt(item.price).toLocaleString("vi-VN")}</td>
+                <td className="px-4 py-2 text-nowrap">{formatDate(item.manufacture_date)}</td>
+                <td className="px-4 py-2 text-nowrap">{formatDate(item.entry_date)}</td>
+                <td className="px-4 py-2 text-nowrap">{formatDate(item.expiry_date)}</td>
+                <td className="px-4 py-2">2kg</td>
+                <td className="px-4 py-2">
+                  <Badge className="mr-1 mb-1 text-[8px]">{item.species}</Badge>
+                </td>
+                <td className="px-4 py-2">{item.nutrition_description}</td>
+                <td className="px-4 py-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => router.push('/product/manage/update/1')}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DeleteButton
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/product/delete/${item.product_id}`}
+                        />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -85,6 +114,7 @@ export const FoodTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 >
                   Previous
                 </a>
@@ -99,6 +129,7 @@ export const FoodTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 >
                   Next
                 </a>

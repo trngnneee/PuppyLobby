@@ -114,7 +114,7 @@ router.get('/manager/list', async (req, res) => {
   })
 })
 
-router.post('/manage/create', async (req, res) => {
+router.post('/create', async (req, res) => {
   const result = await db.raw(`
   SELECT addEmployee(
     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?

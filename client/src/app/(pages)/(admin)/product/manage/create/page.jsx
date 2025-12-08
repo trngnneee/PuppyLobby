@@ -1,5 +1,6 @@
 "use client"
 
+import { FileUploader } from "@/app/(pages)/components/FileUploader";
 import { SectionHeader } from "@/app/(pages)/me/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,7 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { speciesOptions } from "@/config/variable.config";
 import { formatDate } from "@/utils/date";
 import JustValidate from "just-validate";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ProductCreatePage() {
   const [type, setType] = useState("medicine");
@@ -20,6 +23,8 @@ export default function ProductCreatePage() {
   const [expireDate, setExpireDate] = useState(new Date());
   const [species, setSpecies] = useState("dog");
   const [submit, setSubmit] = useState(false);
+  const [imageList, setImageList] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const validation = new JustValidate('#productCreateForm');
@@ -48,6 +53,16 @@ export default function ProductCreatePage() {
         {
           rule: 'number',
           errorMessage: 'Price must be a number',
+        },
+      ])
+      .addField('#stock', [
+        {
+          rule: 'required',
+          errorMessage: 'Stock is required',
+        },
+        {
+          rule: 'number',
+          errorMessage: 'Stock must be a number',
         },
       ]);
 
@@ -112,31 +127,66 @@ export default function ProductCreatePage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (submit)
-    {
-      const name = e.target.name.value;
-      const price = e.target.price.value;
-      console.log({ name, price, manufactureDate, entryDate, expireDate });
-      console.log(type);
+    if (submit) {
+      const formData = new FormData();
+
+      formData.append("type", type);
+      formData.append("product_name", e.target.name.value);
+      formData.append("price", e.target.price.value);
+      formData.append("manufacture_date", manufactureDate.toISOString().split("T")[0]);
+      formData.append("entry_date", entryDate.toISOString().split("T")[0]);
+      formData.append("expiry_date", expireDate.toISOString().split("T")[0]);
+      formData.append("stock", e.target.stock.value);
+      imageList.forEach(file => {
+        formData.append("files", file);
+      });
       if (type == "medicine") {
-        const dosageUse = e.target["dosage-use"].value;
-        const sideEffect = e.target["side-effect"].value;
-        console.log({ species, dosageUse, sideEffect });
+        formData.append("species", species);
+        formData.append("dosage_use", e.target["dosage-use"].value);
+        formData.append("side_effect", e.target["side-effect"].value);
       }
       if (type == "food") {
-        const weight = e.target["weight"].value;
-        const nutritionDescription = e.target["nutrition-description"].value;
-        console.log({ species, weight, nutritionDescription });
+        formData.append("species", species);
+        formData.append("weight", e.target.weight.value);
+        formData.append("nutrition_description", e.target["nutrition-description"].value);
       }
       if (type == "accessory") {
-        const size = e.target["size"].value;
-        const color = e.target["color"].value;
-        const material = e.target["material"].value;
-        console.log({ size, color, material });
+        formData.append("size", e.target.size.value);
+        formData.append("color", e.target.color.value);
+        formData.append("material", e.target.material.value);
       }
+
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/create`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        })
+
+      toast.promise(promise, {
+        loading: "Creating product...",
+        success: (data) => {
+          if (data.code == "success") {
+            setTimeout(() => {
+              router.push('/product/manage');
+            }, 1000);
+            return data.message;
+          }
+          else {
+            return Promise.reject(data.message);
+          }
+        },
+        error: (err) => {
+          return `Error: ${err}`;
+        }
+      });
+      setSubmit(false);
     }
   }
-  
+
   return (
     <>
       <SectionHeader title="Add new Product" />
@@ -264,9 +314,23 @@ export default function ProductCreatePage() {
               </div>
             </div>
             <div className="w-full">
-
+              <div className="mb-[15px] *:not-first:mt-2">
+                <Label htmlFor="stock" className="text-sm font-medium text-[var(--main)]">Stock</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  id="stock"
+                  name="stock"
+                />
+              </div>
             </div>
           </div>
+        </div>
+        <div className="mt-5">
+          <FileUploader
+            value={imageList}
+            onChange={setImageList}
+          />
         </div>
         {type == "medicine" ? (
           <>

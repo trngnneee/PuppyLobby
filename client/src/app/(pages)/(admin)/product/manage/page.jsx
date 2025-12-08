@@ -1,8 +1,6 @@
 "use client"
 
-import { SearchBar } from "@/app/(pages)/components/SearchBar";
 import { CreateButton } from "@/app/(pages)/components/CreateButton";
-import { useState } from "react";
 import { SectionHeader } from "../../../me/components/SectionHeader";
 import { MedicineTable } from "./components/MedicineTable";
 import { SectionSubHeader } from "./components/SectionSubHeader";
@@ -16,8 +14,6 @@ import { FoodTable } from "./components/FoodTable";
 import { AccessoryTable } from "./components/AccessoryTable";
 
 export default function AdminProductPage() {
-  const [keyword, setKeyword] = useState("");
-
   return (
     <>
       <SectionHeader title={"Product Management"} />
@@ -26,7 +22,6 @@ export default function AdminProductPage() {
           title={"Add new Product"}
           link={"/product/manage/create"}
         />
-        <SearchBar keyword={keyword} setKeyword={setKeyword} />
       </div>
       <Tabs className="w-full mt-[30px]" defaultValue="tab-1">
         <TabsList className="h-auto rounded-none bg-transparent p-0 flex justify-center w-full">
