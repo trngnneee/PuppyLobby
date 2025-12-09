@@ -89,4 +89,95 @@ router.delete("/delete/:id", async (req, res) => {
   })
 })
 
+router.get("/detail/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const vaccinePackageDetail = await db('vaccinationpackage')
+    .where('package_id', id)
+    .first();
+
+  const schedule = await db('vaccinationschedule')
+    .select(
+      'vaccinationschedule.vaccine_id',
+      'vaccinationschedule.dosage',
+      'vaccinationschedule.scheduled_week'
+    )
+    .join(
+      'vaccine',
+      'vaccinationschedule.vaccine_id',
+      'vaccine.vaccine_id'
+    )
+    .where('vaccinationschedule.package_id', id);
+
+  vaccinePackageDetail.schedule = schedule;
+
+  res.json({
+    code: "success",
+    message: "Vaccine package detail fetched successfully",
+    vaccinePackageDetail
+  })
+})
+
+router.post("/update/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const existingPackage = await db('vaccinationpackage')
+    .where('package_id', id)
+    .first();
+
+  if (!existingPackage) {
+    return res.json({
+      code: "error",
+      message: "Vaccine package not found",
+    })
+  }
+
+  // Delete non-existing schedule entries
+  await db('vaccinationschedule')
+    .where('package_id', id)
+    .whereNotIn('vaccine_id', req.body.schedule.map(s => s.vaccine_id))
+    .del();
+
+  // Insert new or update existing schedule entries
+  for (const scheduleEntry of req.body.schedule) {
+    const existingEntry = await db('vaccinationschedule')
+      .where('package_id', id)
+      .where('vaccine_id', scheduleEntry.vaccine_id)
+      .first();
+    if (existingEntry) {
+      await db('vaccinationschedule')
+        .where('package_id', id)
+        .where('vaccine_id', scheduleEntry.vaccine_id)
+        .update({
+          dosage: scheduleEntry.dosage,
+          scheduled_week: scheduleEntry.scheduled_week,
+        });
+    } else {
+      await db('vaccinationschedule')
+        .insert({
+          package_id: id,
+          vaccine_id: scheduleEntry.vaccine_id,
+          dosage: scheduleEntry.dosage,
+          scheduled_week: scheduleEntry.scheduled_week,
+        });
+    }
+  }
+       
+  // Update vaccine package details
+  await db('vaccinationpackage')
+    .where('package_id', id)
+    .update({
+      package_name: req.body.package_name,
+      duration: req.body.duration,
+      description: req.body.description,
+      discount_rate: req.body.discount_rate,
+      total_original_price: req.body.total_original_price,
+    });
+
+  res.json({
+    code: "success",
+    message: "Update vaccine package successfully",
+  })
+})
+
 export default router;

@@ -9,14 +9,16 @@ import JustValidate from "just-validate";
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import { ScheduleBox } from "../../create/components/ScheduleBox";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function VaccinePackageUpdatePage() {
   const [submit, setSubmit] = useState(false);
   const [scheduleIndex, setScheduleIndex] = useState(1);
   const [schedule, setSchedule] = useState([]);
   const { id } = useParams();
- 
+  const router = useRouter();
+
   const handleScheduleChange = (data, index) => {
     const newSchedule = [...schedule];
     newSchedule[index] = data;
@@ -28,6 +30,30 @@ export default function VaccinePackageUpdatePage() {
     setSchedule(newSchedule);
     setScheduleIndex(scheduleIndex - 1);
   }
+
+  const [vaccineList, setVaccineList] = useState([]);
+  const [vaccinePackageDetail, setVaccinePackageDetail] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === "success") {
+            setVaccineList(data.vaccineList);
+          }
+        })
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/detail/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === "success") {
+            setVaccinePackageDetail(data.vaccinePackageDetail);
+            setScheduleIndex(data.vaccinePackageDetail.schedule.length);
+            setSchedule(data.vaccinePackageDetail.schedule);
+          }
+        })
+    }
+    fetchData();
+  }, [])
 
   useEffect(() => {
     const validation = new JustValidate('#vaccineCreateForm');
@@ -80,27 +106,53 @@ export default function VaccinePackageUpdatePage() {
         },
       ]);
     validation.onSuccess(() => {
-        setSubmit(true);
-      });
+      setSubmit(true);
+    });
   }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (submit) {
-      const name = e.target.name.value;
-      const duration = e.target.duration.value;
-      const description = e.target.description.value;
-      const discount_rate = e.target.discount_rate.value;
-      const original_price = e.target.original_price.value;
+      const finalData = {
+        package_name: e.target.name.value,
+        description: e.target.description.value,
+        duration: e.target.duration.value,
+        discount_rate: e.target.discount_rate.value,
+        total_original_price: e.target.original_price.value,
+        schedule: schedule,
+      };
 
-      console.log({ name, duration, description, discount_rate, original_price });
-      console.log({ schedule });
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/update/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
+
+      toast.promise(promise, {
+        loading: 'Updating vaccine package...',
+        success: (data) => {
+          if (data.code == "success") {
+            setTimeout(() => {
+              router.push("/vaccine-package/manage");
+            }, 1000);
+            return 'Vaccine package updated successfully!';
+          }
+          return data.message;
+        },
+        error: 'Failed to update vaccine package.',
+      });
     }
   }
 
   return (
     <>
-      <SectionHeader title={`Update Vaccine Package ${id}`} />
+      <SectionHeader title={`Update Vaccine Package ${vaccinePackageDetail?.package_name}`} />
       <form className="mt-[30px]" id="vaccineCreateForm" onSubmit={handleSubmit}>
         <div className="">
           <div className="flex gap-10">
@@ -111,6 +163,7 @@ export default function VaccinePackageUpdatePage() {
                   type="text"
                   id="name"
                   name="name"
+                  defaultValue={vaccinePackageDetail?.package_name}
                 />
               </div>
             </div>
@@ -122,6 +175,7 @@ export default function VaccinePackageUpdatePage() {
                   min="0"
                   id="duration"
                   name="duration"
+                  defaultValue={vaccinePackageDetail?.duration}
                 />
               </div>
             </div>
@@ -133,6 +187,7 @@ export default function VaccinePackageUpdatePage() {
             <Textarea
               id="description"
               name="description"
+              defaultValue={vaccinePackageDetail?.description}
             />
           </div>
         </div>
@@ -146,6 +201,7 @@ export default function VaccinePackageUpdatePage() {
                   min="0"
                   id="discount_rate"
                   name="discount_rate"
+                  defaultValue={vaccinePackageDetail?.discount_rate}
                 />
               </div>
             </div>
@@ -157,15 +213,16 @@ export default function VaccinePackageUpdatePage() {
                   min="0"
                   id="original_price"
                   name="original_price"
+                  defaultValue={vaccinePackageDetail?.total_original_price}
                 />
               </div>
             </div>
           </div>
         </div>
         {[...Array(scheduleIndex)].map((_, index) => (
-          <ScheduleBox key={index} index={index} onChange={handleScheduleChange} onDelete={handleDeleteSchedule} />
+          <ScheduleBox key={index} index={index} onChange={handleScheduleChange} onDelete={handleDeleteSchedule} vaccineList={vaccineList} detail={schedule[index]} />
         ))}
-        <Button type="button" onClick={() => setScheduleIndex(scheduleIndex + 1)} className="mt-5 bg-[var(--main)] hover:bg-[var(--main-hover)] text-white">Add Schedule <PlusIcon/></Button>
+        <Button type="button" onClick={() => setScheduleIndex(scheduleIndex + 1)} className="mt-5 bg-[var(--main)] hover:bg-[var(--main-hover)] text-white">Add Schedule <PlusIcon /></Button>
         <Button disabled={submit} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
       </form>
     </>

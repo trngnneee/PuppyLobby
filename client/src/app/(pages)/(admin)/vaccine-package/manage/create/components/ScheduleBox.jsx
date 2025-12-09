@@ -6,29 +6,38 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export const ScheduleBox = ({ index, onChange, onDelete, vaccineList }) => {
-  const [vaccineType, setVaccineType] = useState("");
+export const ScheduleBox = ({ index, onChange, onDelete, vaccineList, detail = {} }) => {
+  const [vaccineType, setVaccineType] = useState(detail.vaccine_id || "");
   const [week, setWeek] = useState("");
   const [dosage, setDosage] = useState("");
   const [submit, setSubmit] = useState(false);
 
+  useEffect(() => {
+    if (!detail || Object.keys(detail).length === 0) return;
+
+    setVaccineType(detail.vaccine_id);
+    setWeek(detail.scheduled_week);
+    setDosage(detail.dosage);
+    setSubmit(Object.keys(detail).length === 0 ? false : true);
+  }, [detail]);
+
   const handleSave = () => {
+    setSubmit(true);
     onChange({
       vaccine_id: vaccineType,
       scheduled_week: week,
       dosage: dosage
     }, index);
-    setSubmit(true);
   }
 
   const handleDelete = () => {
-    onDelete(index);
     setSubmit(false);
     setVaccineType("");
     setWeek("");
     setDosage("");
+    onDelete(index);
   }
 
   return (
@@ -40,7 +49,7 @@ export const ScheduleBox = ({ index, onChange, onDelete, vaccineList }) => {
           <div className="w-full">
             <div className="mb-[15px] *:not-first:mt-2">
               <Label htmlFor={`vaccine_type-${index}`} className="text-sm font-medium text-[var(--main)]">Vaccine Type</Label>
-              <Select defaultValue={vaccineType} onValueChange={setVaccineType}>
+              <Select value={vaccineType} onValueChange={setVaccineType}>
                 <SelectTrigger id={`vaccine_type-${index}`}>
                   <SelectValue placeholder="Vaccine Type" />
                 </SelectTrigger>
