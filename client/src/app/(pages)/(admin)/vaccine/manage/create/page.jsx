@@ -85,7 +85,7 @@ export default function VaccineCreatePage() {
         quantity: parseInt(e.target.quantity.value, 10),
       };
 
-      const promise = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/create`, {
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
