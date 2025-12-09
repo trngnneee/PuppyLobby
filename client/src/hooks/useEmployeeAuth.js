@@ -15,7 +15,9 @@ export const useEmployeeAuth = () => {
       .then(data => {
         if (data.code == "error")
         {
-          router.push("/employee/auth/signin");
+          if (pathName.startsWith("/employee")) {
+            router.push("/employee/auth/signin");
+          }
         }
         if (data.code == "success")
         {

@@ -3,7 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { EmployeeSider } from "./components/EmployeeSider";
 import { useEffect } from "react";
-import { useEmployeeAuthContext } from "@/provider/employee.provider";
+import { EmployeeProvider, useEmployeeAuthContext } from "@/provider/employee.provider";
+import { useEmployeeAuth } from "@/hooks/useEmployeeAuth";
 
 export default function EmployeeLayout({ children }) {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export default function EmployeeLayout({ children }) {
     )
   }
 
-  const { userInfo } = useEmployeeAuthContext();
+  const { userInfo } = useEmployeeAuth();
   const router = useRouter();
   useEffect(() => {
     if (userInfo === null || userInfo === undefined) return;
@@ -29,15 +30,17 @@ export default function EmployeeLayout({ children }) {
   }
 
   return (
-    <div className="flex gap-5 container mx-auto justify-start mb-10">
-      <EmployeeSider />
-      <div className="flex-1">
-        <div className="mx-auto container rounded-[20px] shadow-2xl gap-5 border border-gray-200">
-          <div className="px-10 py-5">
-            {children}
+    <EmployeeProvider>
+      <div className="flex gap-5 container mx-auto justify-start mb-10">
+        <EmployeeSider />
+        <div className="flex-1">
+          <div className="mx-auto container rounded-[20px] shadow-2xl gap-5 border border-gray-200">
+            <div className="px-10 py-5">
+              {children}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </EmployeeProvider>
   )
 }
