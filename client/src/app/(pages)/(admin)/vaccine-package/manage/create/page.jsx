@@ -9,8 +9,11 @@ import JustValidate from "just-validate";
 import { useEffect, useState } from "react";
 import { ScheduleBox } from "./components/ScheduleBox";
 import { PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function VaccinePackageCreatePage() {
+  const router = useRouter();
   const [submit, setSubmit] = useState(false);
   const [scheduleIndex, setScheduleIndex] = useState(1);
   const [schedule, setSchedule] = useState([]);
@@ -82,17 +85,64 @@ export default function VaccinePackageCreatePage() {
       });
   }, [])
 
+  const [vaccineList, setVaccineList] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
+        method: 'GET',
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === 'success') {
+            setVaccineList(data.vaccineList);
+          }
+        })
+    };
+    fetchData();
+  }, [])
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (submit) {
-      const name = e.target.name.value;
+      const package_name = e.target.name.value;
       const duration = e.target.duration.value;
       const description = e.target.description.value;
       const discount_rate = e.target.discount_rate.value;
-      const original_price = e.target.original_price.value;
+      const total_original_price = e.target.original_price.value;
 
-      console.log({ name, duration, description, discount_rate, original_price });
-      console.log({ schedule });
+      const finalData = {
+        package_name,
+        duration,
+        description,
+        discount_rate,
+        total_original_price,
+        schedule
+      }
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
+
+      toast.promise(promise, {
+        loading: 'Creating vaccine package...',
+        success: (data) => {
+          if (data.code == "success") {
+            setTimeout(() => {
+              router.push("/vaccine-package/manage");
+            }, 1000);
+            return 'Vaccine package created successfully!';
+          }
+          return data.message;
+        },
+        error: 'Failed to create vaccine package.',
+      });
     }
   }
 
@@ -161,7 +211,7 @@ export default function VaccinePackageCreatePage() {
           </div>
         </div>
         {[...Array(scheduleIndex)].map((_, index) => (
-          <ScheduleBox key={index} index={index} onChange={handleScheduleChange} onDelete={handleDeleteSchedule} />
+          <ScheduleBox key={index} index={index} onChange={handleScheduleChange} onDelete={handleDeleteSchedule} vaccineList={vaccineList} />
         ))}
         <Button type="button" onClick={() => setScheduleIndex(scheduleIndex + 1)} className="mt-5 bg-[var(--main)] hover:bg-[var(--main-hover)] text-white">Add Schedule <PlusIcon/></Button>
         <Button disabled={submit} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Create</Button>

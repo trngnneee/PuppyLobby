@@ -9,50 +9,82 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination"
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { paramsBuilder } from "@/utils/params";
+import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 
-export const VaccinePackageTable = () => {
-  const currentPage = 1;
-  const totalPages = 5;
+export const VaccinePackageTable = ({ keyword }) => {
   const router = useRouter();
-  
+
+  const [vaccinePackageList, setVaccinePackageList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/list`, {
+        page: currentPage,
+        keyword: keyword,
+      });
+      await fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === "success") {
+            setVaccinePackageList(data.vaccinePackageList);
+            setTotalPages(data.totalPages);
+          }
+        })
+    }
+    fetchData();
+  }, [currentPage, keyword]);
+
   return (
     <>
       <div className="w-full overflow-x-auto rounded-xl border mt-5">
         <table className="min-w-full text-sm">
           <thead className="">
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Duration</th>
-              <th className="px-4 py-2 text-left">Description</th>
               <th className="px-4 py-2 text-left">Discount rate</th>
               <th className="px-4 py-2 text-left">Original price</th>
+              <th className="px-4 py-2 text-left">Schedule</th>
               <th className="px-4 py-2 text-left"></th>
             </tr>
           </thead>
 
           <tbody>
-            <tr className="border-t">
-              <td className="px-4 py-2">P001</td>
-              <td className="px-4 py-2">Vaccine Package A</td>
-              <td className="px-4 py-2">12 months</td>
-              <td className="px-4 py-2">Lorem ipsum dolor sit amet consectetur, adipisicing elit.</td>
-              <td className="px-4 py-2">10%</td>
-              <td className="px-4 py-2">$100</td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/vaccine-package/manage/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
+            {vaccinePackageList.length > 0 && vaccinePackageList.map((item) => (
+              <tr key={item.package_id} className="border-t">
+                <td className="px-4 py-2">{item.package_name}</td>
+                <td className="px-4 py-2">{item.duration} months</td>
+                <td className="px-4 py-2">{item.discount_rate}%</td>
+                <td className="px-4 py-2">{parseInt(item.total_original_price).toLocaleString("vi-VN")} VND</td>
+                <td className="px-4 py-2">
+                  {item.schedule.map((s, index) => (
+                    <div key={index}>
+                      {s.vaccine_name} - {s.dosage} ml - {s.scheduled_week} weeks
+                    </div>
+                  ))}
+                </td>
+                <td className="px-4 py-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => router.push(`/vaccine-package/manage/update/${item.package_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DeleteButton
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/delete/${item.package_id}`}
+                        />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -72,6 +104,7 @@ export const VaccinePackageTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 >
                   Previous
                 </a>
@@ -86,6 +119,7 @@ export const VaccinePackageTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 >
                   Next
                 </a>

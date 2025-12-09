@@ -141,7 +141,7 @@ router.get("/list", async (req, res) => {
   if (req.query.keyword) {
     const keyword = req.query.keyword?.trim();
     query.whereRaw(
-      "fts @@ to_tsquery('english', remove_accents(?) || ':*')",
+      "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
       [keyword]
     )
   }

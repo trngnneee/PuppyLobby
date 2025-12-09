@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-export const ScheduleBox = ({ index, onChange, onDelete }) => {
+export const ScheduleBox = ({ index, onChange, onDelete, vaccineList }) => {
   const [vaccineType, setVaccineType] = useState("");
   const [week, setWeek] = useState("");
   const [dosage, setDosage] = useState("");
@@ -16,8 +16,8 @@ export const ScheduleBox = ({ index, onChange, onDelete }) => {
 
   const handleSave = () => {
     onChange({
-      vaccine_type: vaccineType,
-      schedule_week: week,
+      vaccine_id: vaccineType,
+      scheduled_week: week,
       dosage: dosage
     }, index);
     setSubmit(true);
@@ -44,11 +44,12 @@ export const ScheduleBox = ({ index, onChange, onDelete }) => {
                 <SelectTrigger id={`vaccine_type-${index}`}>
                   <SelectValue placeholder="Vaccine Type" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='1'>Vaccine Type 1</SelectItem>
-                  <SelectItem value='2'>Vaccine Type 2</SelectItem>
-                  <SelectItem value='3'>Vaccine Type 3</SelectItem>
-                  <SelectItem value='4'>Vaccine Type 4</SelectItem>
+                <SelectContent
+                  className={"max-h-[300px] overflow-y-scroll"}
+                >
+                  {vaccineList.length > 0 && vaccineList.map((item, index) => (
+                    <SelectItem key={index} value={item.vaccine_id}>{item.vaccine_name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

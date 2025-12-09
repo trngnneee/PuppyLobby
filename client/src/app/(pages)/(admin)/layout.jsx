@@ -3,20 +3,14 @@
 import { usePathname, useRouter } from "next/navigation";
 import { EmployeeSider } from "./components/EmployeeSider";
 import { useEffect } from "react";
-import { EmployeeProvider, useEmployeeAuthContext } from "@/provider/employee.provider";
+import { EmployeeProvider } from "@/provider/employee.provider";
 import { useEmployeeAuth } from "@/hooks/useEmployeeAuth";
 
 export default function EmployeeLayout({ children }) {
   const pathname = usePathname();
-
-  if (pathname.includes("/employee/auth")) {
-    return (
-      <>{children}</>
-    )
-  }
-
   const { userInfo } = useEmployeeAuth();
   const router = useRouter();
+
   useEffect(() => {
     if (userInfo === null || userInfo === undefined) return;
 
@@ -25,8 +19,14 @@ export default function EmployeeLayout({ children }) {
     }
   }, [userInfo, router]);
 
+  if (pathname.includes("/employee/auth")) {
+    return (
+      <>{children}</>
+    )
+  }
+
   if (!userInfo || (userInfo && userInfo.is_manager === false)) {
-    return <></>;
+    return <div className="container mx-auto">Loading...</div>;
   }
 
   return (
