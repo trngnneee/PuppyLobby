@@ -6,10 +6,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatDate } from "@/utils/date";
+import { formatDate, formatDateReverse } from "@/utils/date";
 import JustValidate from "just-validate";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function VaccineUpdatePage() {
   const [submit, setSubmit] = useState(false);
@@ -17,6 +18,7 @@ export default function VaccineUpdatePage() {
   const [entryDate, setEntryDate] = useState(new Date());
   const [expireDate, setExpireDate] = useState(new Date());
   const { id } = useParams();
+  const router = useRouter();
 
   useEffect(() => {
     const validation = new JustValidate('#vaccineCreateForm');
@@ -67,19 +69,66 @@ export default function VaccineUpdatePage() {
       });
   }, [])
 
-  const handleSubmit = (e) => {
+  const [vaccineDetail, setVaccineDetail] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/detail/${id}`)
+        .then(res => res.json())
+        .then((data) => {
+          if (data.code === "success") {
+            setVaccineDetail(data.vaccineDetail);
+            setManufactureDate(new Date(data.vaccineDetail.manufacture_date));
+            setEntryDate(new Date(data.vaccineDetail.entry_date));
+            setExpireDate(new Date(data.vaccineDetail.expiry_date));
+          }
+        })
+    }
+    fetchData();
+  }, [])
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (submit) {
-      const name = e.target.name.value;
-      const price = e.target.price.value;
-      const quantity = e.target.quantity.value;
-      console.log({ name, price, manufactureDate, entryDate, expireDate, quantity });
+      const finalData = {
+        vaccine_name: e.target.name.value,
+        price: parseFloat(e.target.price.value),
+        manufacture_date: formatDateReverse(manufactureDate),
+        entry_date: formatDateReverse(entryDate),
+        expiry_date: formatDateReverse(expireDate),
+        quantity: parseInt(e.target.quantity.value),
+      };
+
+      const promise = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/update/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
+
+      toast.promise(promise, {
+        loading: 'Updating vaccine...',
+        success: (data) => {
+          if (data.code == "success") {
+            setTimeout(() => {
+              router.push('/vaccine/manage')
+            }, 1000);
+            return data.message;
+          }
+          else return Promise.reject(data.message);
+        },
+        error: (err) => `Error: ${err}`,
+      })
     }
   }
 
   return (
     <>
-      <SectionHeader title={`Update Vaccine ${id}`} />
+      <SectionHeader title={`Update Vaccine ${vaccineDetail?.vaccine_name || ''}`} />
       <form className="mt-[30px]" id="vaccineCreateForm" onSubmit={handleSubmit}>
         <div className="">
           <div className="flex gap-10">
@@ -90,6 +139,7 @@ export default function VaccineUpdatePage() {
                   type="text"
                   id="name"
                   name="name"
+                  defaultValue={vaccineDetail?.vaccine_name || ''}
                 />
               </div>
             </div>
@@ -101,6 +151,7 @@ export default function VaccineUpdatePage() {
                   min="0"
                   id="price"
                   name="price"
+                  defaultValue={vaccineDetail?.price || ''}
                 />
               </div>
             </div>
@@ -192,6 +243,7 @@ export default function VaccineUpdatePage() {
                   min="0"
                   id="quantity"
                   name="quantity"
+                  defaultValue={vaccineDetail?.quantity || ''}
                 />
               </div>
             </div>

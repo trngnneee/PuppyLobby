@@ -8,23 +8,45 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination"
-import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { formatDate } from "@/utils/date";
+import { paramsBuilder } from "@/utils/params";
+import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 
-export const VaccineTable = () => {
-  const currentPage = 1;
-  const totalPages = 5;
+export const VaccineTable = ({ keyword }) => {
   const router = useRouter();
-  
+
+  const [vaccineList, setVaccineList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
+        page: currentPage,
+        keyword: keyword,
+      });
+      await fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code == "success") {
+            setVaccineList(data.vaccineList);
+            setTotalPages(data.totalPages);
+          }
+        });
+    }
+    fetchData();
+  }, [currentPage, keyword])
+
   return (
     <>
       <div className="w-full overflow-x-auto rounded-xl border mt-5">
         <table className="min-w-full text-sm">
           <thead className="">
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Quantity</th>
+              <th className="px-4 py-2 text-left">Price</th>
               <th className="px-4 py-2 text-left">Manufacture date</th>
               <th className="px-4 py-2 text-left">Entry date</th>
               <th className="px-4 py-2 text-left">Expire date</th>
@@ -33,27 +55,33 @@ export const VaccineTable = () => {
           </thead>
 
           <tbody>
-            <tr className="border-t">
-              <td className="px-4 py-2">V001</td>
-              <td className="px-4 py-2">Vaccine A</td>
-              <td className="px-4 py-2">100</td>
-              <td className="px-4 py-2">1/1/2005</td>
-              <td className="px-4 py-2">1/1/2005</td>
-              <td className="px-4 py-2">1/1/2005</td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/vaccine/manage/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
+            {vaccineList.length > 0 && vaccineList.map((item) => (
+              <tr key={item.vaccine_id} className="border-t">
+                <td className="px-4 py-2">{item.vaccine_name}</td>
+                <td className="px-4 py-2">{item.quantity}</td>
+                <td className="px-4 py-2">{item.price}</td>
+                <td className="px-4 py-2">{formatDate(item.manufacture_date)}</td>
+                <td className="px-4 py-2">{formatDate(item.entry_date)}</td>
+                <td className="px-4 py-2">{formatDate(item.expiry_date)}</td>
+                <td className="px-4 py-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => router.push(`/vaccine/manage/update/${item.vaccine_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DeleteButton
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/vaccine/delete/${item.vaccine_id}`}
+                        />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -73,6 +101,7 @@ export const VaccineTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 >
                   Previous
                 </a>
@@ -87,6 +116,7 @@ export const VaccineTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 >
                   Next
                 </a>

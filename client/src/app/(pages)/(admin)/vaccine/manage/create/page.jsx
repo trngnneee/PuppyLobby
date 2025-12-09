@@ -8,9 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/utils/date";
 import JustValidate from "just-validate";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function VaccineCreatePage() {
+  const router = useRouter();
   const [submit, setSubmit] = useState(false);
   const [manufactureDate, setManufactureDate] = useState(new Date());
   const [entryDate, setEntryDate] = useState(new Date());
@@ -70,13 +73,44 @@ export default function VaccineCreatePage() {
       });
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (submit) {
-      const name = e.target.name.value;
-      const price = e.target.price.value;
-      const quantity = e.target.quantity.value;
-      console.log({ name, price, manufactureDate, entryDate, expireDate, quantity });
+      const finalData = {
+        vaccine_name: e.target.name.value,
+        price: parseFloat(e.target.price.value),
+        manufacture_date: manufactureDate.toISOString().split('T')[0],
+        entry_date: entryDate.toISOString().split('T')[0],
+        expiry_date: expireDate.toISOString().split('T')[0],
+        quantity: parseInt(e.target.quantity.value, 10),
+      };
+
+      const promise = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
+
+      toast.promise(promise, {
+        loading: 'Creating vaccine...',
+        success: (data) => {
+          if (data.code == "success")
+          {
+            setTimeout(() => {
+              router.push('/vaccine/manage')
+            }, 1000);
+            return data.message;
+          }
+          else return Promise.reject(data.message);
+        },
+        error: (err) => `Error: ${err}`,
+      })
     }
   }
 

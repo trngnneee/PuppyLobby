@@ -19,7 +19,7 @@ export default function VaccinePage() {
         />
         <SearchBar keyword={keyword} setKeyword={setKeyword} />
       </div>
-      <VaccineTable />
+      <VaccineTable keyword={keyword} />
     </>
   )
 }

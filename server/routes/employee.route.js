@@ -212,7 +212,7 @@ router.get('/detail/:id', async (req, res) => {
   })
 })
 
-router.post('/manage/update/:id', async (req, res) => {
+router.post('/update/:id', async (req, res) => {
   const { id } = req.params;
 
   await db('employee').where({ employee_id: id }).update({

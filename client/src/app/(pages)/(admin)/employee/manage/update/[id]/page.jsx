@@ -118,7 +118,7 @@ export default function EmployeeCreatePage() {
         specialization: type === "veterinarian" ? e.target.specialization.value : null,
       }
 
-      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/manage/update/${id}`, {
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/update/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
