@@ -30,3 +30,6 @@ add column
   fts tsvector generated always as (to_tsvector('english', remove_accents(package_name) || ' ' || remove_accents(description))) stored;
   
 create index package_fts on vaccinationpackage using gin (fts);
+
+
+

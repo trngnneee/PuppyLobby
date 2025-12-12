@@ -1,7 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary"
 import dotenv from 'dotenv';
-
+import {CloudinaryStorage} from 'multer-storage-cloudinary';
 dotenv.config();
 
 cloudinary.config({ 
@@ -10,10 +9,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET_API
 });
 
-export const storage = new CloudinaryStorage({
+const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'PuppyLobby',
     allowed_formats: ['jpg', 'png', 'jpeg'],
   },
-})
+});
+
+export default storage;
+
+
+
+

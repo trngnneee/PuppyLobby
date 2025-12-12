@@ -1,6 +1,6 @@
 import express from "express"
 import multer from "multer"
-import { storage } from "./../middleware/cloudinary.middleware.js"
+import { storage } from "../middleware/cloudinary.middleware.js"
 import db from "./../utils/db.js"
 
 const router = express.Router()
@@ -40,6 +40,8 @@ router.post("/create", upload.array('files', 5), async (req, res) => {
     req.body.material || null,
 
     req.files.map(file => file.path) || null
+    
+  
   ])
 
   res.json({
@@ -54,7 +56,7 @@ router.get("/medicine/list", async (req, res) => {
   const countResult = await db('product').where("type", "medicine").count('* as count').first();
   const totalPages = Math.ceil(Number(countResult.count) / pageSize);
   if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(String(req.query.page)) || 1;
     const offset = (page - 1) * pageSize;
     query.limit(pageSize).offset(offset);
   }
@@ -80,7 +82,7 @@ router.get("/food/list", async (req, res) => {
   const countResult = await db('product').where("type", "food").count('* as count').first();
   const totalPages = Math.ceil(Number(countResult.count) / pageSize);
   if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(String(req.query.page)) || 1;
     const offset = (page - 1) * pageSize;
     query.limit(pageSize).offset(offset);
   }
@@ -106,7 +108,7 @@ router.get("/accessory/list", async (req, res) => {
   const countResult = await db('product').where("type", "accessory").count('* as count').first();
   const totalPages = Math.ceil(Number(countResult.count) / pageSize);
   if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(String(req.query.page)) || 1;
     const offset = (page - 1) * pageSize;
     query.limit(pageSize).offset(offset);
   }
@@ -176,6 +178,7 @@ router.post("/update/:productId", upload.array('files', 5), async (req, res) => 
   const t = await db.transaction();
 
   const newImageUrls = req.files.map(file => file.path);
+  
   const keptImageUrls = JSON.parse(existingFiles || '[]');
 
   await t('productimage')

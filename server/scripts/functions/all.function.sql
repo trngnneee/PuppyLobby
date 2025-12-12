@@ -363,3 +363,19 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+
+-- test FUNCTION
+
+create or replace function print_test()
+returns void as  $$
+begin 
+  print 'test function works';
+end;
+$$ language plpgsql;
+
+select print_test();
+
+select * from employee
