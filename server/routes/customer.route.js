@@ -3,6 +3,7 @@ import db from "./../utils/db.js";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
+import { verifyCustomerAuth } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -95,6 +96,23 @@ router.get('/auth/signout', (req, res) => {
   res.json({
     code: "success",
     message: "Customer signed out successfully"
+  })
+})
+
+router.patch('/profile/update', verifyCustomerAuth, async (req, res) => {
+  const { customer_id } = req.account;
+
+  await db('customer')
+    .where({ customer_id })
+    .update({
+      customer_name: req.body.customer_name,
+      phone_number: req.body.phone_number,
+      cccd: req.body.cccd,
+    });
+
+  res.json({
+    code: "success",
+    message: "Profile updated successfully"
   })
 })
 

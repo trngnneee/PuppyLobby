@@ -2,27 +2,21 @@
 
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "../components/SectionHeader";
-import AvatarUploader from "./components/AvatarUploader";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { Calendar } from "@/components/ui/calendar-rac";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import JustValidate from "just-validate";
+import { useAuthContext } from "@/provider/auth.provider";
+import { toast } from "sonner";
 
 export default function MeProfilePage() {
-  const [avatar, setAvatar] = useState(null);
-  const [gender, setGender] = useState("male");
-  const [date, setDate] = useState(today(getLocalTimeZone()))
-  const [openDialog, setOpenDialog] = useState(false);
   const [submit, setSubmit] = useState(false);
+  const { userInfo } = useAuthContext();
 
   useEffect(() => {
     const validation = new JustValidate("#profile-form");
     validation
-      .addField("#fullname", [
+      .addField("#customer_name", [
         {
           rule: "required",
           errorMessage: "Full name is required",
@@ -33,7 +27,7 @@ export default function MeProfilePage() {
           errorMessage: "Full name must be at least 3 characters",
         }
       ])
-      .addField("#phone", [
+      .addField("#phone_number", [
         {
           rule: "required",
           errorMessage: "Phone is required",
@@ -44,7 +38,7 @@ export default function MeProfilePage() {
           errorMessage: 'Phone number is not valid',
         }
       ])
-      .addField("#citizenid", [
+      .addField("#cccd", [
         {
           rule: "required",
           errorMessage: "Citizen ID is required",
@@ -63,11 +57,34 @@ export default function MeProfilePage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (submit) {
-      const fullname = e.target.fullname.value;
-      const phone = e.target.phone.value;
-      const citizenid = e.target.citizenid.value;
-      const dateOfBirth = date.toString();
-      console.log({ avatar, fullname, phone, citizenid, gender, dateOfBirth });
+      const finalData = {
+        customer_name: e.target.customer_name.value,
+        phone_number: e.target.phone_number.value,
+        cccd: e.target.cccd.value,
+      }
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer/profile/update`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
+      toast.promise(promise, {
+        loading: 'Updating profile...',
+        success: (data) => {
+          if (data.code == "success") {
+            window.location.reload();
+            return data.message;
+          }
+        },
+        error: (data) => data.message,
+      });
+      setSubmit(false);
     }
   }
 
@@ -75,8 +92,19 @@ export default function MeProfilePage() {
     <>
       <SectionHeader title="Profile" />
       <form onSubmit={handleSubmit} className="" id="profile-form">
-        <div className="mt-[30px]">
+        <div className="mt-5">
           <div className="flex gap-10">
+            <div className="w-full">
+              <div className="mb-[15px] *:not-first:mt-2">
+                <Label htmlFor="customer_name" className="text-sm font-medium text-[var(--main)]">Full name</Label>
+                <Input
+                  type="text"
+                  id="customer_name"
+                  name="customer_name"
+                  defaultValue={userInfo?.customer_name}
+                />
+              </div>
+            </div>
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
                 <Label htmlFor="username" className="text-sm font-medium text-[var(--main)]">Username</Label>
@@ -85,28 +113,7 @@ export default function MeProfilePage() {
                   id="username"
                   name="username"
                   readOnly
-                />
-              </div>
-            </div>
-            <div className="w-full">
-              <div className="flex justify-center">
-                <AvatarUploader
-                  avatar={avatar}
-                  setAvatar={setAvatar}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-5">
-          <div className="flex gap-10">
-            <div className="w-full">
-              <div className="mb-[15px] *:not-first:mt-2">
-                <Label htmlFor="fullname" className="text-sm font-medium text-[var(--main)]">Full name</Label>
-                <Input
-                  type="text"
-                  id="fullname"
-                  name="fullname"
+                  defaultValue={userInfo?.username}
                 />
               </div>
             </div>
@@ -118,6 +125,7 @@ export default function MeProfilePage() {
                   id="email"
                   name="email"
                   readOnly
+                  defaultValue={userInfo?.email}
                 />
               </div>
             </div>
@@ -127,60 +135,25 @@ export default function MeProfilePage() {
           <div className="flex gap-10">
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
-                <Label htmlFor="phone" className="text-sm font-medium text-[var(--main)]">Phone</Label>
-                <Input
-                  type="phone"
-                  id="phone"
-                  name="phone"
-                />
-              </div>
-            </div>
-            <div className="w-full">
-              <div className="mb-[15px] *:not-first:mt-2">
-                <Label htmlFor="citizenid" className="text-sm font-medium text-[var(--main)]">Citizen ID</Label>
+                <Label htmlFor="phone_number" className="text-sm font-medium text-[var(--main)]">Phone number</Label>
                 <Input
                   type="text"
-                  id="citizenid"
-                  name="citizenid"
+                  id="phone_number"
+                  name="phone_number"
+                  defaultValue={userInfo?.phone_number}
                 />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="mt-5">
-          <div className="flex gap-10">
-            <div className="w-full mb-[15px] *:not-first:mt-2">
-              <Label htmlFor="gender" className="text-sm font-medium text-[var(--main)]">Gender</Label>
-              <Select defaultValue="male">
-                <SelectTrigger id="gender">
-                  <SelectValue placeholder="Gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem onClick={() => setGender("male")} value="male">Male</SelectItem>
-                  <SelectItem onClick={() => setGender("female")} value="female">Female</SelectItem>
-                  <SelectItem onClick={() => setGender("other")} value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="date" className="text-sm font-medium text-[var(--main)]">Date of birth</Label>
-              <DropdownMenu open={openDialog} onOpenChange={setOpenDialog}>
-                <DropdownMenuTrigger asChild>
-                  <Button id="date" className="justify-start cursor-pointer bg-white hover:bg-white text-black border border-gray-300 shadow-none text-left">
-                    {date.toLocaleString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <Calendar
-                    className="rounded-md border p-2"
-                    value={date}
-                    onChange={(date) => {
-                      setDate(date);
-                      setOpenDialog(false);
-                    }}
-                  />
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <div className="w-full">
+              <div className="mb-[15px] *:not-first:mt-2">
+                <Label htmlFor="cccd" className="text-sm font-medium text-[var(--main)]">Citizen ID</Label>
+                <Input
+                  type="text"
+                  id="cccd"
+                  name="cccd"
+                  defaultValue={userInfo?.cccd}
+                />
+              </div>
             </div>
           </div>
         </div>

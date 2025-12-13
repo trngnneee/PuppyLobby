@@ -45,7 +45,25 @@ router.get('/verify', async (req, res) => {
         const { account_id, username, email } = decoded;
         const customer_role_id = await db.select('role_id').from('role').where({ role_name: 'customer' }).first();
 
-        const existCustomer = await db('account').where({ account_id, username, email, role_id: customer_role_id.role_id }).first();
+        const existCustomer = await db('account')
+          .join(
+            'customeraccount',
+            'account.account_id',
+            'customeraccount.account_id'
+          )
+          .join(
+            'customer',
+            'customeraccount.customer_id',
+            'customer.customer_id'
+          )
+          .where({
+            'account.account_id': account_id,
+            'account.username': username,
+            'account.email': email,
+            'account.role_id': customer_role_id.role_id,
+          })
+          .first();
+
         if (existCustomer) {
           return res.json({
             code: "success",
@@ -54,6 +72,9 @@ router.get('/verify', async (req, res) => {
               id: existCustomer.account_id,
               username: existCustomer.username,
               email: existCustomer.email,
+              customer_name: existCustomer.customer_name,
+              phone_number: existCustomer.phone_number,
+              cccd: existCustomer.cccd,
               role: 'customer'
             },
           });
