@@ -88,7 +88,7 @@ export default function SiginPage() {
         success: (data) => {
           if (data.code === 'success') {
             setTimeout(() => {
-              router.push('/employee/manage');
+              window.location.href = '/employee/manage';
             }, 1000);
             return 'Sign-in successful!';
           } else {
@@ -103,7 +103,7 @@ export default function SiginPage() {
 
   return (
     <>
-      <div className="font-bold text-[36px] text-[var(--main)]">Sign In</div>
+      <div className="font-bold text-[36px] text-[var(--main)]">Sign In As Employee</div>
       <div className="text-gray-400 mb-5">Enter your email, and password to sign in</div>
       <form id="employeeSiginForm" onSubmit={handleSubmit}>
         <div className="mb-[15px] *:not-first:mt-2">

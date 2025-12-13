@@ -3,12 +3,12 @@
 import { usePathname, useRouter } from "next/navigation";
 import { EmployeeSider } from "./components/EmployeeSider";
 import { useEffect } from "react";
-import { EmployeeProvider } from "@/provider/employee.provider";
-import { useEmployeeAuth } from "@/hooks/useEmployeeAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider } from "@/provider/auth.provider";
 
 export default function EmployeeLayout({ children }) {
   const pathname = usePathname();
-  const { userInfo } = useEmployeeAuth();
+  const { userInfo } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function EmployeeLayout({ children }) {
   }
 
   return (
-    <EmployeeProvider>
+    <AuthProvider>
       <div className="flex gap-5 container mx-auto justify-start mb-10">
         <EmployeeSider />
         <div className="flex-1">
@@ -41,6 +41,6 @@ export default function EmployeeLayout({ children }) {
           </div>
         </div>
       </div>
-    </EmployeeProvider>
+    </AuthProvider>
   )
 }

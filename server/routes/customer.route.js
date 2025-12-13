@@ -89,4 +89,13 @@ router.post('/auth/signin', async (req, res) => {
   })
 })
 
+router.get('/auth/signout', (req, res) => {
+  res.clearCookie('customerToken');
+
+  res.json({
+    code: "success",
+    message: "Customer signed out successfully"
+  })
+})
+
 export default router;

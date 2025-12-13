@@ -1,14 +1,14 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 
-export const useEmployeeAuth = () => {
+export const useAuth = () => {
   const router = useRouter();
   const pathName = usePathname();
   const [isLogin, setIsLogin] = useState(false);
   const [userInfo, setUserInfo] = useState();
   
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/auth/verify`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
       credentials: "include"
     })
       .then(res => res.json())

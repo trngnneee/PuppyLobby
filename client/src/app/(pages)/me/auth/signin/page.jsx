@@ -112,7 +112,7 @@ export default function SiginPage() {
 
   return (
     <>
-      <div className="font-bold text-[36px] text-[var(--main)]">Sign In</div>
+      <div className="font-bold text-[36px] text-[var(--main)]">Sign In As Customer</div>
       <div className="text-gray-400 mb-5">Enter your email, and password to sign in</div>
       <form id="adminRegisterFrom" onSubmit={handleSubmit}>
         <div className="mb-[15px] *:not-first:mt-2">

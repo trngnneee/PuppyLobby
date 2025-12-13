@@ -1,14 +1,14 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useEmployeeAuthContext } from "@/provider/employee.provider"
+import { useAuthContext } from "@/provider/auth.provider"
 import { BriefcaseMedicalIcon, Grid2X2, HeartHandshake, Syringe, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 export const EmployeeSider = () => {
   const pathName = usePathname();
-  const { userInfo } = useEmployeeAuthContext();
+  const { userInfo } = useAuthContext();
   const siderData = [
     {
       title: "Employee Dashboard",

@@ -6,8 +6,11 @@ import vaccineRouter from './vaccine.route.js';
 import serviceRouter from './service.route.js';
 import vaccinePackageRouter from './vaccine-package.route.js';
 import customerRouter from './customer.route.js';
+import authRouter from './auth.route.js';
 
 const router = express.Router();
+
+router.use("/auth", authRouter);
 
 router.use("/employee", employeeRouter);
 

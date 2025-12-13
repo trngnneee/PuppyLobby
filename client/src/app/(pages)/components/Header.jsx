@@ -2,9 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu"
-import { useEmployeeAuth } from "@/hooks/useEmployeeAuth"
+import { useAuth } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
-import { useEmployeeAuthContext } from "@/provider/employee.provider"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -63,7 +62,7 @@ export const Header = () => {
     }
   ];
 
-  const { isLogin, userInfo } = useEmployeeAuth();
+  const { isLogin, userInfo } = useAuth();
 
   return (
     <>
@@ -124,7 +123,7 @@ export const Header = () => {
             </NavigationMenu>
             <Button onClick={() => router.push("/me/auth/signup")} className="bg-[#C7E7E1] hover:bg-[#c4f5ecb9] text-[var(--main)] font-bold animation">SIGN UP</Button>
           </div>
-        ) : (
+        ) : (userInfo && userInfo.role == "employee") ? (
           <div className="flex items-center gap-3">
             {
               userInfo.is_manager && (
@@ -149,6 +148,36 @@ export const Header = () => {
                   error: 'Error signing out!'
                 });
                 window.location.href = "/employee/auth/signin";
+              }}
+            >
+              SIGN OUT
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            {
+              userInfo.role == "customer" && (
+                <Button onClick={() => router.push("/me/profile")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE PROFILE</Button>
+              )
+            }
+            <Button
+              variant={"destructive"}
+              className={"animation"}
+              onClick={async () => {
+                const promise = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer/auth/signout`, {
+                  method: 'GET',
+                  credentials: 'include'
+                })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    return data;
+                  })
+                toast.promise(promise, {
+                  loading: 'Signing out...',
+                  success: 'Signed out successfully!',
+                  error: 'Error signing out!'
+                });
+                window.location.href = "/me/auth/signin";
               }}
             >
               SIGN OUT

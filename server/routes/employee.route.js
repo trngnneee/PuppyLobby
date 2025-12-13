@@ -61,40 +61,6 @@ router.post('/auth/signin', async (req, res) => {
   })
 });
 
-router.get('/auth/verify', async (req, res) => {
-  const token = req.cookies.employeeToken;
-  if (!token) {
-    return res.json({
-      code: "error",
-      message: "No token provided",
-    });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { account_id, username, email } = decoded;
-    const existUser = await db('account').where({ account_id, username, email }).first();
-    const is_manager = await db.raw(
-      `SELECT checkManager(?) AS is_manager`,
-      [account_id]
-    );
-    return res.json({
-      code: "success",
-      message: "Token is valid",
-      userInfo: {
-        id: existUser.account_id,
-        username: existUser.username,
-        email: existUser.email,
-        is_manager: is_manager.rows[0].is_manager,
-      },
-    });
-  } catch (err) {
-    return res.json({
-      code: "error",
-      message: "Invalid token",
-    });
-  }
-})
-
 router.get('/auth/signout', (req, res) => {
   res.clearCookie('employeeToken');
   res.json({

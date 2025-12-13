@@ -11,7 +11,7 @@ export default function MeLayout({ children }) {
       <>{children}</>
     )
   }
-  
+
   return (
     <div className="flex gap-5 container mx-auto justify-start mb-10">
       <Sider />
