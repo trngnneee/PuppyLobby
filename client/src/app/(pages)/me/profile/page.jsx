@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import JustValidate from "just-validate";
 import { useAuthContext } from "@/provider/auth.provider";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function MeProfilePage() {
   const [submit, setSubmit] = useState(false);
@@ -159,6 +160,7 @@ export default function MeProfilePage() {
         </div>
         <Button disabled={submit} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white w-full mt-[50px]">Save</Button>
       </form>
+      <Link href="/me/profile/reset-password" className="text-sm text-[var(--main)] hover:underline flex justify-center mt-[30px]">Change password</Link>
     </>
   )
 }

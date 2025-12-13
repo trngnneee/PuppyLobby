@@ -116,4 +116,19 @@ router.patch('/profile/update', verifyCustomerAuth, async (req, res) => {
   })
 })
 
+router.patch('/profile/reset-password', verifyCustomerAuth, async (req, res) => {
+  const { account_id } = req.account;
+
+  await db('account')
+    .where({ account_id })
+    .update({
+      password: req.body.password,
+    });
+
+  res.json({
+    code: "success",
+    message: "Password updated successfully"
+  })
+})
+
 export default router;
