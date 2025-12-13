@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import JustValidate from "just-validate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function SiginPage() {
   const [submit, setSubmit] = useState(false);
@@ -13,6 +14,17 @@ export default function SiginPage() {
   useEffect(() => {
     const validation = new JustValidate('#adminRegisterFrom');
     validation
+      .addField('#username', [
+        {
+          rule: 'required',
+          errorMessage: 'Username is required',
+        },
+        {
+          rule: 'minLength',
+          value: 3,
+          errorMessage: 'Username must be at least 3 characters long!',
+        }
+      ])
       .addField('#email', [
         {
           rule: 'required',
@@ -57,11 +69,45 @@ export default function SiginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (submit) {
+      const username = e.target.username.value;
       const email = e.target.email.value;
       const password = e.target.password.value;
+      const rememberLogin = e.target.rememberLogin.checked;
 
-      console.log({ email, password });
+      const finalData = {
+        username,
+        email,
+        password,
+        rememberLogin
+      };
+
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer/auth/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        })
+
+      toast.promise(promise, {
+        loading: 'Signing in...',
+        success: (data) => {
+          if (data.code === 'success') {
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          }
+          return data.message;
+        },
+        error: (data) => data.message
+      })
     }
+    setSubmit(false);
   }
 
   return (
@@ -69,6 +115,15 @@ export default function SiginPage() {
       <div className="font-bold text-[36px] text-[var(--main)]">Sign In</div>
       <div className="text-gray-400 mb-5">Enter your email, and password to sign in</div>
       <form id="adminRegisterFrom" onSubmit={handleSubmit}>
+        <div className="mb-[15px] *:not-first:mt-2">
+          <Label htmlFor="username" className="text-sm font-medium text-[var(--main)] ">Username*</Label>
+          <Input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="exampleuser"
+          />
+        </div>
         <div className="mb-[15px] *:not-first:mt-2">
           <Label htmlFor="email" className="text-sm font-medium text-[var(--main)] ">Email*</Label>
           <Input

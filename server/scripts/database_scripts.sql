@@ -235,3 +235,55 @@ create table Evaluation (
   employee_id uuid references Employee (employee_id),
   customer_id uuid references Customer (customer_id)
 );
+
+-- Insert data cho Branch
+INSERT INTO Branch (branch_name, location, phone_number, open_time, close_time) VALUES
+('Branch District 1', 'Quận 1, TP.HCM', '028-1111-0001', '08:00', '21:00'),
+('Branch District 3', 'Quận 3, TP.HCM', '028-1111-0003', '08:00', '21:00'),
+('Branch District 5', 'Quận 5, TP.HCM', '028-1111-0005', '08:00', '21:30'),
+('Branch District 7', 'Quận 7, TP.HCM', '028-1111-0007', '07:30', '22:00'),
+('Branch Binh Thanh', 'Bình Thạnh, TP.HCM', '028-1111-0010', '08:00', '22:00'),
+('Branch Thu Duc', 'TP. Thủ Đức, TP.HCM', '028-1111-0020', '08:00', '22:00'),
+('Branch Tan Binh', 'Tân Bình, TP.HCM', '028-1111-0030', '07:00', '21:00'),
+('Branch Go Vap', 'Gò Vấp, TP.HCM', '028-1111-0040', '07:30', '21:30'),
+('Branch Da Nang Center', 'Đà Nẵng', '0236-222-1111', '08:00', '21:00'),
+('Branch Ha Noi Center', 'Hà Nội', '024-3333-2222', '08:00', '22:00');
+
+-- Insert data cho Service
+INSERT INTO Service (service_name, service_base_price) VALUES
+('Medical Examination', '2500000'),
+('Vaccine Single Service', '7500000'),
+('Vaccine Package Service', '15499000');
+
+-- Insert data cho MembershipLevel
+INSERT INTO membershiplevel (
+  level_id,
+  level_name,
+  target_threshold,
+  keep_rank_threshold
+)
+VALUES
+(
+  gen_random_uuid(),
+  'Bronze',
+  0,
+  0
+),
+(
+  gen_random_uuid(),
+  'Silver',
+  1000,
+  700
+),
+(
+  gen_random_uuid(),
+  'Gold',
+  5000,
+  4000
+),
+(
+  gen_random_uuid(),
+  'Platinum',
+  15000,
+  12000
+);

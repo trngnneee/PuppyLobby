@@ -97,8 +97,8 @@ export default function SiginPage() {
         },
         error: (err) => `${err.message}`,
       })
-      setSubmit(false);
     }
+    setSubmit(false);
   }
 
   return (

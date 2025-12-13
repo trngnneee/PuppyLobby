@@ -9,6 +9,8 @@ const router = express.Router();
 router.post('/auth/signin', async (req, res) => {
   const { username, email, password, rememberLogin } = req.body;
 
+  const role_id = await db.select('role_id').from('role').where({ role_name: 'employee' }).first();
+
   const existUsername = await db.raw(
     `SELECT checkUsernameExists(?) AS exists`,
     [username]
@@ -31,7 +33,7 @@ router.post('/auth/signin', async (req, res) => {
     })
   }
 
-  const existAccount = await db.select('*').from('account').where({ username, email }).first();
+  const existAccount = await db.select('*').from('account').where({ username, email, role_id: role_id.role_id }).first();
   if (existAccount.password !== req.body.password) {
     return res.json({
       code: "error",
