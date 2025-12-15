@@ -16,25 +16,9 @@ export const Header = () => {
       link: "/"
     },
     {
-      name: "OUR SERVICES",
-      link: "#"
-    },
-    {
-      name: "ABOUT US",
-      link: "#"
-    },
-    {
-      name: "PRODUCTS",
-      link: "#"
-    },
-    {
-      name: "PET CARE",
-      link: "#"
-    },
-    {
-      name: "CONTACT",
-      link: "#"
-    },
+      name: "BOOKING A SERVICES",
+      link: "/service/book"
+    }
   ]
 
   const NavItem = ({ item }) => {

@@ -1,27 +1,23 @@
 "use client"
 
 import { SectionHeader } from "@/app/(pages)/me/components/SectionHeader";
-import { RangeCalendar } from "@/components/ui/calendar-rac";
+import { Calendar } from "@/components/ui/calendar-rac";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getLocalTimeZone, today } from "@internationalized/date";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatDate, formatDateReverse } from "@/utils/date";
 import { Button } from "@/components/ui/button";
 import JustValidate from "just-validate";
 import { toast } from "sonner";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
 export default function AssignEmployeePage() {
   const { id } = useParams();
   const [branchID, setBranchID] = useState("");
-  const now = today(getLocalTimeZone());
-  const [date, setDate] = useState({
-    end: now.add({ days: 3 }),
-    start: now,
-  });
+  const [date, setDate] = useState(today(getLocalTimeZone()));
 
   const [submit, setSubmit] = useState(false);
   const router = useRouter();
@@ -92,8 +88,8 @@ export default function AssignEmployeePage() {
     if (submit)
     {
       const position = e.target.position.value;
-      const start_date = formatDateReverse(date.start);
-      const end_date = formatDateReverse(date.end);
+      const start_date = formatDateReverse(date);
+      const end_date = null;
       const salary = e.target.salary.value;
 
       const finalData = {
@@ -101,7 +97,7 @@ export default function AssignEmployeePage() {
         employee_id: id,
         position: position,
         start_date: start_date,
-        end_date: end_date,
+        end_date: null,
         salary: salary
       };
 
@@ -163,14 +159,13 @@ export default function AssignEmployeePage() {
                     type="text"
                     id="working_date"
                     name="working_date"
-                    value={`${formatDate(date.start)} - ${formatDate(date.end)}`}
+                    value={formatDate(date)}
                     readOnly
                     className="cursor-pointer"
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <RangeCalendar
-                    className="rounded-md border p-2"
+                  <Calendar
                     onChange={setDate}
                     value={date}
                   />

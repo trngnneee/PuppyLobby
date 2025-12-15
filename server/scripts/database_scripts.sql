@@ -193,7 +193,7 @@ create table ServiceBooking (
   booking_id uuid primary key default gen_random_uuid (),
   date date not null,
   status text,
-  price numeric not null check (price > 0),
+  price numeric not null check (price >= 0),
   service_id uuid references Service (service_id),
   branch_id uuid references Branch (branch_id),
   employee_id uuid references Employee (employee_id),

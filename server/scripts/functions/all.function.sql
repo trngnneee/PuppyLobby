@@ -485,3 +485,90 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql;
+
+-------------------- Create new medical examination booking --------------------
+create or replace function create_service_booking(
+  p_service_id uuid,
+  p_date date,
+  p_branch_id uuid,
+  p_employee_id uuid,
+  p_pet_id uuid,
+  p_customer_id uuid
+)
+returns json as $$
+declare
+  v_invoice_id uuid;
+  v_booking_id uuid;
+begin
+  -- 1. Get existing pending invoice (if any)
+  select invoice_id
+  into v_invoice_id
+  from invoice
+  where customer_id = p_customer_id
+    and status != 'completed'
+  limit 1;
+
+  -- 2. If not found → create new invoice
+  if v_invoice_id is null then
+    insert into invoice (
+      created_at,
+      payment_method,
+      total_price,
+      status,
+      employee_id,
+      customer_id
+    )
+    values (
+      null,
+      null,
+      null,
+      'pending',
+      null,
+      p_customer_id
+    )
+    returning invoice_id into v_invoice_id;
+  end if;
+
+  -- 3. Create service booking
+  insert into servicebooking (
+    date,
+    status,
+    price,
+    service_id,
+    branch_id,
+    employee_id,
+    pet_id,
+    invoice_id
+  )
+  values (
+    p_date,
+    'pending',
+    0,
+    p_service_id,
+    p_branch_id,
+    p_employee_id,
+    p_pet_id,
+    v_invoice_id
+  )
+  returning booking_id into v_booking_id;
+
+  -- 4. Create medicalexamination
+  insert into medicalexamination (
+    booking_id,
+    symptom,
+    diagnosis,
+    prescription,
+    next_appointment
+  ) values (
+    v_booking_id,
+    null,
+    null,
+    null,
+    null
+  );
+  RETURN json_build_object(
+    'code', 'success',
+    'message', 'Booking successfully'
+  );
+end;
+$$ LANGUAGE plpgsql;

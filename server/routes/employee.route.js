@@ -231,4 +231,29 @@ router.post('/assign', async (req, res) => {
   })
 })
 
+router.get('/list/:branch_id', async (req, res) => {
+  const { branch_id } = req.params;
+
+  const result = await db.raw(
+    `
+    SELECT employee.employee_id, employee.employee_name
+    FROM employeehistory
+    JOIN employee ON employeehistory.employee_id = employee.employee_id
+    WHERE branch_id = ? AND end_date IS NULL
+    `,
+    [branch_id]
+  );
+
+  const employeeList = result.rows.map(emp => ({
+    employee_id: emp.employee_id,
+    employee_name: emp.employee_name,
+  }));
+
+  res.json({
+    code: "success",
+    message: "Employee list for branch retrieved successfully",
+    employeeList: employeeList,
+  })
+})
+
 export default router;
