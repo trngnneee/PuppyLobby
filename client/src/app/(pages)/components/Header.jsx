@@ -10,16 +10,21 @@ import { toast } from "sonner"
 
 export const Header = () => {
   const router = useRouter();
+  const { isLogin, userInfo } = useAuth();
   const navList = [
     {
       name: "HOME",
-      link: "/"
+      link: "/",
     },
-    {
-      name: "BOOKING A SERVICES",
-      link: "/service/book"
-    }
-  ]
+    ...(userInfo?.role === "customer"
+      ? [
+        {
+          name: "BOOKING A SERVICES",
+          link: "/service/book",
+        },
+      ]
+      : []),
+  ];
 
   const NavItem = ({ item }) => {
     return (
@@ -45,8 +50,6 @@ export const Header = () => {
       submenu: true,
     }
   ];
-
-  const { isLogin, userInfo } = useAuth();
 
   return (
     <>

@@ -13,7 +13,7 @@ export function middleware(req) {
   const customerToken = req.cookies.get("customerToken")?.value;
 
   // ================= EMPLOYEE =================
-  if (pathname.startsWith("/employee")) {
+  if (pathname.startsWith("/employee") || pathname.startsWith("/product/manage") || pathname.startsWith("/service/manage") || pathname.startsWith("/vaccine/manage") || pathname.startsWith("/vaccine-package/manage")) {
 
     // Customer không được vào employee
     if (customerToken) {
@@ -43,8 +43,8 @@ export function middleware(req) {
     return NextResponse.next();
   }
 
-  // ================= CUSTOMER (/me) =================
-  if (pathname.startsWith("/me")) {
+  // ================= CUSTOMER =================
+  if (pathname.startsWith("/me") || pathname.startsWith("/service/booking")) {
 
     // Employee không được vào customer
     if (employeeToken) {
@@ -80,7 +80,14 @@ export function middleware(req) {
 
 export const config = {
   matcher: [
+    // Employee
     "/employee/:path*",
+    "/product/manage/:path*",
+    "/service/manage/:path*",
+    "/vaccine/manage/:path*",
+    "/vaccine-package/manage/:path*",
+    // Customer
     "/me/:path*",
+    "/service/booking/:path*",
   ],
 };
