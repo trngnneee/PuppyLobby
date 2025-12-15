@@ -31,5 +31,13 @@ add column
   
 create index package_fts on vaccinationpackage using gin (fts);
 
+-- fts cho pet
+alter table
+  pet
+add column
+  fts tsvector generated always as (to_tsvector('english', remove_accents(pet_name) || ' ' || remove_accents(breed))) stored;
+  
+create index pet_fts on pet using gin (fts);
+
 
 

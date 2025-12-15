@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { healthStatusOptions, speciesOptions } from "@/config/variable.config";
 import { useEffect, useState } from "react";
 import JustValidate from "just-validate";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreatePetPage() {
   const [submit, setSubmit] = useState(false);
@@ -16,6 +17,28 @@ export default function CreatePetPage() {
   const [gender, setGender] = useState('male');
   const [healthStatus, setHealthStatus] = useState('healthy');
   const { id } = useParams();
+  const router = useRouter();
+
+  const [petDetail, setPetDetail] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pet/detail/${id}`, {
+        method: 'GET',
+        credentials: 'include',
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code == "success")
+          {
+            setPetDetail(data.petDetail);
+            setGender(data.petDetail.gender);
+            setSpecies(data.petDetail.species);
+            setHealthStatus(data.petDetail.health_state);
+          }
+        })
+    };
+    fetchData();
+  }, []); 
 
   useEffect(() => {
     const validation = new JustValidate('#petCreateForm');
@@ -73,7 +96,36 @@ export default function CreatePetPage() {
       const breed = e.target.breed.value;
       const age = e.target.age.value;
 
-      console.log({ id, name, species, breed, age, gender, healthStatus });
+      const finalData = {
+        pet_name: name,
+        species: species,
+        breed: breed,
+        age: age,
+        gender: gender,
+        health_state: healthStatus,
+      };
+
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/pet/update/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then((res) => res.json())
+        .then((data) => {return data});
+
+      toast.promise(promise, {
+        loading: 'Updating pet...',
+        success: (data) => {
+          if (data.code == "success")
+          {
+            router.push('/me/pets');
+            return data.message;
+          }
+        },
+        error: (data) => data.message
+      })
     }
   }
 
@@ -90,13 +142,14 @@ export default function CreatePetPage() {
                   type="text"
                   id="name"
                   name="name"
+                  defaultValue={petDetail?.pet_name}
                 />
               </div>
             </div>
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
                 <Label htmlFor="species" className="text-sm font-medium text-[var(--main)]">Species</Label>
-                <Select defaultValue="dog" onValueChange={setSpecies}>
+                <Select value={species} onValueChange={setSpecies}>
                   <SelectTrigger id="species">
                     <SelectValue placeholder="Select species" />
                   </SelectTrigger>
@@ -119,6 +172,7 @@ export default function CreatePetPage() {
                   type="text"
                   id="breed"
                   name="breed"
+                  defaultValue={petDetail?.breed}
                 />
               </div>
             </div>
@@ -130,6 +184,7 @@ export default function CreatePetPage() {
                   min={0}
                   id="age"
                   name="age"
+                  defaultValue={petDetail?.age}
                 />
               </div>
             </div>
@@ -139,7 +194,7 @@ export default function CreatePetPage() {
           <div className="flex gap-10">
             <div className="w-full mb-[15px] *:not-first:mt-2">
               <Label htmlFor="gender" className="text-sm font-medium text-[var(--main)]">Gender</Label>
-              <Select defaultValue="male" onValueChange={setGender}>
+              <Select value={gender} onValueChange={setGender}>
                 <SelectTrigger id="gender">
                   <SelectValue placeholder="Gender" />
                 </SelectTrigger>
@@ -153,7 +208,7 @@ export default function CreatePetPage() {
             <div className="w-full">
               <div className="mb-[15px] *:not-first:mt-2">
                 <Label htmlFor="healthStatus" className="text-sm font-medium text-[var(--main)]">Health status</Label>
-                <Select defaultValue="healthy" onValueChange={setHealthStatus}>
+                <Select value={healthStatus} onValueChange={setHealthStatus}>
                   <SelectTrigger id="healthStatus">
                     <SelectValue placeholder="Select health status" />
                   </SelectTrigger>

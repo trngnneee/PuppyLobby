@@ -10,11 +10,35 @@ import {
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { healthStatusOptions, speciesOptions } from "@/config/variable.config";
+import { paramsBuilder } from "@/utils/params";
+import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 
-export const PetsTable = () => {
-  const currentPage = 1;
-  const totalPages = 5;
+export const PetsTable = ({ keyword }) => {
   const router = useRouter();
+
+  const [petList, setPetList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/pet/list`, {
+        page: currentPage,
+        keyword: keyword
+      });
+      const promise = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+      }).then((res) => res.json());
+
+      if (promise.code === "success") {
+        setPetList(promise.petList);
+        setTotalPages(promise.totalPages);
+      }
+    };
+    fetchData();
+  }, [currentPage, keyword])
 
   return (
     <>
@@ -22,7 +46,6 @@ export const PetsTable = () => {
         <table className="min-w-full text-sm">
           <thead className="">
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Species</th>
               <th className="px-4 py-2 text-left">Breed</th>
@@ -34,55 +57,41 @@ export const PetsTable = () => {
           </thead>
 
           <tbody>
-            <tr className="border-t">
-              <td className="px-4 py-2">P001</td>
-              <td className="px-4 py-2">Milo</td>
-              <td className="px-4 py-2">Dog</td>
-              <td className="px-4 py-2">Poodle</td>
-              <td className="px-4 py-2">2</td>
-              <td className="px-4 py-2">Male</td>
-              <td className="px-4 py-2">
-                <Badge variant="success">Healthy</Badge>
-              </td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/me/pets/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
-
-            <tr className="border-t">
-              <td className="px-4 py-2">P002</td>
-              <td className="px-4 py-2">Mimi</td>
-              <td className="px-4 py-2">Cat</td>
-              <td className="px-4 py-2">British Shorthair</td>
-              <td className="px-4 py-2">3</td>
-              <td className="px-4 py-2">Female</td>
-              <td className="px-4 py-2">
-                <Badge variant="destructive">Under Treatment</Badge>
-              </td>
-              <td className="px-4 py-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push('/me/pets/update/1')}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-            </tr>
+            {petList.length > 0 && petList.map((item, index) => (
+              <tr className="border-t" key={index}>
+                <td className="px-4 py-2">{item.pet_name}</td>
+                <td className="px-4 py-2">{speciesOptions.find((opt) => opt.value == item.species)?.label}</td>
+                <td className="px-4 py-2">{item.breed}</td>
+                <td className="px-4 py-2">{item.age}</td>
+                <td className="px-4 py-2 capitalize">{item.gender}</td>
+                <td className="px-4 py-2">
+                  {item.health_state === "healthy" ? (
+                    <Badge variant="success">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
+                  ) : item.health_state === "sick" ? (
+                    <Badge variant="destructive">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
+                  ) : (
+                    <Badge variant="warning">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => router.push(`/me/pets/update/${item.pet_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DeleteButton
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/pet/delete/${item.pet_id}`}
+                        />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -102,6 +111,8 @@ export const PetsTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  className="cursor-pointer"
                 >
                   Previous
                 </a>
@@ -116,6 +127,8 @@ export const PetsTable = () => {
                 asChild
               >
                 <a
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  className="cursor-pointer"
                 >
                   Next
                 </a>

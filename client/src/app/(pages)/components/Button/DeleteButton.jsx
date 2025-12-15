@@ -3,6 +3,7 @@ import { CircleAlertIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const DeleteButton = ({ api }) => {
+  console.log(api);
   const handleDelete = () => {
     const promise = fetch(api, {
       method: "DELETE",

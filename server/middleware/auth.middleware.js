@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import db from '../utils/db.js';
 
-export const verifyCustomerAuth = async (req, res, next) => {
+export const verifyToken = async (req, res, next) => {
   const token = req.cookies.customerToken;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

@@ -22,7 +22,7 @@ export default function MePetsPage(){
           setKeyword={setKeyword}
         />
       </div>
-      <PetsTable />
+      <PetsTable keyword={keyword} />
     </>
   )
 }

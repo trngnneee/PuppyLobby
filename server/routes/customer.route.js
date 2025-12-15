@@ -3,7 +3,7 @@ import db from "./../utils/db.js";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
-import { verifyCustomerAuth } from '../middleware/auth.middleware.js';
+import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -99,7 +99,7 @@ router.get('/auth/signout', (req, res) => {
   })
 })
 
-router.patch('/profile/update', verifyCustomerAuth, async (req, res) => {
+router.patch('/profile/update', verifyToken, async (req, res) => {
   const { customer_id } = req.account;
 
   await db('customer')
@@ -116,7 +116,7 @@ router.patch('/profile/update', verifyCustomerAuth, async (req, res) => {
   })
 })
 
-router.patch('/profile/reset-password', verifyCustomerAuth, async (req, res) => {
+router.patch('/profile/reset-password', verifyToken, async (req, res) => {
   const { account_id } = req.account;
 
   await db('account')

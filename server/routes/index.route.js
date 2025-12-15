@@ -7,6 +7,7 @@ import serviceRouter from './service.route.js';
 import vaccinePackageRouter from './vaccine-package.route.js';
 import customerRouter from './customer.route.js';
 import authRouter from './auth.route.js';
+import petRouter from './pet.route.js';
 
 const router = express.Router();
 
@@ -25,5 +26,7 @@ router.use("/service", serviceRouter);
 router.use("/vaccine-package", vaccinePackageRouter);
 
 router.use("/customer", customerRouter);
+
+router.use('/pet', petRouter);
 
 export default router;

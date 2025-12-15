@@ -8,12 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { healthStatusOptions, speciesOptions } from "@/config/variable.config";
 import { useEffect, useState } from "react";
 import JustValidate from "just-validate";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreatePetPage() {
   const [submit, setSubmit] = useState(false);
   const [species, setSpecies] = useState('dog');
   const [gender, setGender] = useState('male');
   const [healthStatus, setHealthStatus] = useState('healthy');
+  const router = useRouter();
 
   useEffect(() => {
     const validation = new JustValidate('#petCreateForm');
@@ -71,7 +74,42 @@ export default function CreatePetPage() {
       const breed = e.target.breed.value;
       const age = e.target.age.value;
 
-      console.log({ name, species, breed, age, gender, healthStatus });
+      const finalData = {
+        pet_name: name,
+        species: species,
+        breed: breed,
+        age: age,
+        gender: gender,
+        health_state: healthStatus
+      };
+
+      const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/pet/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(finalData),
+      }) 
+        .then((res) => res.json())
+        .then((data) => {return data});
+
+      toast.promise(promise, {
+        loading: "Creating pet...",
+        success: (data) => {
+          if (data.code === "success") {
+            e.target.reset();
+            setSpecies('dog');
+            setGender('male');
+            setHealthStatus('healthy');
+            router.push('/me/pets');
+            return "Pet created successfully!";
+          } else {
+            throw new Error(data.message || "Failed to create pet");
+          }
+        },
+        error: (err) => `Error: ${err.message}`,
+      });
     }
   }
 
