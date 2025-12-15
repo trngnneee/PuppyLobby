@@ -14,6 +14,7 @@ import { formatDate } from "@/utils/date";
 import { useEffect, useState } from "react";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { ProductRowSkeleton } from "./ProductRowSkeleton";
 
 export const FoodTable = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ export const FoodTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   useEffect(() => {
+    setProductList([]);
     const fetchData = async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/food/list`, {
         page: currentPage,
@@ -58,7 +60,7 @@ export const FoodTable = () => {
           </thead>
 
           <tbody>
-            {productList.length > 0 && productList.map((item, index) => (
+            {productList.length > 0 ? productList.map((item, index) => (
               <tr key={index} className="border-t">
                 <td className="px-4 py-2">{item.product_name}</td>
                 <td className="px-4 py-2">
@@ -94,7 +96,11 @@ export const FoodTable = () => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : (
+              [...Array(5)].map((_, index) => (
+                <ProductRowSkeleton key={index} />
+              ))
+            )}
           </tbody>
         </table>
       </div>

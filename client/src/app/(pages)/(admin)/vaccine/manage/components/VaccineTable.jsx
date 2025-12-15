@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { VaccineItemSkeleton } from "./VaccineItemSkeleton";
 
 export const VaccineTable = ({ keyword }) => {
   const router = useRouter();
@@ -22,6 +23,7 @@ export const VaccineTable = ({ keyword }) => {
   const [totalPages, setTotalPages] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
+      setVaccineList([]);
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
         page: currentPage,
         keyword: keyword,
@@ -55,7 +57,7 @@ export const VaccineTable = ({ keyword }) => {
           </thead>
 
           <tbody>
-            {vaccineList.length > 0 && vaccineList.map((item) => (
+            {vaccineList.length > 0 ? vaccineList.map((item) => (
               <tr key={item.vaccine_id} className="border-t">
                 <td className="px-4 py-2">{item.vaccine_name}</td>
                 <td className="px-4 py-2">{item.quantity}</td>
@@ -81,6 +83,8 @@ export const VaccineTable = ({ keyword }) => {
                   </DropdownMenu>
                 </td>
               </tr>
+            )) : [...Array(10)].map((_, index) => (
+              <VaccineItemSkeleton key={index} />
             ))}
           </tbody>
         </table>

@@ -31,20 +31,21 @@ router.post("/create", async (req, res) => {
 
 router.get("/list", async (req, res) => {
   const query = db.select("*").from("vaccine");
-  const pageSize = 5;
+  const pageSize = 10;
   const countResult = await db('vaccine').count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
+  const tmp = await query;
+  const totalPages = Math.ceil(Number(tmp.length) / pageSize);
   if (req.query.keyword){
     const keyword = req.query.keyword?.trim();
     query.whereRaw(
       "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
       [keyword]
     )
+  }
+  if (req.query.page) {
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * pageSize;
+    query.limit(pageSize).offset(offset);
   }
 
   const vaccineList = await query;

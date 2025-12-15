@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { ProductRowSkeleton } from "./ProductRowSkeleton";
 
 export const AccessoryTable = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ export const AccessoryTable = () => {
   const [totalPages, setTotalPages] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
+      setProductList([]);
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/accessory/list`, {
         page: currentPage,
       });
@@ -57,7 +59,7 @@ export const AccessoryTable = () => {
           </thead>
 
           <tbody>
-            {productList.length > 0 && productList.map((item, index) => (
+            {productList.length > 0 ? productList.map((item, index) => (
               <tr key={index} className="border-t">
                 <td className="px-4 py-2">{item.product_name}</td>
                 <td className="px-4 py-2">
@@ -91,7 +93,11 @@ export const AccessoryTable = () => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : (
+              [...Array(5)].map((_, index) => (
+                <ProductRowSkeleton key={index} />
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { ProductRowSkeleton } from "./ProductRowSkeleton";
 
 export const MedicineTable = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ export const MedicineTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   useEffect(() => {
+    setProductList([]);
     const fetchData = async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/medicine/list`, {
         page: currentPage,
@@ -58,20 +60,20 @@ export const MedicineTable = () => {
           </thead>
 
           <tbody>
-            {productList.length > 0 && productList.map((item, index) => (
+            {productList.length > 0 ? productList.map((item, index) => (
               <tr key={index} className="border-t">
                 <td className="px-4 py-2">{item.product_name}</td>
                 <td className="px-4 py-2">
                   <img 
                     src={item.images[0]}
-                    className="w-[50px] h-[50px]"
+                    className="w-[50px] h-[50px] object-cover"
                   />
                 </td>
                 <td className="px-4 py-2">{parseInt(item.price).toLocaleString("vi-VN")}</td>
                 <td className="px-4 py-2 text-nowrap">{formatDate(item.manufacture_date)}</td>
                 <td className="px-4 py-2 text-nowrap">{formatDate(item.entry_date)}</td>
                 <td className="px-4 py-2 text-nowrap">{formatDate(item.expiry_date)}</td>
-                <td className="px-4 py-2 text-nowrap">{item.dosage_use}</td>
+                <td className="px-4 py-2">{item.dosage_use}</td>
                 <td className="px-4 py-2">
                   <Badge className="mr-1 mb-1 text-[8px]">{item.species}</Badge>
                 </td>
@@ -94,7 +96,11 @@ export const MedicineTable = () => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : (
+              [...Array(5)].map((_, index) => (
+                <ProductRowSkeleton key={index} />
+              ))
+            )}
           </tbody>
         </table>
       </div>
