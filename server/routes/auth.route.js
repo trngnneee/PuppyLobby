@@ -12,7 +12,7 @@ router.get('/verify', async (req, res) => {
       const { account_id, username, email } = decoded;
       const employee_role_id = await db.select('role_id').from('role').where({ role_name: 'employee' }).first();
 
-      const existEmployee = await db('account').where({ account_id, username, email, role_id: employee_role_id.role_id }).first();
+      const existEmployee = await db('account').join('employee', 'account.account_id', 'employee.account_id').where({ 'account.account_id': account_id, 'account.username': username, 'account.email': email, 'account.role_id': employee_role_id.role_id }).first();
       if (existEmployee) {
         const is_manager = await db.raw(
           `SELECT checkManager(?) AS is_manager`,
@@ -23,6 +23,7 @@ router.get('/verify', async (req, res) => {
           message: "Token is valid",
           userInfo: {
             id: existEmployee.account_id,
+            employee_id: existEmployee.employee_id,
             username: existEmployee.username,
             email: existEmployee.email,
             is_manager: is_manager.rows[0].is_manager,

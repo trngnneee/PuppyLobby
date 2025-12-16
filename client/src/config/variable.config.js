@@ -31,3 +31,18 @@ export const healthStatusOptions = [
     label: 'Recovering',
   }
 ];
+
+export const statusOption = [
+  {
+    value: 'pending',
+    label: 'Pending',
+  },
+  {
+    value: 'completed',
+    label: 'Completed',
+  },
+  {
+    value: 'on_progress',
+    label: 'On Progress',
+  }
+]

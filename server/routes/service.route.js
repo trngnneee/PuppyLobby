@@ -92,6 +92,81 @@ router.post('/medical-exam/book', authMiddleware.verifyToken, async (req, res) =
   })
 })
 
+router.get('/medical-exam/list/:employee_id', async (req, res) => {
+  const { employee_id } = req.params;
+
+  const result = await db.raw(
+    `
+    select servicebooking.booking_id, servicebooking.date, servicebooking.status, pet.pet_name, branch.branch_name
+    from servicebooking 
+    join service on servicebooking.service_id = service.service_id
+    join pet on servicebooking.pet_id = pet.pet_id
+    join branch on servicebooking.branch_id = branch.branch_id
+    where service.service_name = 'Medical Examination' and servicebooking.employee_id = ?
+    `,
+    [employee_id]
+  )
+  const medicalExamList = result?.rows;
+  
+  res.json({
+    code: "success",
+    message: "Medical exam list fetched successfully",
+    medicalExamList: medicalExamList
+  })
+});
+
+router.get('/medical-exam/detail/:booking_id', async (req, res) => {
+  const { booking_id } = req.params;
+
+  const result = await db.raw(
+    `
+      select medicalexamination.*, pet.pet_name, servicebooking.date, servicebooking.status, servicebooking.price
+      from servicebooking
+      join medicalexamination on servicebooking.booking_id = medicalexamination.booking_id
+      join pet on servicebooking.pet_id = pet.pet_id
+      where servicebooking.booking_id = ?
+    `,
+    [booking_id]
+  );
+
+  const medicalExamDetail = result?.rows[0];
+
+  if (!medicalExamDetail) {
+    return res.json({
+      code: "not_found",
+      message: "Medical exam detail not found",
+    })
+  }
+  
+  res.json({
+    code: "success",
+    message: "Medical exam detail fetched successfully",
+    medicalExamDetail: medicalExamDetail
+  })
+})
+
+router.post('/medical-exam/update/:booking_id', async (req, res) => {
+  const { booking_id } = req.params;
+  const { symptom, diagnosis, prescription, price, next_appointment, status } = req.body;
+
+  await db('medicalexamination').where({ booking_id: booking_id }).update({
+    symptom: symptom,
+    diagnosis: diagnosis,
+    prescription: prescription,
+    next_appointment: next_appointment,
+  });
+
+  await db('servicebooking').where({ booking_id: booking_id }).update({
+    price: price,
+    status: status,
+  });
+
+  res.json({
+    code: "success",
+    message: "Medical exam updated successfully",
+  })
+})
+
 router.post('/vaccine-single/book', authMiddleware.verifyToken, async (req, res) => {
   const result = await db.raw(
     `SELECT create_vaccine_single(?, ?, ?, ?, ?, ?, ?);`,

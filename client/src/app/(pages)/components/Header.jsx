@@ -117,6 +117,11 @@ export const Header = () => {
                 <Button onClick={() => router.push("/employee/manage")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE DASHBOARD</Button>
               )
             }
+            {
+              (
+                <Button onClick={() => router.push("/work/manage/medical-exam")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">WORK ASSIGNMENT</Button>
+              )
+            }
             <Button
               variant={"destructive"}
               className={"animation"}
@@ -171,7 +176,7 @@ export const Header = () => {
             </Button>
           </div>
         )}
-      </div>
+      </div >
     </>
   )
 }
