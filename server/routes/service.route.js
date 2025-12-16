@@ -120,4 +120,32 @@ router.post('/vaccine-single/book', authMiddleware.verifyToken, async (req, res)
   })
 })
 
+router.post('/vaccine-package/book', authMiddleware.verifyToken, async (req, res) => {
+  const result = await db.raw(
+    `SELECT create_vaccine_package(?, ?, ?, ?, ?, ?, ?);`,
+    [
+      req.body.service_id,
+      req.body.date,
+      req.body.branch_id,
+      req.body.employee_id,
+      req.body.pet_id,
+      req.account.customer_id,
+      req.body.package_id
+    ]
+  );
+
+  const data = result.rows[0].create_vaccine_package;
+  if (data.code == "error") {
+    return res.json({
+      code: "error",
+      message: data.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Service booked successfully",
+  })
+})
+
 export default router;

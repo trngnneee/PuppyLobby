@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Step2UIVaccineSingle } from "./components/Step2UI/Step2UI-VaccineSingle";
 import { Step3UIVaccineSingle } from "./components/Step3UI/Step3-VaccineSingle";
+import { Step2UIVaccinePackage } from "./components/Step2UI/Step2UI-VaccinePackage";
+import { Step3UIVaccinePackage } from "./components/Step3UI/Step3UI-VaccinePackage";
 
 export default function BookingServicePage() {
   const router = useRouter();
@@ -32,6 +34,8 @@ export default function BookingServicePage() {
   const [employee, setEmployee] = useState(null);
 
   const [vaccine, setVaccine] = useState(null);
+
+  const [vaccinePackage, setVaccinePackage] = useState(null);
 
   // Fetch Data
   const [serviceList, setServiceList] = useState([]);
@@ -140,6 +144,39 @@ export default function BookingServicePage() {
           error: (err) => err.message
         })
       }
+      if (selectedService.service_name == "Vaccine Package Service") {
+        const finalData = {
+          service_id: selectedService.service_id,
+          date: date.toString(),
+          branch_id: branch,
+          pet_id: pet,
+          employee_id: employee,
+          package_id: vaccinePackage
+        }
+        const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/service/vaccine-package/book`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify(finalData)
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            return data;
+          });
+
+        toast.promise(promise, {
+          loading: "Booking your vaccine single service...",
+          success: (data) => {
+            if (data.code == "success") {
+              router.push('/');
+              return data.message;
+            }
+          },
+          error: (err) => err.message
+        })
+      }
     }
   }, [currentStep])
 
@@ -168,7 +205,7 @@ export default function BookingServicePage() {
               employee={employee}
               setEmployee={setEmployee}
             />
-          ) : selectedService.service_name == "Vaccine Single Service" && (
+          ) : selectedService.service_name == "Vaccine Single Service" ? (
             <Step2UIVaccineSingle
               availableBranch={serviceList.find((service) => service.service_name == "Vaccine Single Service").branches}
               petList={petList}
@@ -184,6 +221,22 @@ export default function BookingServicePage() {
               vaccine={vaccine}
               setVaccine={setVaccine}
             />
+          ) : (
+            <Step2UIVaccinePackage
+              availableBranch={serviceList.find((service) => service.service_name == "Vaccine Package Service").branches}
+              petList={petList}
+              availableEmployee={availableEmployee}
+              date={date}
+              setDate={setDate}
+              branch={branch}
+              setBranch={setBranch}
+              pet={pet}
+              setPet={setPet}
+              employee={employee}
+              setEmployee={setEmployee}
+              vaccinePackage={vaccinePackage}
+              setVaccinePackage={setVaccinePackage}
+            />
           )
         )}
         {currentStep == 3 && (
@@ -195,7 +248,7 @@ export default function BookingServicePage() {
               pet={petList.find((p) => p.pet_id == pet)?.pet_name}
               employee={availableEmployee.find((e) => e.employee_id == employee)?.employee_name}
             />
-          ) : (selectedService.service_name == "Vaccine Single Service" && (
+          ) : (selectedService.service_name == "Vaccine Single Service" ? (
             <Step3UIVaccineSingle
               service_name={selectedService.service_name}
               date={date}
@@ -203,6 +256,15 @@ export default function BookingServicePage() {
               pet={petList.find((p) => p.pet_id == pet)?.pet_name}
               employee={availableEmployee.find((e) => e.employee_id == employee)?.employee_name}
               vaccine={vaccine}
+            />
+          ) : (
+            <Step3UIVaccinePackage 
+              service_name={selectedService.service_name}
+              date={date}
+              branch={serviceList.find((service) => service.service_name == "Medical Examination").branches.find((b) => b.branch_id == branch)?.branch_name}
+              pet={petList.find((p) => p.pet_id == pet)?.pet_name}
+              employee={availableEmployee.find((e) => e.employee_id == employee)?.employee_name}
+              vaccinePackage={vaccinePackage}
             />
           ))
         )}
