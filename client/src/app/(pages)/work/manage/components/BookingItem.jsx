@@ -3,9 +3,9 @@ import { Label } from "@/components/ui/label"
 import { formatDate } from "@/utils/date"
 import Link from "next/link"
 
-export const MedicalExamItem = ({ item }) => {
+export const BookingItem = ({ item, base_url }) => {
   return (
-    <Link href={`/work/manage/medical-exam/${item.booking_id}`}>
+    <Link href={`${base_url}/${item.booking_id}`}>
       <Label
         htmlFor={item.booking_id}
         className="flex cursor-pointer items-center justify-between rounded-lg border p-4 hover:bg-muted/50 transition"
@@ -18,6 +18,11 @@ export const MedicalExamItem = ({ item }) => {
           <div className="text-sm text-muted-foreground">
             {item.pet_name} • {item.branch_name}
           </div>
+          {item.vaccine_name && (
+            <div className="text-sm text-muted-foreground">
+              Vaccine: {item.vaccine_name}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">

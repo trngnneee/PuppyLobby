@@ -3,12 +3,13 @@
 import { useAuthContext } from "@/provider/auth.provider"
 import { SectionHeader } from "../components/SectionHeader";
 import { useEffect, useState } from "react";
-import { MedicalExamItem } from "./components/MedicalExamItem";
+import { BookingItem } from "../components/BookingItem";
 
 export default function MedicalExamPage() {
   const { userInfo } = useAuthContext();
 
   const [medicalExamList, setMedicalExamList] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (!userInfo) return;
     const fetchData = async () => {
@@ -17,6 +18,7 @@ export default function MedicalExamPage() {
         .then((data) => {
           if (data.code == "success") {
             setMedicalExamList(data.medicalExamList);
+            setLoading(false);
           }
         })
     };
@@ -27,10 +29,14 @@ export default function MedicalExamPage() {
     <>
       <SectionHeader title={`Medical Exam Management`} />
       <div className="grid grid-cols-3 gap-5 mt-5">
-        {medicalExamList.length > 0 ? medicalExamList.map((item) => (
-          <MedicalExamItem key={item.booking_id} item={item} />
-        )) : (
-          <div className="text-sm text-gray-400 mt-5">No medical examination found.</div>
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          medicalExamList.length > 0 ? medicalExamList.map((item) => (
+            <BookingItem key={item.booking_id} item={item} base_url={'/work/manage/medical-exam'} />
+          )) : (
+            <div className="text-sm text-gray-400 mt-5">No medical examination found.</div>
+          )
         )}
       </div>
     </>
