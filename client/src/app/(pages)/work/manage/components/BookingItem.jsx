@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
+import { statusOption } from "@/config/variable.config"
 import { formatDate } from "@/utils/date"
 import Link from "next/link"
 
@@ -23,6 +24,11 @@ export const BookingItem = ({ item, base_url }) => {
               Vaccine: {item.vaccine_name}
             </div>
           )}
+          {item.package_name && (
+            <div className="text-sm text-muted-foreground">
+              Package: {item.package_name}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -35,7 +41,7 @@ export const BookingItem = ({ item, base_url }) => {
                   : "destructive"
             }
           >
-            {item.status}
+            {statusOption.find((status) => status.value === item.status)?.label || item.status}
           </Badge>
         </div>
       </Label>

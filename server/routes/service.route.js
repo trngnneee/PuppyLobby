@@ -107,7 +107,7 @@ router.get('/medical-exam/list/:employee_id', async (req, res) => {
     [employee_id]
   )
   const medicalExamList = result?.rows;
-  
+
   res.json({
     code: "success",
     message: "Medical exam list fetched successfully",
@@ -137,7 +137,7 @@ router.get('/medical-exam/detail/:booking_id', async (req, res) => {
       message: "Medical exam detail not found",
     })
   }
-  
+
   res.json({
     code: "success",
     message: "Medical exam detail fetched successfully",
@@ -240,7 +240,7 @@ router.get('/vaccine-single/detail/:booking_id', async (req, res) => {
       message: "Vaccine single detail not found",
     })
   }
-  
+
   res.json({
     code: "success",
     message: "Vaccine single detail fetched successfully",
@@ -294,5 +294,98 @@ router.post('/vaccine-package/book', authMiddleware.verifyToken, async (req, res
     message: "Service booked successfully",
   })
 })
+
+router.get('/vaccine-package/list/:employee_id', async (req, res) => {
+  const { employee_id } = req.params;
+
+  const result = await db.raw(
+    `
+  select
+    sb.booking_id,
+    sb.date,
+    sb.status,
+    branch.branch_name,
+    pet.pet_name,
+    vp.package_name
+  from servicebooking sb
+  join service s
+    on sb.service_id = s.service_id
+  join vaccinationpackageservice vps
+    on sb.booking_id = vps.booking_id
+  join vaccinationpackage vp
+    on vps.package_id = vp.package_id
+  join branch
+    on sb.branch_id = branch.branch_id
+  join pet
+    on sb.pet_id = pet.pet_id
+  where
+    s.service_name = 'Vaccine Package Service'
+    and sb.employee_id = ?
+  `,
+    [employee_id]
+  );
+
+
+  const vaccinePackageList = result?.rows;
+
+  res.json({
+    code: "success",
+    message: "Vaccine package list fetched successfully",
+    vaccinePackageList: vaccinePackageList
+  })
+})
+
+router.get('/vaccine-package/detail/:booking_id', async (req, res) => {
+  const { booking_id } = req.params;
+  const result = await db.raw(
+    `
+    select
+      vps.*,
+      pet.pet_name,
+      sb.date,
+      sb.status,
+      sb.price,
+      vp.package_name
+    from servicebooking sb
+    join vaccinationpackageservice vps
+      on sb.booking_id = vps.booking_id
+    join vaccinationpackage vp
+      on vps.package_id = vp.package_id
+    join pet
+      on sb.pet_id = pet.pet_id
+    where sb.booking_id = ?
+    `,
+    [booking_id]
+  );
+  const vaccinePackageDetail = result?.rows[0];
+
+  if (!vaccinePackageDetail) {  
+    return res.json({
+      code: "not_found",
+      message: "Vaccine package detail not found",
+    })
+  }
+
+  res.json({
+    code: "success",
+    message: "Vaccine package detail fetched successfully",
+    vaccinePackageDetail: vaccinePackageDetail
+  })
+})
+
+router.post('/vaccine-package/update/:booking_id', async (req, res) => {
+  const { booking_id } = req.params;
+  const { price, status } = req.body;
+
+  await db('servicebooking').where({ booking_id: booking_id }).update({
+    price: price,
+    status: status,
+  });
+
+  res.json({
+    code: "success",
+    message: "Vaccine package updated successfully",
+  })
+});
 
 export default router;
