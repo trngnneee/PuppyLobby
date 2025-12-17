@@ -14,6 +14,14 @@ export const speciesOptions = [
   {
     value: 'rabit',
     label: 'Rabit',
+  },
+  {
+    value: 'fish',
+    label: 'Fish',
+  },
+  {
+    value: 'hamster',
+    label: 'Hamster',
   }
 ];
 
