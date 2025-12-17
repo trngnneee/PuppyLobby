@@ -96,7 +96,7 @@ export const EmployeeTable = ({ keyword }) => {
                 </td>
               </tr>
             )) : loading ? (
-              [...Array(5)].map((_, index) => (<EmployeeRowSkeleton key={index} />))
+              [...Array(10)].map((_, index) => (<EmployeeRowSkeleton key={index} />))
             ) : null}
           </tbody>
         </table>

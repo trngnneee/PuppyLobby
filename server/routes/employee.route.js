@@ -113,7 +113,7 @@ router.get("/list", async (req, res) => {
       [keyword]
     )
   }
-  const pageSize = 5;
+  const pageSize = 10;
   const countResult = await db('employee').count('* as count').first();
   const totalPages = Math.ceil(Number(countResult.count) / pageSize);
   if (req.query.page) {
