@@ -23,7 +23,7 @@ create table Employee (
   date_of_birth date,
   gender gender_enum not null,
   manager_id uuid references Employee (employee_id),
-  account_id uuid references Account (account_id)
+  account_id uuid references Account (account_id) on delete cascade
 );
 
 -- Tạo bảng Veterinarian
