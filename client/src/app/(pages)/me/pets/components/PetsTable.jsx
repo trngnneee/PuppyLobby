@@ -66,7 +66,7 @@ export const PetsTable = ({ keyword }) => {
                 <td className="px-4 py-2 capitalize">{item.gender}</td>
                 <td className="px-4 py-2">
                   {item.health_state === "healthy" ? (
-                    <Badge variant="success">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
+                    <Badge variant="">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
                   ) : item.health_state === "sick" ? (
                     <Badge variant="destructive">{healthStatusOptions.find((opt) => opt.value == item.health_state)?.label}</Badge>
                   ) : (

@@ -12,8 +12,8 @@ export const speciesOptions = [
     label: 'Bird',
   },
   {
-    value: 'rabit',
-    label: 'Rabit',
+    value: 'rabbit',
+    label: 'Rabbit',
   },
   {
     value: 'fish',
