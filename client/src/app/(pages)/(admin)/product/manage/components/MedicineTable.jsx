@@ -15,6 +15,7 @@ import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { ProductRowSkeleton } from "./ProductRowSkeleton";
+import { speciesOptions } from "@/config/variable.config";
 
 export const MedicineTable = () => {
   const router = useRouter();
@@ -75,7 +76,7 @@ export const MedicineTable = () => {
                 <td className="px-4 py-2 text-nowrap">{formatDate(item.expiry_date)}</td>
                 <td className="px-4 py-2">{item.dosage_use}</td>
                 <td className="px-4 py-2">
-                  <Badge className="mr-1 mb-1 text-[8px]">{item.species}</Badge>
+                  <Badge className="mr-1 mb-1 text-[8px] capitalize">{speciesOptions.find((species) => species.value === item.species)?.label || item.species}</Badge>
                 </td>
                 <td className="px-4 py-2 w-[120px]">{item.side_effect}</td>
                 <td className="px-4 py-2">

@@ -1,33 +1,26 @@
 import { cn } from "@/lib/utils"
 import { SectionHeader } from "../SectionHeader"
+import Link from "next/link"
 
 export const Section2 = () => {
   const categoryList = [
     {
-      name: "Grooming",
-      img: "/category1.png"
-    },
-    {
-      name: "Healthcare",
+      name: "Medical Examination",
       img: "/category2.png"
     },
     {
-      name: "Daycare",
+      name: "Vaccination Single Service",
       img: "/category3.png"
     },
     {
-      name: "Training",
+      name: "Vaccination Package Service",
       img: "/category4.png"
-    },
-    {
-      name: "Hyginic care",
-      img: "/category5.png"
     },
   ]
   
   const CategoryItem = ({ item, index }) => {
     return (
-      <div className={cn(
+      <Link href="/service/book" className={cn(
         "border rounded-[25px] py-[50px] flex flex-col items-center justify-center gap-4 hover:opacity-80 cursor-pointer animation",
         index % 2 != 0 ? "border-[var(--main)]" : "border-yellow-300 bg-gradient-to-b from-[#FFEE94] to-[#FFF]"
       )}>
@@ -39,7 +32,7 @@ export const Section2 = () => {
           />
         </div>
         <div className="text-[20px]">{item.name}</div>
-      </div>
+      </Link>
     )
   }
 
@@ -47,7 +40,7 @@ export const Section2 = () => {
     <>
       <div className="container mx-auto">
         <SectionHeader title={"Services Category"} />
-        <div className="grid grid-cols-5 gap-10 mt-[52px]">
+        <div className="grid grid-cols-3 gap-10 mt-[52px]">
           {categoryList.map((item, index) => (
             <CategoryItem key={index} item={item} index={index} />
           ))}
