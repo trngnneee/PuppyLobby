@@ -23,12 +23,12 @@ create table Employee (
   date_of_birth date,
   gender gender_enum not null,
   manager_id uuid references Employee (employee_id),
-  account_id uuid references Account (account_id) on delete cascade
+  account_id uuid references Account (account_id) on delete cascade -- Xóa account thì xóa cả employee
 );
 
 -- Tạo bảng Veterinarian
 create table Veterinarian (
-  employee_id uuid primary key references Employee (employee_id),
+  employee_id uuid primary key references Employee (employee_id) ON DELETE cascade, -- Xóa employee thì xóa cả veterinarian
   degree text not null,
   specialization text not null
 );
@@ -63,7 +63,7 @@ create table MembershipLevel (
 
 -- Tạo bảng CustomerAccount
 create table CustomerAccount (
-  account_id uuid primary key references Account (account_id),
+  account_id uuid primary key references Account (account_id) on delete cascade, -- Xóa account thì xóa cả customeraccount
   loyalty_score numeric,
   reach_target numeric,
   customer_id uuid references Customer (customer_id),
@@ -127,9 +127,16 @@ create table Product (
   stock numeric check (stock > 0)
 );
 
+-- Tạo bảng ProductImage
+create table ProductImage(
+  id uuid primary key default gen_random_uuid ()
+  product_id uuid references product(product_id) ON DELETE CASCADE, -- Xóa product thì xóa cả productimage
+  image_url text not null
+)
+
 -- Tạo bảng Accessory
 create table Accessory (
-  product_id uuid primary key references Product (product_id),
+  product_id uuid primary key references Product (product_id) ON DELETE CASCADE, -- Xóa product thì xóa cả accessory
   size text not null,
   color text not null,
   material text not null
@@ -137,7 +144,7 @@ create table Accessory (
 
 -- Tạo bảng Medicine
 create table Medicine (
-  product_id uuid primary key references Product (product_id),
+  product_id uuid primary key references Product (product_id) ON DELETE CASCADE, -- Xóa product thì xóa cả medicine
   dosage_use text not null,
   species text not null,
   side_effect text not null
@@ -145,7 +152,7 @@ create table Medicine (
 
 -- Tạo bảng Food
 create table Food (
-  product_id uuid primary key references Product (product_id),
+  product_id uuid primary key references Product (product_id) ON DELETE CASCADE, -- Xóa product thì xóa cả food
   weight text not null,
   species text not null,
   nutrition_description text
@@ -185,7 +192,7 @@ create table VaccinationSchedule (
   scheduled_week numeric not null check (scheduled_week > 0),
   dosage text not null,
   vaccine_id uuid references Vaccine (vaccine_id),
-  package_id uuid references VaccinationPackage (package_id)
+  package_id uuid references VaccinationPackage (package_id) ON DELETE CASCADE, -- Xóa package thì xóa cả schedule
 );
 
 -- Tạo bảng ServiceBooking

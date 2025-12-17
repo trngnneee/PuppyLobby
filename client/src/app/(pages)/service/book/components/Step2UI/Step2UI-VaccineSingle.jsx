@@ -8,12 +8,13 @@ import { Calendar } from "@/components/ui/calendar-rac"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDate } from "@/utils/date"
 import { VaccineItem } from "./VaccineItem/VaccineItem"
-import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { paramsBuilder } from "@/utils/params"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VaccineItemSkeleton } from "./VaccineItem/VaccineItemSkeleton"
+import { getPagination } from "@/utils/pagination"
 
 export const Step2UIVaccineSingle = ({
   petList, availableBranch, availableEmployee,
@@ -25,6 +26,7 @@ export const Step2UIVaccineSingle = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
 
   const [vaccineList, setVaccineList] = useState([]);
   useEffect(() => {
@@ -38,6 +40,7 @@ export const Step2UIVaccineSingle = ({
           setVaccineList(data.vaccineList);
           setTotalPages(data.totalPages);
           setVaccine(data.vaccineList.length > 0 ? data.vaccineList[0].vaccine_id : null);
+          setPaginationList(getPagination(currentPage, data.totalPages))
         }
       });
     }
@@ -165,6 +168,23 @@ export const Step2UIVaccineSingle = ({
                     </a>
                   </Button>
                 </PaginationItem>
+
+                {paginationList.map((item, index) => (
+                  (item != '...') ? (
+                    <PaginationItem key={index}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(item)}
+                        className={item === currentPage ? "bg-gray-100" : ""}
+                      >
+                        {item}
+                      </Button>
+                    </PaginationItem>
+                  ) : (
+                    <PaginationEllipsis key={index} />
+                  )
+                ))}
+
                 <PaginationItem>
                   <Button
                     variant="outline"
