@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { useEffect, useState } from "react";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { ProductRowSkeleton } from "./ProductRowSkeleton";
+import { getPagination } from "@/utils/pagination";
 
 export const FoodTable = () => {
   const router = useRouter();
@@ -22,6 +24,7 @@ export const FoodTable = () => {
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
   useEffect(() => {
     setProductList([]);
     const fetchData = async () => {
@@ -34,6 +37,7 @@ export const FoodTable = () => {
           if (data.code == "success") {
             setProductList(data.productList);
             setTotalPages(data.totalPages);
+            setPaginationList(getPagination(currentPage, data.totalPages));
           }
         })
     }
@@ -126,6 +130,23 @@ export const FoodTable = () => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+
             <PaginationItem>
               <Button
                 variant="outline"

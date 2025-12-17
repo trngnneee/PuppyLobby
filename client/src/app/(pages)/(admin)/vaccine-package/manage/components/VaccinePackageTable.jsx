@@ -6,12 +6,15 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { getPagination } from "@/utils/pagination";
+import { VaccinePackageRowSkeleton } from "./VaccinePackageRowSkeleton";
 
 export const VaccinePackageTable = ({ keyword }) => {
   const router = useRouter();
@@ -19,7 +22,11 @@ export const VaccinePackageTable = ({ keyword }) => {
   const [vaccinePackageList, setVaccinePackageList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
+    setVaccinePackageList([]);
     const fetchData = async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/list`, {
         page: currentPage,
@@ -31,6 +38,8 @@ export const VaccinePackageTable = ({ keyword }) => {
           if (data.code === "success") {
             setVaccinePackageList(data.vaccinePackageList);
             setTotalPages(data.totalPages);
+            setPaginationList(getPagination(currentPage, data.totalPages));
+            setLoading(false);
           }
         })
     }
@@ -53,7 +62,7 @@ export const VaccinePackageTable = ({ keyword }) => {
           </thead>
 
           <tbody>
-            {vaccinePackageList.length > 0 && vaccinePackageList.map((item) => (
+            {vaccinePackageList.length > 0 ? vaccinePackageList.map((item) => (
               <tr key={item.package_id} className="border-t">
                 <td className="px-4 py-2">{item.package_name}</td>
                 <td className="px-4 py-2">{item.duration} months</td>
@@ -84,7 +93,11 @@ export const VaccinePackageTable = ({ keyword }) => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : loading ? (
+              [...Array(3)].map((_, index) => (
+                <VaccinePackageRowSkeleton key={index} />
+              ))
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -110,6 +123,23 @@ export const VaccinePackageTable = ({ keyword }) => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+
             <PaginationItem>
               <Button
                 variant="outline"

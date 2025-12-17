@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { ProductRowSkeleton } from "./ProductRowSkeleton";
+import { getPagination } from "@/utils/pagination";
 
 export const AccessoryTable = () => {
   const router = useRouter();
@@ -21,6 +23,7 @@ export const AccessoryTable = () => {
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       setProductList([]);
@@ -33,6 +36,7 @@ export const AccessoryTable = () => {
           if (data.code == "success") {
             setProductList(data.productList);
             setTotalPages(data.totalPages);
+            setPaginationList(getPagination(currentPage, data.totalPages));
           }
         })
     }
@@ -123,6 +127,23 @@ export const AccessoryTable = () => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+
             <PaginationItem>
               <Button
                 variant="outline"

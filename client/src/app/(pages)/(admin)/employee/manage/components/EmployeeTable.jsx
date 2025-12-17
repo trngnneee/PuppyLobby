@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -14,14 +15,20 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+import { getPagination } from "@/utils/pagination";
+import { EmployeeRowSkeleton } from "./EmployeeRowSkeleton";
 
 export const EmployeeTable = ({ keyword }) => {
+  const [loading, setLoading] = useState(true);
+  const [paginationList, setPaginationList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const router = useRouter();
 
   const [employeeList, setEmployeeList] = useState([])
   useEffect(() => {
+    setEmployeeList([]);
+    setLoading(true);
     const fetchData = async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/employee/list`, {
         keyword: keyword || undefined,
@@ -34,6 +41,8 @@ export const EmployeeTable = ({ keyword }) => {
       const data = await promise.json();
       setEmployeeList(data.employeeList);
       setTotalPages(data.totalPages);
+      setPaginationList(getPagination(currentPage, data.totalPages))
+      setLoading(false);
     };
     fetchData();
   }, [keyword, currentPage])
@@ -54,7 +63,7 @@ export const EmployeeTable = ({ keyword }) => {
           </thead>
 
           <tbody>
-            {employeeList.length > 0 && employeeList.map((item, index) => (
+            {employeeList.length > 0 ? employeeList.map((item, index) => (
               <tr className="border-t" key={index}>
                 <td className="px-4 py-2">{item.employee_name}</td>
                 <td className="px-4 py-2">{formatDate(item.date_of_birth)}</td>
@@ -63,7 +72,7 @@ export const EmployeeTable = ({ keyword }) => {
                 <td className="px-4 py-2">
                   {item.working_branch ? (
                     <Badge variant={"destructive"}>{`${item.working_branch}`}</Badge>
-                  ): (
+                  ) : (
                     <>-</>
                   )}
                 </td>
@@ -86,7 +95,9 @@ export const EmployeeTable = ({ keyword }) => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : loading ? (
+              [...Array(5)].map((_, index) => (<EmployeeRowSkeleton key={index} />))
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -116,6 +127,22 @@ export const EmployeeTable = ({ keyword }) => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
             <PaginationItem>
               <Button
                 variant="outline"

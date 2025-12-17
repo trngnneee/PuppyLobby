@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -16,13 +17,15 @@ import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { ProductRowSkeleton } from "./ProductRowSkeleton";
 import { speciesOptions } from "@/config/variable.config";
+import { getPagination } from "@/utils/pagination";
 
 export const MedicineTable = () => {
   const router = useRouter();
-  
+
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
   useEffect(() => {
     setProductList([]);
     const fetchData = async () => {
@@ -35,6 +38,7 @@ export const MedicineTable = () => {
           if (data.code == "success") {
             setProductList(data.productList);
             setTotalPages(data.totalPages);
+            setPaginationList(getPagination(currentPage, data.totalPages));
           }
         })
     }
@@ -65,7 +69,7 @@ export const MedicineTable = () => {
               <tr key={index} className="border-t">
                 <td className="px-4 py-2">{item.product_name}</td>
                 <td className="px-4 py-2">
-                  <img 
+                  <img
                     src={item.images[0]}
                     className="w-[50px] h-[50px] object-cover"
                   />
@@ -89,7 +93,7 @@ export const MedicineTable = () => {
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={() => router.push(`/product/manage/update/${item.product_id}`)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <DeleteButton 
+                        <DeleteButton
                           api={`${process.env.NEXT_PUBLIC_API_URL}/product/delete/${item.product_id}`}
                         />
                       </DropdownMenuItem>
@@ -127,6 +131,23 @@ export const MedicineTable = () => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+
             <PaginationItem>
               <Button
                 variant="outline"

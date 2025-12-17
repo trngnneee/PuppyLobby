@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { VaccineItemSkeleton } from "./VaccineItemSkeleton";
+import { getPagination } from "@/utils/pagination";
 
 export const VaccineTable = ({ keyword }) => {
   const router = useRouter();
@@ -21,7 +23,11 @@ export const VaccineTable = ({ keyword }) => {
   const [vaccineList, setVaccineList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
+    setVaccineList([]);
     const fetchData = async () => {
       setVaccineList([]);
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
@@ -34,6 +40,8 @@ export const VaccineTable = ({ keyword }) => {
           if (data.code == "success") {
             setVaccineList(data.vaccineList);
             setTotalPages(data.totalPages);
+            setPaginationList(getPagination(currentPage, data.totalPages));
+            setLoading(false);
           }
         });
     }
@@ -83,9 +91,9 @@ export const VaccineTable = ({ keyword }) => {
                   </DropdownMenu>
                 </td>
               </tr>
-            )) : [...Array(10)].map((_, index) => (
+            )) : loading ? [...Array(10)].map((_, index) => (
               <VaccineItemSkeleton key={index} />
-            ))}
+            )) : null}
           </tbody>
         </table>
       </div>
@@ -111,6 +119,23 @@ export const VaccineTable = ({ keyword }) => {
                 </a>
               </Button>
             </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+
             <PaginationItem>
               <Button
                 variant="outline"
