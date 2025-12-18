@@ -104,45 +104,23 @@ router.post('/create', async (req, res) => {
 })
 
 router.get("/list", async (req, res) => {
-  const query = db.select('*').from('employee');
 
-  if (req.query.keyword) {
-    const keyword = req.query.keyword?.trim();
-    query.whereRaw(
-      "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
-      [keyword]
-    )
-  }
+  const keyword = req.query.keyword ? req.query.keyword.trim() : "";
+  const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = 5;
-  const countResult = await db('employee').count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
-  const rawEmployees = await query;
-
-  const employeeList = [];
-  for (const emp of rawEmployees) {
-    const managerDetail = await db.select('employee_name').from('employee').where({ employee_id: emp.manager_id }).first();
-    const workingDetail = await db.select('branch_name').from('employeehistory').join('branch', 'employeehistory.branch_id', 'branch.branch_id').where({ employee_id: emp.employee_id }).orderBy('start_date', 'desc').first();
-    employeeList.push({
-      employee_id: emp.employee_id,
-      employee_name: emp.employee_name,
-      date_of_birth: emp.date_of_birth,
-      gender: emp.gender,
-      manager_id: emp.manager_id,
-      manager_name: managerDetail ? managerDetail.employee_name : null,
-      working_branch: workingDetail ? workingDetail.branch_name : null,
-    });
-  }
+  const result = await db.raw(`
+    SELECT * FROM get_employee_list(?, ?, ?)
+  `, [keyword, page, pageSize]);
+  const employeeList = result.rows;
+  const totalCount = employeeList.length > 0 ? parseInt(employeeList[0].total_count) : 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   res.json({
     code: "success",
     message: "Employee list retrieved successfully",
     employeeList: employeeList,
     totalPages: totalPages,
+    totalCount: totalCount,
   })
 })
 

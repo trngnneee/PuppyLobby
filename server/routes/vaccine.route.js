@@ -30,11 +30,17 @@ router.post("/create", async (req, res) => {
 })
 
 router.get("/list", async (req, res) => {
-  const query = db.select("*").from("vaccine");
+
   const pageSize = 10;
-  const countResult = await db('vaccine').count('* as count').first();
-  const tmp = await query;
-  const totalPages = Math.ceil(Number(tmp.length) / pageSize);
+  const countQuery = await db.raw(`
+    SELECT COUNT(*) as count FROM vaccine
+    ${req.query.keyword ? `WHERE fts @@ plainto_tsquery('english', remove_accents('${req.query.keyword.trim()}') || ':*')` : ''}
+  `);
+  
+  const totalCount = parseInt(countQuery.rows[0].count);
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const query = db.select("*").from("vaccine");
   if (req.query.keyword){
     const keyword = req.query.keyword?.trim();
     query.whereRaw(
@@ -49,7 +55,7 @@ router.get("/list", async (req, res) => {
   }
 
   const vaccineList = await query;
-  
+
   res.json({
     code: "success",
     message: "Vaccine list fetched successfully",

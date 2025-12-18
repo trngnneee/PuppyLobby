@@ -40,4 +40,13 @@ add column
 create index pet_fts on pet using gin (fts);
 
 
+--- fts cho product
+alter table
+  product
+add column
+  fts tsvector generated always as (to_tsvector('english', remove_accents(product_name))) stored;
+create index product_fts on product using gin (fts);
+
+
+select * from employee
 

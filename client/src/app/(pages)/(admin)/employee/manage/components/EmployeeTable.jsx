@@ -14,10 +14,11 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
-
+import PaginationComponent from "@/components/common/Pagination";
 export const EmployeeTable = ({ keyword }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const router = useRouter();
 
   const [employeeList, setEmployeeList] = useState([])
@@ -32,11 +33,16 @@ export const EmployeeTable = ({ keyword }) => {
         credentials: "include",
       });
       const data = await promise.json();
+      if (data.totalPages < currentPage) {
+        setCurrentPage(1);
+      }
+
       setEmployeeList(data.employeeList);
       setTotalPages(data.totalPages);
+      setTotalCount(data.totalCount);
     };
     fetchData();
-  }, [keyword, currentPage])
+  }, [currentPage, keyword]);
 
   return (
     <>
@@ -91,52 +97,28 @@ export const EmployeeTable = ({ keyword }) => {
         </table>
       </div>
       <div className="flex items-center justify-between gap-3 mt-5">
-        <p className="grow text-sm text-muted-foreground" aria-live="polite">
-          Page <span className="text-foreground">{currentPage}</span> of{" "}
-          <span className="text-foreground">{totalPages}</span>
-        </p>
-        <Pagination className="w-auto">
-          <PaginationContent className="gap-3">
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === 1 ? true : undefined}
-                role={currentPage === 1 ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => {
-                    if (currentPage > 1) {
-                      setCurrentPage(currentPage - 1);
-                    }
-                  }}
-                >
-                  Previous
-                </a>
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === totalPages ? true : undefined}
-                role={currentPage === totalPages ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => {
-                    if (currentPage < totalPages) {
-                      setCurrentPage(currentPage + 1);
-                    }
-                  }}
-                >
-                  Next
-                </a>
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {totalCount > 0 ?
+        (
+        <>
+          <p className="grow text-sm text-muted-foreground" aria-live="polite">
+            Page <span className="text-foreground">{currentPage}</span> of{" "}
+            <span className="text-foreground">{totalPages}</span>
+          </p>
+          <p className="grow text-sm text-muted-foreground text-right" aria-live="polite">
+            Total Employees: <span className="text-foreground">{totalCount}</span>
+          </p>
+        </>
+        )
+        :
+        (<p className="grow text-sm text-muted-foreground" aria-live="polite">
+          No employees found.
+        </p>)
+        }
+        <PaginationComponent
+          numberOfPages={totalPages}
+          currentPage={currentPage}
+          controlPage={(value) => setCurrentPage(value)}
+        />
       </div>
     </>
   )

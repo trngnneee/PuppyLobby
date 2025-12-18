@@ -8,13 +8,11 @@ import { Calendar } from "@/components/ui/calendar-rac"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDate } from "@/utils/date"
 import { VaccineItem } from "./VaccineItem/VaccineItem"
-import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination"
-import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { paramsBuilder } from "@/utils/params"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VaccineItemSkeleton } from "./VaccineItem/VaccineItemSkeleton"
-
+import PaginationComponent from "@/components/common/Pagination"
 export const Step2UIVaccineSingle = ({
   petList, availableBranch, availableEmployee,
   date, setDate,
@@ -148,40 +146,11 @@ export const Step2UIVaccineSingle = ({
               Page <span className="text-foreground">{currentPage}</span> of{" "}
               <span className="text-foreground">{totalPages}</span>
             </p>
-            <Pagination className="w-auto">
-              <PaginationContent className="gap-3">
-                <PaginationItem>
-                  <Button
-                    variant="outline"
-                    className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                    aria-disabled={currentPage === 1 ? true : undefined}
-                    role={currentPage === 1 ? "link" : undefined}
-                    asChild
-                  >
-                    <a
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    >
-                      Previous
-                    </a>
-                  </Button>
-                </PaginationItem>
-                <PaginationItem>
-                  <Button
-                    variant="outline"
-                    className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                    aria-disabled={currentPage === totalPages ? true : undefined}
-                    role={currentPage === totalPages ? "link" : undefined}
-                    asChild
-                  >
-                    <a
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    >
-                      Next
-                    </a>
-                  </Button>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <PaginationComponent
+              numberOfPages={totalPages}
+              currentPage={currentPage}
+              controlPage={(value) => setCurrentPage(value)}
+            />
           </div>
         </div>
       </div>

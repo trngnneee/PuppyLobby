@@ -8,125 +8,75 @@ const router = express.Router()
 const upload = multer({ storage: storage })
 
 router.post("/create", upload.array('files', 5), async (req, res) => {
-  await db.raw(`
-  SELECT createProduct(
-    ?, ?, ?, ?, ?, ?, ?,
-    ?, ?, ?,
-    ?, ?,
-    ?, ?, ?,
-    ?
-  )
-`, [
-    req.body.type,
-    req.body.product_name,
-    parseFloat(req.body.price),
-    req.body.manufacture_date,
-    req.body.entry_date,
-    req.body.expiry_date,
-    parseInt(req.body.stock),
+  console.log ("Files:", req.files);
+  const product_info = {
 
-    // Medicine
-    req.body.species || null,
-    req.body.dosage_use || null,
-    req.body.side_effect || null,
+    type: req.body.type,
+    product_name: req.body.product_name,
+    price: Number(req.body.price),
+    manufacture_date: req.body.manufacture_date,
+    entry_date: req.body.entry_date,
+    expiry_date: req.body.expiry_date,
+    stock: Number(req.body.stock),
+    images: req.files.map(file => file.path)
+  }
 
-    // Food
-    req.body.weight || null,
-    req.body.nutrition_description || null,
+  const extra_info = {};
+  if (product_info.type === 'medicine') {
+    extra_info.species = req.body.species;
+    extra_info.dosage_use = req.body.dosage_use;
+    extra_info.side_effect = req.body.side_effect;
+  }
+  else if (product_info.type === 'food') {
+    extra_info.species = req.body.species;
+    extra_info.weight = Number(req.body.weight);
+    extra_info.nutrition_description = req.body.nutrition_description;
+  }
+  else if (product_info.type === 'accessory') {
+    extra_info.size = req.body.size;
+    extra_info.color = req.body.color;
+    extra_info.material = req.body.material;
+  }
+  const result = await db.raw(`
+    SELECT * FROM create_product(?, ?)
+  `, [product_info, extra_info]);
 
-    // Accessory
-    req.body.size || null,
-    req.body.color || null,
-    req.body.material || null,
-
-    req.files.map(file => file.path) || null
-    
-  
-  ])
-
+  if (result.rows[0].create_product.code === 'error') {
+    return res.json({
+      code: "error",
+      message: result.rows[0].create_product.message,
+    });
+  }
   res.json({
     code: "success",
     message: "Product created successfully",
   });
 })
 
-router.get("/medicine/list", async (req, res) => {
-  const query = db.select("*").from("product").where("type", "medicine").join("medicine", "product.product_id", "medicine.product_id");
-  const pageSize = 5;
-  const countResult = await db('product').where("type", "medicine").count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(String(req.query.page)) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
+router.get("/product_types", async (req, res) => {
+  const type = req.query.type;
+  const search = req.query.search || "";
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
 
-  const productList = await query;
-
-  for (const product of productList) {
-    const images = await db.select("image_url").from("productimage").where("product_id", product.product_id);
-    product.images = images.map(img => img.image_url);
-  }
-
+  const result = await db.raw(`
+    
+    SELECT * FROM get_product_type_list(?, ?, ?, ?)
+  `, [type, search, page, pageSize]);
+  
+  const product = result.rows;
   res.json({
     code: "success",
-    message: "Medicine list fetched successfully",
-    productList: productList,
-    totalPages: totalPages,
+    message: "Product types fetched successfully",
+    productList: product,
+    totalCount : product.length > 0 ? product[0].total_count : 0,
+    totalPages: Math.ceil((product.length > 0 ? product[0].total_count : 0) / pageSize)
   })
+  
 })
 
-router.get("/food/list", async (req, res) => {
-  const query = db.select("*").from("product").where("type", "food").join("food", "product.product_id", "food.product_id");
-  const pageSize = 5;
-  const countResult = await db('product').where("type", "food").count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(String(req.query.page)) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
 
-  const productList = await query;
 
-  for (const product of productList) {
-    const images = await db.select("image_url").from("productimage").where("product_id", product.product_id);
-    product.images = images.map(img => img.image_url);
-  }
-
-  res.json({
-    code: "success",
-    message: "Food list fetched successfully",
-    productList: productList,
-    totalPages: totalPages
-  })
-})
-
-router.get("/accessory/list", async (req, res) => {
-  const query = db.select("*").from("product").where("type", "accessory").join("accessory", "product.product_id", "accessory.product_id");
-  const pageSize = 5;
-  const countResult = await db('product').where("type", "accessory").count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(String(req.query.page)) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
-
-  const productList = await query;
-
-  for (const product of productList) {
-    const images = await db.select("image_url").from("productimage").where("product_id", product.product_id);
-    product.images = images.map(img => img.image_url);
-  }
-
-  res.json({
-    code: "success",
-    message: "Accessory list fetched successfully",
-    productList: productList,
-    totalPages: totalPages
-  })
-})
 
 router.delete("/delete/:productId", async (req, res) => {
   const { productId } = req.params;
@@ -140,94 +90,78 @@ router.delete("/delete/:productId", async (req, res) => {
 
 router.get("/detail/:productId", async (req, res) => {
   const { productId } = req.params;
-  const productDetail = await db.select("*").from("product").where("product.product_id", productId).first();
-  const images = await db.select("image_url").from("productimage").where("product_id", productId);
-  productDetail.images = images.map(img => img.image_url);
-  if (productDetail.type === "medicine") {
-    const medicineDetail = await db.select("*").from("medicine").where("medicine.product_id", productId).first();
-    Object.assign(productDetail, medicineDetail);
-  }
-  if (productDetail.type === "food") {
-    const foodDetail = await db.select("*").from("food").where("food.product_id", productId).first();
-    Object.assign(productDetail, foodDetail);
-  }
-  if (productDetail.type === "accessory") {
-    const accessoryDetail = await db.select("*").from("accessory").where("accessory.product_id", productId).first();
-    Object.assign(productDetail, accessoryDetail);
+  const result = await db.raw(`
+    SELECT * FROM get_product_detail(?)
+  `, [productId]);
+  const productDetail = result.rows[0].get_product_detail;
+  const resultAll = {
+    ...productDetail.product_info,
+    ...productDetail.extra_info
   }
   res.json({
     code: "success",
-    message: "Medicine detail fetched successfully",
-    productDetail: productDetail
+    message: "Product detail fetched successfully",
+    productDetail: resultAll
   })
 })
 
 router.post("/update/:productId", upload.array('files', 5), async (req, res) => {
   const { productId } = req.params;
-  const {
-    type,
-    product_name,
-    price,
-    manufacture_date,
-    entry_date,
-    expiry_date,
-    stock,
-    existingFiles
-  } = req.body;
 
-  const t = await db.transaction();
+  let product_info = {
+    type : req.body.type,
+    product_name: req.body.product_name,
+    price: Number(req.body.price),
+    manufacture_date: req.body.manufacture_date,
+    entry_date: req.body.entry_date,
+    expiry_date: req.body.expiry_date,
+    stock: Number(req.body.stock),
+    images: []  // Will be set later
+  }
+  console.log ("Product info: ", product_info);
 
   const newImageUrls = req.files.map(file => file.path);
   
-  const keptImageUrls = JSON.parse(existingFiles || '[]');
+  const keptImageUrls = JSON.parse( req.body.existingFiles || '[]');
 
-  await t('productimage')
-    .where('product_id', productId)
-    .whereNotIn('image_url', keptImageUrls)
-    .del();
+  const allImageUrls = [...keptImageUrls, ...newImageUrls];
+  product_info.images = allImageUrls;
 
-  if (newImageUrls.length > 0) {
-    const insertImages = newImageUrls.map(url => ({
-      product_id: productId,
-      image_url: url
-    }));
-    await t('productimage').insert(insertImages);
+  const extra_info = {};
+  if (product_info.type === 'medicine') {
+    extra_info.species = req.body.species;
+    extra_info.dosage_use = req.body.dosage_use;
+    extra_info.side_effect = req.body.side_effect;
   }
+  else if (product_info.type === 'food') {
+    extra_info.species = req.body.species;
+    extra_info.weight = Number(req.body.weight);
+    extra_info.nutrition_description = req.body.nutrition_description;
+  }
+  else if (product_info.type === 'accessory') {
+    extra_info.size = req.body.size;
+    extra_info.color = req.body.color;
+    extra_info.material = req.body.material;
+  }
+  const t = await db.transaction();
 
-  await t('product')
-    .where('product_id', productId)
-    .update({
-      product_name,
-      price: Number(price),
-      manufacture_date,
-      entry_date,
-      expiry_date,
-      stock: Number(stock)
+  const result = await t.raw(`
+    SELECT * FROM update_product(?, ?, ?)
+  `, [productId, product_info, extra_info]);
+  if (result.rows[0].update_product.code === 'error') {
+    await t.rollback();
+    return res.json({
+      code: "error",
+      message: result.rows[0].update_product.message,
     });
-
-  if (type === 'medicine') {
-    const { species, dosage_use, side_effect } = req.body;
-    await t('medicine')
-      .where('product_id', productId)
-      .update({ species, dosage_use, side_effect });
-  } else if (type === 'food') {
-    const { species, weight, nutrition_description } = req.body;
-    await t('food')
-      .where('product_id', productId)
-      .update({ species, weight, nutrition_description });
-  } else if (type === 'accessory') {
-    const { size, color, material } = req.body;
-    await t('accessory')
-      .where('product_id', productId)
-      .update({ size, color, material });
   }
-
   await t.commit();
 
   res.json({
     code: "success",
     message: "Product updated successfully"
   });
+
 });
 
 export default router

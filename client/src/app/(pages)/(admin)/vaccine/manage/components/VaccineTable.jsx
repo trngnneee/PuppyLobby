@@ -14,7 +14,7 @@ import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { VaccineItemSkeleton } from "./VaccineItemSkeleton";
-
+import PaginationComponent from "@/components/common/Pagination";
 export const VaccineTable = ({ keyword }) => {
   const router = useRouter();
 
@@ -94,40 +94,11 @@ export const VaccineTable = ({ keyword }) => {
           Page <span className="text-foreground">{currentPage}</span> of{" "}
           <span className="text-foreground">{totalPages}</span>
         </p>
-        <Pagination className="w-auto">
-          <PaginationContent className="gap-3">
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === 1 ? true : undefined}
-                role={currentPage === 1 ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                >
-                  Previous
-                </a>
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === totalPages ? true : undefined}
-                role={currentPage === totalPages ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                >
-                  Next
-                </a>
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <PaginationComponent
+          numberOfPages={totalPages}
+          currentPage={currentPage}
+          controlPage={(value) => setCurrentPage(value)}
+        />
       </div>
     </>
   )

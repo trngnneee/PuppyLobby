@@ -16,11 +16,6 @@ export default [
       "no-constant-condition": "warn",
       "no-unreachable": "error",
       "no-console": "off",
-      // Check import 
-      "import/no-unresolved": "off",
-      "import/no-unresolved": "error",
-      "import/no-unused-modules": "warn",
-      "import/order": ["warn", { "groups": ["builtin", "external", "internal"] }]
 
     }
   }

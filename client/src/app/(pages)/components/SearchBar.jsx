@@ -1,10 +1,10 @@
 import { Input } from "@/components/ui/input"
 import { ArrowRightIcon, SearchIcon } from "lucide-react"
 
-export const SearchBar = ({ keyword, setKeyword }) => {
+export const SearchBar = ({ keyword, setKeyword, setSubmitKeyword }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    setKeyword(e.target.keyword.value);
+    setSubmitKeyword(e.target.keyword.value);
   }
   
   return (
@@ -14,6 +14,8 @@ export const SearchBar = ({ keyword, setKeyword }) => {
           <Input
             className="peer ps-9 pe-9"
             id="keyword"
+            value = {keyword}
+            onChange={(e) => setKeyword(e.target.value)}
             placeholder="Search..."
             type="search"
           />

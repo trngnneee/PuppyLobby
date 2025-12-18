@@ -151,7 +151,7 @@ export default function ProductUpdatePage() {
     if (submit) {
       const formData = new FormData();
       formData.append("type", type);
-      formData.append("name", e.target['name'].value);
+      formData.append("product_name", e.target['name'].value);
       formData.append("price", e.target['price'].value);
       formData.append("manufacture_date", manufactureDate.toISOString().split('T')[0]);
       formData.append("entry_date", entryDate.toISOString().split('T')[0]);
@@ -436,7 +436,7 @@ export default function ProductUpdatePage() {
                   </div>
                 </div>
                 <div className="w-full">
-                  <div className="mb-[15px] *:not-first:mt-2">
+                  <div className="mb-[15px] *:not-first:mt-2">x
                     <Label htmlFor="weight" className="text-sm font-medium text-[var(--main)]">Weight</Label>
                     <Input
                       type="number"

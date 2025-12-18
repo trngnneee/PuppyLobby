@@ -7,7 +7,8 @@ import { CreateButton } from "@/app/(pages)/components/CreateButton";
 import { useState } from "react";
 
 export default function EmployeeManagePage() {
-  const [keyword, setKeyword] = useState("")  
+  const [keyword, setKeyword] = useState("")
+  const [submitKeyword, setSubmitKeyword] = useState("")
   
   return (
     <>
@@ -17,9 +18,9 @@ export default function EmployeeManagePage() {
           title={"Add new Employee"}
           link={"/employee/manage/create"}
         />
-        <SearchBar keyword={keyword} setKeyword={setKeyword} />
+        <SearchBar keyword={keyword} setKeyword={setKeyword} setSubmitKeyword={setSubmitKeyword} />
       </div>
-      <EmployeeTable keyword={keyword} />
+      <EmployeeTable keyword={submitKeyword} />
     </>
   )
 }

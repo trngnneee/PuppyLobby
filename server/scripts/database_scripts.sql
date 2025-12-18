@@ -125,6 +125,7 @@ create table Product (
   entry_date date not null,
   expiry_date date not null,
   stock numeric check (stock > 0)
+  type text not null
 );
 
 -- Tạo bảng Accessory
