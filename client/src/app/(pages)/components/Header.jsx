@@ -22,6 +22,11 @@ export const Header = () => {
           name: "BOOKING A SERVICES",
           link: "/service/book",
         },
+
+        {
+          name: "PRODUCTS",
+          link: "/product",
+        }
       ]
       : []),
   ];
