@@ -8,7 +8,9 @@ import { useState } from "react"
 
 export const EmployeeHistory = () => {
   const [historyList, setHistoryList] = useState([])
+  const [loading, setLoading] = useState(false)
   const handleSubmit = async (e) => {
+    setLoading(true);
     setHistoryList([]);
     e.preventDefault();
     const email = e.target.email.value;
@@ -24,6 +26,7 @@ export const EmployeeHistory = () => {
           setHistoryList(data.history)
         }
       })
+    setLoading(false);
   }
 
   return (
@@ -80,6 +83,8 @@ export const EmployeeHistory = () => {
           </Timeline>
 
         </div>
+      ) : loading ? (
+        <div className="text-center text-gray-400">Loading...</div>
       ) : (
         <div className="text-center text-gray-400">No history to show.</div>
       )}

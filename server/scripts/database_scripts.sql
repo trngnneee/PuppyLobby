@@ -9,9 +9,9 @@ create table Role (
 -- Tạo bảng Account
 create table Account (
   account_id uuid primary key default gen_random_uuid (),
-  username text not null,
+  username text not null UNIQUE,
   password text not null,
-  email text not null,
+  email text not null UNIQUE,
   created_at timestamp default CURRENT_TIMESTAMP,
   role_id uuid references Role (role_id)
 );
@@ -50,7 +50,7 @@ create table Pet (
   age numeric check (age > 0),
   gender gender_enum not null,
   health_state text,
-  customer_id uuid references Customer (customer_id)
+  customer_id uuid references Customer (customer_id) on delete cascade -- Xóa customer thì xóa cả pet
 );
 
 -- Tạo bảng MembershipLevel
