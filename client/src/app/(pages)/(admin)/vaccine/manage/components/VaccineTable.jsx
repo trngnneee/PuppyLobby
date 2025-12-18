@@ -22,12 +22,12 @@ export const VaccineTable = ({ keyword }) => {
   const [vaccineList, setVaccineList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [paginationList, setPaginationList] = useState([]);
+
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    setLoading(true);
-    setVaccineList([]);
+    
     const fetchData = async () => {
+      setLoading(true);
       setVaccineList([]);
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
         page: currentPage,
@@ -39,7 +39,7 @@ export const VaccineTable = ({ keyword }) => {
           if (data.code == "success") {
             setVaccineList(data.vaccineList);
             setTotalPages(data.totalPages);
-            setPaginationList(getPagination(currentPage, data.totalPages));
+
             setLoading(false);
           }
         });

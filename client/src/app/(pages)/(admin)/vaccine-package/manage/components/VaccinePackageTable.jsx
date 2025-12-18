@@ -13,25 +13,20 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
-<<<<<<< HEAD
 import PaginationComponent from "@/components/common/Pagination";
-=======
-import { getPagination } from "@/utils/pagination";
 import { VaccinePackageRowSkeleton } from "./VaccinePackageRowSkeleton";
-
->>>>>>> 87ff9c090428468614a502692d5bfbe8604973f7
 export const VaccinePackageTable = ({ keyword }) => {
   const router = useRouter();
 
   const [vaccinePackageList, setVaccinePackageList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [paginationList, setPaginationList] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    setLoading(true);
-    setVaccinePackageList([]);
+    
+
     const fetchData = async () => {
+      setLoading(true);
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/list`, {
         page: currentPage,
         keyword: keyword,
@@ -42,10 +37,10 @@ export const VaccinePackageTable = ({ keyword }) => {
           if (data.code === "success") {
             setVaccinePackageList(data.vaccinePackageList);
             setTotalPages(data.totalPages);
-            setPaginationList(getPagination(currentPage, data.totalPages));
             setLoading(false);
           }
         })
+
     }
     fetchData();
   }, [currentPage, keyword]);
@@ -110,65 +105,11 @@ export const VaccinePackageTable = ({ keyword }) => {
           Page <span className="text-foreground">{currentPage}</span> of{" "}
           <span className="text-foreground">{totalPages}</span>
         </p>
-<<<<<<< HEAD
         <PaginationComponent
           numberOfPages={totalPages}
           currentPage={currentPage}
           controlPage={(value) => setCurrentPage(value)}
         />
-=======
-        <Pagination className="w-auto">
-          <PaginationContent className="gap-3">
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === 1 ? true : undefined}
-                role={currentPage === 1 ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                >
-                  Previous
-                </a>
-              </Button>
-            </PaginationItem>
-
-            {paginationList.map((item, index) => (
-              (item != '...') ? (
-                <PaginationItem key={index}>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPage(item)}
-                    className={item === currentPage ? "bg-gray-100" : ""}
-                  >
-                    {item}
-                  </Button>
-                </PaginationItem>
-              ) : (
-                <PaginationEllipsis key={index} />
-              )
-            ))}
-
-            <PaginationItem>
-              <Button
-                variant="outline"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                aria-disabled={currentPage === totalPages ? true : undefined}
-                role={currentPage === totalPages ? "link" : undefined}
-                asChild
-              >
-                <a
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                >
-                  Next
-                </a>
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
->>>>>>> 87ff9c090428468614a502692d5bfbe8604973f7
       </div>
     </>
   )
