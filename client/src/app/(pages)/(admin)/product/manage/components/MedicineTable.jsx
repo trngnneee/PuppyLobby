@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import PaginationComponent from "@/components/common/Pagination";
 
 export const MedicineTable = ({searchKey}) => {
   const router = useRouter();
-  
+
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);

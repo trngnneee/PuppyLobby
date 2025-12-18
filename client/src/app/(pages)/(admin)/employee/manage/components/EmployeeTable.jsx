@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +15,16 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
 import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
+<<<<<<< HEAD
 import PaginationComponent from "@/components/common/Pagination";
+=======
+import { getPagination } from "@/utils/pagination";
+import { EmployeeRowSkeleton } from "./EmployeeRowSkeleton";
+
+>>>>>>> 87ff9c090428468614a502692d5bfbe8604973f7
 export const EmployeeTable = ({ keyword }) => {
+  const [loading, setLoading] = useState(true);
+  const [paginationList, setPaginationList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -23,6 +32,8 @@ export const EmployeeTable = ({ keyword }) => {
 
   const [employeeList, setEmployeeList] = useState([])
   useEffect(() => {
+    setEmployeeList([]);
+    setLoading(true);
     const fetchData = async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/employee/list`, {
         keyword: keyword || undefined,
@@ -39,7 +50,12 @@ export const EmployeeTable = ({ keyword }) => {
 
       setEmployeeList(data.employeeList);
       setTotalPages(data.totalPages);
+<<<<<<< HEAD
       setTotalCount(data.totalCount);
+=======
+      setPaginationList(getPagination(currentPage, data.totalPages))
+      setLoading(false);
+>>>>>>> 87ff9c090428468614a502692d5bfbe8604973f7
     };
     fetchData();
   }, [currentPage, keyword]);
@@ -60,7 +76,7 @@ export const EmployeeTable = ({ keyword }) => {
           </thead>
 
           <tbody>
-            {employeeList.length > 0 && employeeList.map((item, index) => (
+            {employeeList.length > 0 ? employeeList.map((item, index) => (
               <tr className="border-t" key={index}>
                 <td className="px-4 py-2">{item.employee_name}</td>
                 <td className="px-4 py-2">{formatDate(item.date_of_birth)}</td>
@@ -69,7 +85,7 @@ export const EmployeeTable = ({ keyword }) => {
                 <td className="px-4 py-2">
                   {item.working_branch ? (
                     <Badge variant={"destructive"}>{`${item.working_branch}`}</Badge>
-                  ): (
+                  ) : (
                     <>-</>
                   )}
                 </td>
@@ -92,11 +108,14 @@ export const EmployeeTable = ({ keyword }) => {
                   </DropdownMenu>
                 </td>
               </tr>
-            ))}
+            )) : loading ? (
+              [...Array(10)].map((_, index) => (<EmployeeRowSkeleton key={index} />))
+            ) : null}
           </tbody>
         </table>
       </div>
       <div className="flex items-center justify-between gap-3 mt-5">
+<<<<<<< HEAD
         {totalCount > 0 ?
         (
         <>
@@ -119,6 +138,70 @@ export const EmployeeTable = ({ keyword }) => {
           currentPage={currentPage}
           controlPage={(value) => setCurrentPage(value)}
         />
+=======
+        <p className="grow text-sm text-muted-foreground" aria-live="polite">
+          Page <span className="text-foreground">{currentPage}</span> of{" "}
+          <span className="text-foreground">{totalPages}</span>
+        </p>
+        <Pagination className="w-auto">
+          <PaginationContent className="gap-3">
+            <PaginationItem>
+              <Button
+                variant="outline"
+                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+                aria-disabled={currentPage === 1 ? true : undefined}
+                role={currentPage === 1 ? "link" : undefined}
+                asChild
+              >
+                <a
+                  onClick={() => {
+                    if (currentPage > 1) {
+                      setCurrentPage(currentPage - 1);
+                    }
+                  }}
+                >
+                  Previous
+                </a>
+              </Button>
+            </PaginationItem>
+
+            {paginationList.map((item, index) => (
+              (item != '...') ? (
+                <PaginationItem key={index}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(item)}
+                    className={item === currentPage ? "bg-gray-100" : ""}
+                  >
+                    {item}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationEllipsis key={index} />
+              )
+            ))}
+            <PaginationItem>
+              <Button
+                variant="outline"
+                className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+                aria-disabled={currentPage === totalPages ? true : undefined}
+                role={currentPage === totalPages ? "link" : undefined}
+                asChild
+              >
+                <a
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      setCurrentPage(currentPage + 1);
+                    }
+                  }}
+                >
+                  Next
+                </a>
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+>>>>>>> 87ff9c090428468614a502692d5bfbe8604973f7
       </div>
     </>
   )

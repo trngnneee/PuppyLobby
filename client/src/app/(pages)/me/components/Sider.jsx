@@ -20,7 +20,7 @@ export const Sider = () => {
     },
     {
       title: "Your Services",
-      href: "/me/services",
+      href: "/me/service",
       icon: ConciergeBell
     },
     {

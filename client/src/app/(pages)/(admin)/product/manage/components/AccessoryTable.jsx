@@ -7,6 +7,7 @@ import Image from "next/image";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { useRouter } from "next/navigation";

@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import { paramsBuilder } from "@/utils/params";
 import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
 import { ProductRowSkeleton } from "./ProductRowSkeleton";
 import PaginationComponent from "@/components/common/Pagination";
-import { set } from "date-fns";
+
 
 export const FoodTable = ({searchKey}) => {
   const router = useRouter();
