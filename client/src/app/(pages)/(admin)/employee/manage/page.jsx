@@ -5,6 +5,7 @@ import { SectionHeader } from "../../../me/components/SectionHeader";
 import { EmployeeTable } from "./components/EmployeeTable";
 import { CreateButton } from "@/app/(pages)/components/CreateButton";
 import { useState } from "react";
+import { EmployeeHistory } from "./components/EmployeeHistory";
 
 export default function EmployeeManagePage() {
   const [keyword, setKeyword] = useState("")  
@@ -20,6 +21,9 @@ export default function EmployeeManagePage() {
         <SearchBar keyword={keyword} setKeyword={setKeyword} />
       </div>
       <EmployeeTable keyword={keyword} />
+
+      <SectionHeader title={"Employee History"} className="mt-10" />
+      <EmployeeHistory />
     </>
   )
 }

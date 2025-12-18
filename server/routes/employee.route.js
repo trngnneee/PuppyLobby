@@ -257,4 +257,36 @@ router.get('/list/:branch_id', async (req, res) => {
   })
 })
 
+router.post('/history', async (req, res) => {
+  const { email } = req.body;
+
+  const result = await db.raw(
+    `
+      select *
+      from employeehistory
+      join branch on employeehistory.branch_id = branch.branch_id
+      where employee_id = (
+        select employee_id
+        from employee
+        join account on employee.account_id = account.account_id
+        where account.email = ?
+      )
+    `,
+    [email]
+  );
+
+  if (result.rows.length === 0) {
+    return res.json({
+      code: "error",
+      message: "No history found for the provided email",
+    })
+  }
+
+  res.json({
+    code: "success",
+    message: "Employee history achieved successfully",
+    history: result.rows,
+  })
+})
+
 export default router;
