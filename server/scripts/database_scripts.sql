@@ -97,7 +97,7 @@ create table BranchService (
 -- Tạo bảng EmployeeHistory
 create table EmployeeHistory (
   branch_id uuid references Branch (branch_id),
-  employee_id uuid references Employee (employee_id),
+  employee_id uuid references Employee (employee_id) on delete cascade, -- Xóa employee thì xóa cả employeehistory
   start_date date not null,
   end_date date,
   position text not null,
