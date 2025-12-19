@@ -32,49 +32,61 @@ router.post("/create", async (req, res) => {
 })
 
 router.get("/list", async (req, res) => {
-  const query = db('vaccinationpackage').select('*');
-  const pageSize = 3;
-  const countResult = await db('vaccinationpackage').count('* as count').first();
-  const totalPages = Math.ceil(Number(countResult.count) / pageSize);
-  if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
+  // const query = db('vaccinationpackage').select('*');
+  // const pageSize = 3;
+  // const countResult = await db('vaccinationpackage').count('* as count').first();
+  // const totalPages = Math.ceil(Number(countResult.count) / pageSize);
+  // if (req.query.page) {
+  //   const page = parseInt(req.query.page) || 1;
+  //   const offset = (page - 1) * pageSize;
+  //   query.limit(pageSize).offset(offset);
+  // }
 
-  if (req.query.keyword) {
-    const keyword = req.query.keyword?.trim();
-    query.whereRaw(
-      "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
-      [keyword]
-    )
-  }
+  // if (req.query.keyword) {
+  //   const keyword = req.query.keyword?.trim();
+  //   query.whereRaw(
+  //     "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
+  //     [keyword]
+  //   )
+  // }
 
-  const vaccinePackageList = await query;
+  // const vaccinePackageList = await query;
 
-  for (const vp of vaccinePackageList) {
-    const schedule = await db('vaccinationschedule')
-      .select(
-        'vaccinationschedule.vaccine_id',
-        'vaccine.vaccine_name',
-        'vaccinationschedule.dosage',
-        'vaccinationschedule.scheduled_week'
-      )
-      .join(
-        'vaccine',
-        'vaccinationschedule.vaccine_id',
-        'vaccine.vaccine_id'
-      )
-      .where('vaccinationschedule.package_id', vp.package_id);
+  // for (const vp of vaccinePackageList) {
+  //   const schedule = await db('vaccinationschedule')
+  //     .select(
+  //       'vaccinationschedule.vaccine_id',
+  //       'vaccine.vaccine_name',
+  //       'vaccinationschedule.dosage',
+  //       'vaccinationschedule.scheduled_week'
+  //     )
+  //     .join(
+  //       'vaccine',
+  //       'vaccinationschedule.vaccine_id',
+  //       'vaccine.vaccine_id'
+  //     )
+  //     .where('vaccinationschedule.package_id', vp.package_id);
 
-    vp.schedule = schedule;
-  }
+  //   vp.schedule = schedule;
+  // }
+  const keyword = req.query.keyword ? req.query.keyword.trim() : '';
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 3;
 
+  const result = await db.raw(
+    `SELECT * FROM get_list_vaccine_in_package(?, ?, ?)`,
+    [keyword, page, pageSize]
+  );
+  const vaccinePackageList = result.rows;
+  console.log ('vaccinePackageList:', vaccinePackageList);
+  const totalCount = vaccinePackageList.length > 0 ? vaccinePackageList[0].total_count : 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
   res.json({
     code: "success",
     message: "Vaccine package list fetched successfully",
-    vaccinePackageList,
-    totalPages
+    vaccinePackageList : vaccinePackageList,
+    totalPages : totalPages,
+    totalCount : totalCount
   })
 })
 

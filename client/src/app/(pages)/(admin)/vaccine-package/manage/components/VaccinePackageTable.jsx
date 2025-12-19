@@ -21,6 +21,7 @@ export const VaccinePackageTable = ({ keyword }) => {
   const [vaccinePackageList, setVaccinePackageList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     
@@ -37,13 +38,17 @@ export const VaccinePackageTable = ({ keyword }) => {
           if (data.code === "success") {
             setVaccinePackageList(data.vaccinePackageList);
             setTotalPages(data.totalPages);
+            setTotalCount(data.totalCount);
             setLoading(false);
+            if (totalPages < currentPage) {
+              setCurrentPage(1);
+            }
           }
         })
 
     }
     fetchData();
-  }, [currentPage, keyword]);
+  }, [currentPage, keyword, totalPages]);
 
   return (
     <>
@@ -62,13 +67,13 @@ export const VaccinePackageTable = ({ keyword }) => {
 
           <tbody>
             {vaccinePackageList.length > 0 ? vaccinePackageList.map((item) => (
-              <tr key={item.package_id} className="border-t">
-                <td className="px-4 py-2">{item.package_name}</td>
-                <td className="px-4 py-2">{item.duration} months</td>
-                <td className="px-4 py-2">{item.discount_rate}%</td>
-                <td className="px-4 py-2">{parseInt(item.total_original_price).toLocaleString("vi-VN")} VND</td>
+              <tr key={item.vaccine_package_info.package_id} className="border-t">
+                <td className="px-4 py-2">{item.vaccine_package_info.package_name}</td>
+                <td className="px-4 py-2">{item.vaccine_package_info.duration} months</td>
+                <td className="px-4 py-2">{item.vaccine_package_info.discount_rate}%</td>
+                <td className="px-4 py-2">{parseInt(item.vaccine_package_info.total_original_price).toLocaleString("vi-VN")} VND</td>
                 <td className="px-4 py-2">
-                  {item.schedule.map((s, index) => (
+                  {item.vaccine_package_info.schedule.map((s, index) => (
                     <div key={index}>
                       {s.vaccine_name} - {s.dosage} ml - {s.scheduled_week} weeks
                     </div>
@@ -82,10 +87,10 @@ export const VaccinePackageTable = ({ keyword }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => router.push(`/vaccine-package/manage/update/${item.package_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/vaccine-package/manage/update/${item.vaccine_package_info.package_id}`)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <DeleteButton
-                          api={`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/delete/${item.package_id}`}
+                          api={`${process.env.NEXT_PUBLIC_API_URL}/vaccine-package/delete/${item.vaccine_package_info.package_id}`}
                         />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -101,10 +106,23 @@ export const VaccinePackageTable = ({ keyword }) => {
         </table>
       </div>
       <div className="flex items-center justify-between gap-3 mt-5">
+        {totalCount > 0 ?
         <p className="grow text-sm text-muted-foreground" aria-live="polite">
           Page <span className="text-foreground">{currentPage}</span> of{" "}
           <span className="text-foreground">{totalPages}</span>
         </p>
+        :
+        <div className="grow">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            No vaccine packages found.
+          </p>
+        </div>
+        }
+        <div>
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            Total vaccine packages: <span className="text-foreground">{totalCount}</span>
+          </p>
+        </div>
         <PaginationComponent
           numberOfPages={totalPages}
           currentPage={currentPage}

@@ -22,7 +22,7 @@ export const VaccineTable = ({ keyword }) => {
   const [vaccineList, setVaccineList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     
@@ -39,7 +39,7 @@ export const VaccineTable = ({ keyword }) => {
           if (data.code == "success") {
             setVaccineList(data.vaccineList);
             setTotalPages(data.totalPages);
-
+            setTotalCount(data.totalCount);
             setLoading(false);
           }
         });
@@ -65,13 +65,13 @@ export const VaccineTable = ({ keyword }) => {
 
           <tbody>
             {vaccineList.length > 0 ? vaccineList.map((item) => (
-              <tr key={item.vaccine_id} className="border-t">
-                <td className="px-4 py-2">{item.vaccine_name}</td>
-                <td className="px-4 py-2">{item.quantity}</td>
-                <td className="px-4 py-2">{item.price}</td>
-                <td className="px-4 py-2">{formatDate(item.manufacture_date)}</td>
-                <td className="px-4 py-2">{formatDate(item.entry_date)}</td>
-                <td className="px-4 py-2">{formatDate(item.expiry_date)}</td>
+              <tr key={item.vaccine_info.vaccine_id} className="border-t">
+                <td className="px-4 py-2">{item.vaccine_info.vaccine_name}</td>
+                <td className="px-4 py-2">{item.vaccine_info.quantity}</td>
+                <td className="px-4 py-2">{item.vaccine_info.price}</td>
+                <td className="px-4 py-2">{formatDate(item.vaccine_info.manufacture_date)}</td>
+                <td className="px-4 py-2">{formatDate(item.vaccine_info.entry_date)}</td>
+                <td className="px-4 py-2">{formatDate(item.vaccine_info.expiry_date)}</td>
                 <td className="px-4 py-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -80,7 +80,7 @@ export const VaccineTable = ({ keyword }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => router.push(`/vaccine/manage/update/${item.vaccine_id}`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/vaccine/manage/update/${item.vaccine_info.vaccine_id}`)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <DeleteButton
                           api={`${process.env.NEXT_PUBLIC_API_URL}/vaccine/delete/${item.vaccine_id}`}
@@ -96,11 +96,21 @@ export const VaccineTable = ({ keyword }) => {
           </tbody>
         </table>
       </div>
+      
       <div className="flex items-center justify-between gap-3 mt-5">
+      {totalCount > 0 ?
         <p className="grow text-sm text-muted-foreground" aria-live="polite">
           Page <span className="text-foreground">{currentPage}</span> of{" "}
           <span className="text-foreground">{totalPages}</span>
         </p>
+        :
+        <p className="grow text-sm text-muted-foreground" aria-live="polite">
+          No vaccines found.
+        </p>
+        }
+        <div>
+          Total Vaccines : <span className="text-muted-foregroundm text-sm">{totalCount}</span>
+        </div>
         <PaginationComponent
           numberOfPages={totalPages}
           currentPage={currentPage}

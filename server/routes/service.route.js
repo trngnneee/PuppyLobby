@@ -5,14 +5,11 @@ import * as authMiddleware from "../middleware/auth.middleware.js"
 const router = express.Router();
 
 router.get("/list", async (req, res) => {
-  const serviceList = await db.select('*').from('service');
 
-  for (const service of serviceList) {
-    const branchList = await db('branchservice').where({ service_id: service.service_id });
-    const branchDetail = await db.select('branch_id', 'branch_name').from('branch').whereIn('branch_id', branchList.map(b => b.branch_id));
-    service.branches = branchDetail;
-  }
-
+  const query = await db.raw(`
+      select * from get_list_branch_in_service();
+    `)
+  const serviceList = query.rows[0].get_list_branch_in_service;
   res.json({
     code: "success",
     message: "Service list fetched successfully",
@@ -46,18 +43,28 @@ router.post("/update/:id", async (req, res) => {
   const { id } = req.params;
   const { price, branches } = req.body;
 
-  await db('service').where({ service_id: id }).update({
-    service_base_price: price,
-  });
+  try{
+    await db.transaction (async trx => {
+      await trx('service').where({ service_id: id }).update({
+        service_base_price: price,
+      });
+      await trx('branchservice').where({ service_id: id }).del();
 
-  await db('branchservice').where({ service_id: id }).del();
+      for (const branch_id of branches) {
+        await trx('branchservice').insert({
+          service_id: id,
+          branch_id: branch_id,
+        });
+      }
 
-  for (const branch_id of branches) {
-    await db('branchservice').insert({
-      service_id: id,
-      branch_id: branch_id,
-    });
-  };
+    })
+  }
+  catch (error){
+    return res.status(500).json({
+      code: "error",
+      message: "Transaction failed: " + error.message,
+    })
+  }
 
   res.json({
     code: "success",

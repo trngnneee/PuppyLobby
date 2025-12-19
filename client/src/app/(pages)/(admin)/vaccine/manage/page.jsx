@@ -8,7 +8,7 @@ import { VaccineTable } from "./components/VaccineTable"
 
 export default function VaccinePage() {
   const [keyword, setKeyword] = useState("")
-  
+  const [submitKeyword, setSubmitKeyword] = useState("")
   return (
     <>
       <SectionHeader title={"Vaccine Management"} />
@@ -17,9 +17,9 @@ export default function VaccinePage() {
           title={"Add new vaccine"}
           link={"/vaccine/manage/create"}
         />
-        <SearchBar keyword={keyword} setKeyword={setKeyword} />
+        <SearchBar keyword={keyword} setKeyword={setKeyword} setSubmitKeyword={setSubmitKeyword} />
       </div>
-      <VaccineTable keyword={keyword} />
+      <VaccineTable keyword={submitKeyword} />
     </>
   )
 }

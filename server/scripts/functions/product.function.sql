@@ -68,7 +68,7 @@ $$ language plpgsql stable;
 
 -------------------- Create new product --------------------
 
-select * from account where username = 'Lok1412'
+
 create or replace function create_product (
     product_info jsonb,
     extra_info jsonb

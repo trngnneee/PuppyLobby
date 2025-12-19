@@ -1,5 +1,6 @@
 import express from "express";
 import db from "./../utils/db.js";
+import { parse } from "dotenv";
 
 const router = express.Router();
 
@@ -30,36 +31,23 @@ router.post("/create", async (req, res) => {
 })
 
 router.get("/list", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 10;
+  const searchKeyword = req.query.keyword ? req.query.keyword.trim() : null;
 
-  const pageSize = 10;
-  const countQuery = await db.raw(`
-    SELECT COUNT(*) as count FROM vaccine
-    ${req.query.keyword ? `WHERE fts @@ plainto_tsquery('english', remove_accents('${req.query.keyword.trim()}') || ':*')` : ''}
-  `);
-  
-  const totalCount = parseInt(countQuery.rows[0].count);
+  const query = await db.raw(`
+      select  * from get_vaccine_list(?, ?, ?)
+    `, [searchKeyword, page, pageSize]);
+
+
+  const vaccineList = await query.rows;
+  const totalCount = vaccineList.length > 0 ? parseInt(vaccineList[0].total_count) : 0;
   const totalPages = Math.ceil(totalCount / pageSize);
-
-  const query = db.select("*").from("vaccine");
-  if (req.query.keyword){
-    const keyword = req.query.keyword?.trim();
-    query.whereRaw(
-      "fts @@ plainto_tsquery('english', remove_accents(?) || ':*')",
-      [keyword]
-    )
-  }
-  if (req.query.page) {
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * pageSize;
-    query.limit(pageSize).offset(offset);
-  }
-
-  const vaccineList = await query;
-
   res.json({
     code: "success",
     message: "Vaccine list fetched successfully",
     vaccineList: vaccineList,
+    totalCount: totalCount,
     totalPages: totalPages,
   })
 })
