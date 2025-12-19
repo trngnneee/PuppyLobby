@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button"
 
 import React, { useState, useEffect } from 'react';
 import {ShoppingCart } from 'lucide-react';
-
+import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 export const ProductCard = ({ item, index }) => {
+  const {ref, hasIntersected} = useIntersectionObserver({threshold: 0.1});
   const plateIndex = index % 3 === 0 ? 1 : index % 2 === 0 ? 2 : 3;
 
   const formatDate = (dateString) => {
@@ -28,7 +29,8 @@ export const ProductCard = ({ item, index }) => {
   };
 
   return (
-    <div className="group cursor-pointer transition-all rounded-[5px] hover:scale-105 hover:shadow-[0px_0px_10px] hover:shadow-rose-500 duration-300 flex flex-col h-full">
+    <div ref = {ref} className={`group cursor-pointer transition-all rounded-[5px] hover:scale-105 hover:shadow-[0px_0px_10px] hover:shadow-rose-500 duration-300 flex flex-col h-full
+     ${hasIntersected ? 'animate__animated animate__zoomIn animate_fast ' : 'opacity-0'}`}>
   
         {/* IMAGE */}
         <div className="w-full h-[350px] overflow-hidden relative bg-white rounded-lg shadow-sm flex-shrink-0">

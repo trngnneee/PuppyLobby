@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Pangolin&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
-
+@import "animate.css";
 @custom-variant dark (&:is(.dark *));
 
 *{
