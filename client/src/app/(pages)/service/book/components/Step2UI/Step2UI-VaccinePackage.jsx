@@ -8,14 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { formatDate } from "@/utils/date"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/components/ui/pagination"
+//import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/components/ui/pagination"
 import { useEffect, useState } from "react"
 import { paramsBuilder } from "@/utils/params"
 import { VaccinePackageItem } from "./VaccinePackageItem/VaccinePackageItem"
 import { VaccinePackageItemSkeleton } from "./VaccinePackageItem/VaccinePackageItemSkeleton"
 import { Button } from "@/components/ui/button"
-import { getPagination } from "@/utils/pagination"
-
+//import { getPagination } from "@/utils/pagination"
+import PaginationComponent from "@/components/common/Pagination"
 export const Step2UIVaccinePackage = ({
   availableBranch, petList, availableEmployee,
   date, setDate,
@@ -26,7 +26,7 @@ export const Step2UIVaccinePackage = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [paginationList, setPaginationList] = useState([]);
+  //const [paginationList, setPaginationList] = useState([]);
 
   const [vaccinePackageList, setVaccinePackageList] = useState([]);
   useEffect(() => {
@@ -39,7 +39,7 @@ export const Step2UIVaccinePackage = ({
           setVaccinePackageList(data.vaccinePackageList);
           setTotalPages(data.totalPages);
           setVaccinePackage(data.vaccinePackageList.length > 0 ? data.vaccinePackageList[0].package_id : null);
-          setPaginationList(getPagination(currentPage, data.totalPages))
+          //setPaginationList(getPagination(currentPage, data.totalPages))
         }
       })
     };
@@ -150,57 +150,11 @@ export const Step2UIVaccinePackage = ({
               Page <span className="text-foreground">{currentPage}</span> of{" "}
               <span className="text-foreground">{totalPages}</span>
             </p>
-            <Pagination className="w-auto">
-              <PaginationContent className="gap-3">
-                <PaginationItem>
-                  <Button
-                    variant="outline"
-                    className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                    aria-disabled={currentPage === 1 ? true : undefined}
-                    role={currentPage === 1 ? "link" : undefined}
-                    asChild
-                  >
-                    <a
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    >
-                      Previous
-                    </a>
-                  </Button>
-                </PaginationItem>
-
-                {paginationList.map((item, index) => (
-                  (item != '...') ? (
-                    <PaginationItem key={index}>
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(item)}
-                        className={item === currentPage ? "bg-gray-100" : ""}
-                      >
-                        {item}
-                      </Button>
-                    </PaginationItem>
-                  ) : (
-                    <PaginationEllipsis key={index} />
-                  )
-                ))}
-
-                <PaginationItem>
-                  <Button
-                    variant="outline"
-                    className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-                    aria-disabled={currentPage === totalPages ? true : undefined}
-                    role={currentPage === totalPages ? "link" : undefined}
-                    asChild
-                  >
-                    <a
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    >
-                      Next
-                    </a>
-                  </Button>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <PaginationComponent
+              numberOfPages={totalPages}
+              currentPage={currentPage}
+              controlPage={(value) => setCurrentPage(value)}
+            />
           </div>
         </div>
       </div>
