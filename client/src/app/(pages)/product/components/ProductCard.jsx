@@ -28,7 +28,7 @@ export const ProductCard = ({ item, index }) => {
   };
 
   return (
-    <div className="group cursor-pointer transition-transform hover:scale-105 flex flex-col h-full">
+    <div className="group cursor-pointer transition-all rounded-[5px] hover:scale-105 hover:shadow-[0px_0px_10px] hover:shadow-rose-500 duration-300 flex flex-col h-full">
   
         {/* IMAGE */}
         <div className="w-full h-[350px] overflow-hidden relative bg-white rounded-lg shadow-sm flex-shrink-0">
@@ -43,7 +43,7 @@ export const ProductCard = ({ item, index }) => {
 
             {/* PRODUCT IMAGE */}
             <div className="relative z-10 flex items-center justify-center h-full">
-                <div className="w-[75%] aspect-square">
+                <div className="w-[75%] aspect-square group-hover:scale-110 transition-transform duration-500">
                 <img
                     src={item.product_info?.images[0]}
                     alt={item.product_info?.product_name}
@@ -55,7 +55,7 @@ export const ProductCard = ({ item, index }) => {
 
         <div className="mt-4 flex flex-col flex-1">
              <div className="flex-1 overflow-y-auto pr-1">
-            <h3 className="text-[24px] font-semibold text-gray-900 mb-2">
+            <h3 className="text-[24px] font-semibold text-gray-900 mb-2 line-clamp-3">
             {item.product_info?.product_name}
             </h3>
             {item.product_info?.description && (<p className="text-[16px] text-[#979697] mb-3">
@@ -63,13 +63,13 @@ export const ProductCard = ({ item, index }) => {
             </p>)}
 
             {item.extra_info.dosage_use && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-2">
                 <span className="font-semibold">Dosage Uses:</span> {item.extra_info.dosage_use}
             </p>
             )}
 
             {item.extra_info.side_effect && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-2">
                 <span className="font-semibold">Side Effect:</span> {item.extra_info.side_effect}
             </p>
             )}
@@ -77,37 +77,37 @@ export const ProductCard = ({ item, index }) => {
 
 
             {item.extra_info.species && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-1">
                 <span className="font-semibold">Species:</span> {item.extra_info.species}
             </p>
             )}
 
             {item.extra_info.nutrition_description && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line line-clamp-2">
                 <span className="font-semibold">Nutrition Description:</span> {item.extra_info.nutrition_description}
             </p>
             )}
 
             {item.extra_info?.size && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-1">
                 <span className="font-semibold">Size:</span> {item.extra_info.size}
             </p>
             )}
 
             {item.extra_info?.color && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-1">
                 <span className="font-semibold">Color:</span> {item.extra_info.color}
             </p>
             )}
 
             {item.extra_info?.material && (
-            <p className="text-[20px] text-gray-700 mb-2">
+            <p className="text-[20px] text-gray-700 mb-2 line-clamp-1">
                 <span className="font-semibold">Material:</span> {item.extra_info.material}
             </p>
             )}
 
             {item.product_info?.expiry_date && (
-            <p className={`text-[14px] font-semibold mb-3 px-2 py-1 rounded inline-block ${
+            <p className={`text-[14px] font-semibold mb-3 px-2 py-1 rounded inline-block line-clamp-1 ${
                 isExpired(item.product_info.expiry_date)
                 ? 'bg-red-50 text-red-600'
                 : isExpiringSoon(item.product_info.expiry_date)
@@ -130,7 +130,7 @@ export const ProductCard = ({ item, index }) => {
 
             <div className="mt-auto"> 
                  {item.product_info?.price && (
-            <p className="text-[24px] font-bold text-blue-600 mb-4">
+            <p className="text-[24px] font-bold text-blue-600 mb-4 line-clamp-1">
                 ${parseInt(item.product_info.price).toLocaleString('en-US')}
             </p>
             )}

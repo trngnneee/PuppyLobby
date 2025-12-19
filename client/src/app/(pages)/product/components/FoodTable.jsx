@@ -25,6 +25,7 @@ export const FoodTable = ({searchKey}) => {
         type: 'food',
         page: currentPage,
         search: searchKey,
+        pageSize: 12,
       });
       await fetch(url)
         .then((res) => res.json())
@@ -56,14 +57,19 @@ export const FoodTable = ({searchKey}) => {
           </p>
         </div>
 
-
+        {
+          totalCount > 0 &&
+          <p className="mb-4 text-sm text-gray-500">
+            Total products: {totalCount}
+          </p>
+        }
         {isLoading ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-500">Loading products...</p>
           </div>
         ) : productList.length > 0 ? (
           <>
-            <div className="grid grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-8">
               {productList.map((item, index) => (
                 <ProductCard key={item.product_info?.id || index} item={item} index={index} />
               ))}
@@ -77,9 +83,6 @@ export const FoodTable = ({searchKey}) => {
                 <span className="text-foreground">{totalPages}</span>
               </p>
               : null}
-              <p className="grow text-sm text-muted-foreground text-right" aria-live="polite">
-                Total Items: <span className="text-foreground">{totalCount}</span>
-              </p>
               <PaginationComponent
                 numberOfPages={totalPages}
                 currentPage={currentPage}

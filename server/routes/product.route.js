@@ -57,7 +57,7 @@ router.get("/product_types", async (req, res) => {
   const type = req.query.type;
   const search = req.query.search || "";
   const page = req.query.page ? parseInt(req.query.page) : 1;
-  const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 9;
+  const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
 
   const result = await db.raw(`
     
