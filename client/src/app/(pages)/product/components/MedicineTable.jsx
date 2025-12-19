@@ -1,32 +1,22 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from "@/components/ui/pagination"
-import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+
+
 import { useEffect, useState } from "react";
-import { formatDate } from "@/utils/date";
+
 import { paramsBuilder } from "@/utils/params";
-import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
-import { ProductRowSkeleton } from "./ProductRowSkeleton";
-import { speciesOptions } from "@/config/variable.config";
+
 import PaginationComponent from "@/components/common/Pagination";
 import { ProductCard } from "./ProductCard";
+
 export const MedicineTable = ({searchKey}) => {
-  const router = useRouter();
 
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -42,15 +32,14 @@ export const MedicineTable = ({searchKey}) => {
             setProductList(data.productList);
             setTotalCount(data.totalCount);
             setTotalPages(data.totalPages);
-            if (searchKey){
+            if (totalPages < currentPage) {// Amazing this auto fix set up page = 1 when changing tab
               setCurrentPage(1);
-            }
           }
-        })
-      setIsLoading(false);
+        }})
+      setIsLoading(false);  
     }
     fetchData();
-  }, [currentPage, searchKey]);
+  }, [currentPage, searchKey, totalPages]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -92,7 +81,7 @@ export const MedicineTable = ({searchKey}) => {
               <PaginationComponent
                 numberOfPages={totalPages}
                 currentPage={currentPage}
-                controlPage={(value) => setCurrentPage(value)}
+                controlPage={setCurrentPage}
               />
             </div>
             

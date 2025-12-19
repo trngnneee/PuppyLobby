@@ -1,33 +1,23 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from "@/components/ui/pagination"
-import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
-import { formatDate } from "@/utils/date";
+
+
+
 import { useEffect, useState } from "react";
 import { paramsBuilder } from "@/utils/params";
-import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
-import { ProductRowSkeleton } from "./ProductRowSkeleton";
+
 import PaginationComponent from "@/components/common/Pagination";
 import { ProductCard } from "./ProductCard";
+import { set } from "date-fns";
 
 export const FoodTable = ({searchKey}) => {
-  const router = useRouter();
-
 
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -43,14 +33,14 @@ export const FoodTable = ({searchKey}) => {
             setProductList(data.productList);
             setTotalPages(data.totalPages);
             setTotalCount(data.totalCount);
-            if (searchKey){
+            if (totalPages < currentPage) {// Amazing this auto fix set up page = 1 when changing tab
               setCurrentPage(1);
             }
         }})
       setIsLoading(false);
     }
     fetchData();
-  }, [currentPage, searchKey])
+  }, [currentPage, searchKey, totalPages]);
 
 
   return (
@@ -93,7 +83,7 @@ export const FoodTable = ({searchKey}) => {
               <PaginationComponent
                 numberOfPages={totalPages}
                 currentPage={currentPage}
-                controlPage={(value) => setCurrentPage(value)}
+                controlPage={setCurrentPage}
               />
             </div>
             

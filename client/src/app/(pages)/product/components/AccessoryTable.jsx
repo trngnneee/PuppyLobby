@@ -1,30 +1,23 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
-import Image from "next/image";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from "@/components/ui/pagination"
-import { useRouter } from "next/navigation";
+
 import { useEffect, useState } from "react";
-import { formatDate } from "@/utils/date";
+
 import { paramsBuilder } from "@/utils/params";
-import { DeleteButton } from "@/app/(pages)/components/Button/DeleteButton";
-import { ProductRowSkeleton } from "./ProductRowSkeleton";
+
+
 import PaginationComponent from "@/components/common/Pagination"
 import { ProductCard } from "./ProductCard";
+
+
 export const AccessoryTable = ({searchKey}) => {
-  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(true);
   const [productList, setProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -41,7 +34,7 @@ export const AccessoryTable = ({searchKey}) => {
             setProductList(data.productList);
             setTotalPages(data.totalPages);
             setTotalCount(data.totalCount);
-            if (searchKey){
+            if (totalPages < currentPage) { // Amazing this auto fix set up page = 1 when changing tab
               setCurrentPage(1);
             }
           }
@@ -51,7 +44,7 @@ export const AccessoryTable = ({searchKey}) => {
 
     fetchData();
 
-  }, [currentPage, searchKey])
+  }, [currentPage, searchKey, totalPages]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -65,7 +58,12 @@ export const AccessoryTable = ({searchKey}) => {
             Treat your beloved companion with quality accessories
           </p>
         </div>
-
+        {
+          totalCount > 0 &&
+          <p className="mb-4 text-sm text-gray-500">
+            Total products: {totalCount}
+          </p>
+        }
         {isLoading ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-500">Loading products...</p>
@@ -82,7 +80,7 @@ export const AccessoryTable = ({searchKey}) => {
             <PaginationComponent
               numberOfPages={totalPages}
               currentPage={currentPage}
-              controlPage={(value) => setCurrentPage(value)}
+              controlPage={setCurrentPage}
             />
           </>
         ) : (
