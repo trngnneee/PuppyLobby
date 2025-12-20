@@ -280,7 +280,7 @@ begin
 
   delete from invoiceproduct where invoice_id = p_invoice_id and product_id = p_product_id;
   update product set stock = stock + v_qty where product_id = p_product_id;
-
+  -- Recalculate invoice total
   update invoice set total_price = (
     select (
       coalesce((select sum(ip.quantity * pr.price) from invoiceproduct ip join product pr on ip.product_id = pr.product_id where ip.invoice_id = p_invoice_id),0)

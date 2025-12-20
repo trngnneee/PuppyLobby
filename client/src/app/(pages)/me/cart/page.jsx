@@ -13,6 +13,23 @@ import { se } from "date-fns/locale";
 export default function MeCartPage() {
   const [cartList, setCartList] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  
+  const fetchCartData = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/cart`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (data.code === "success") {
+        setCartList(data.cartItems);
+        setTotalAmount(data.totalAmount);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
   useEffect(() => {
     // Fetch cart data from server
     const fetchCartData = async () => {
@@ -37,8 +54,8 @@ export default function MeCartPage() {
     fetchCartData();
   }, []);
 
-  //console.log("Cart List:", data.totalAmount);
-
+  //console.log("Cart List:", cartList);
+  console.log("Total Amount:", totalAmount);
   const [onlineBanking, setOnlineBanking] = useState(false);
 
   return (
@@ -48,7 +65,7 @@ export default function MeCartPage() {
       <div className="flex justify-between gap-8 mt-[30px]">
         <div className="flex flex-col gap-4 w-3/5 border border-gray-300 p-3 rounded-lg">
           {cartList.map((item, index) => (
-            <CartItem key={index} item={item} />
+            <CartItem key={item.product_id} item={item} onUpdated={fetchCartData}/>
           ))}
         </div>
         <div className="w-2/5 sticky top-20 h-fit bg-[var(--main)] p-5 rounded-xl text-white">

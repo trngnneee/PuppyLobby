@@ -226,11 +226,12 @@ router.get("/cart", authMiddleware.verifyToken,  	async (req, res) => {
         p.product_name,
         p.price,
         p.type,
-        ip.quantity,
-        (ip.quantity * p.price) AS subtotal
+        ip.invoice_id,
+        ip.quantity
       FROM invoiceproduct ip
       JOIN product p ON ip.product_id = p.product_id
       WHERE ip.invoice_id = ?
+      ORDER BY p.product_id ASC
       `,
       [invoice_id]
     );
@@ -252,4 +253,59 @@ router.get("/cart", authMiddleware.verifyToken,  	async (req, res) => {
       totalAmount: total
     });
 });
+
+router.post("/update_cart_item", authMiddleware.verifyToken, async (req, res) => {
+  const { invoice_id, product_id, quantity } = req.body;
+  //console.log('Update cart item:', req.body);
+  //console.log('invoice_id:', invoice_id);
+  //console.log('product_id:', product_id);
+  //console.log('quantity:', quantity);
+  const result = await db.raw(`SELECT update_invoice_product(?, ?, ?);`,
+    [
+      invoice_id,  
+      product_id,
+      quantity
+    ]
+  );
+
+  //console.log('Result from update_invoice_product:', result.rows[0]);
+  const response = result.rows[0].update_invoice_product;
+  console.log('Response from update_invoice_product:', response);
+
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Cart item updated successfully"
+  });
+});
+
+router.post("/remove_cart_item", authMiddleware.verifyToken, async (req, res) => {
+  const { invoice_id, product_id } = req.body;
+  const result = await db.raw(`SELECT remove_invoice_product(?, ?);`,
+    [
+      invoice_id,
+      product_id
+    ]
+  );
+  const response = result.rows[0].remove_invoice_product;
+  console.log('Response from remove_invoice_product:', response);
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Cart item removed successfully"
+  });
+} );
+
 export default router
