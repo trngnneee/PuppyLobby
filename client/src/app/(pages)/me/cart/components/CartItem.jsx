@@ -9,13 +9,13 @@ export const CartItem = ({ item }) => {
       
       <div className="flex items-center gap-3">
         <img
-          src={item.image}
-          alt={item.name}
+          src={item.images[0]}
+          alt={item.product_name}
           className="w-14 h-14 rounded-lg object-cover"
         />
 
         <div>
-          <h3 className="font-semibold text-base">{item.name}</h3>
+          <h3 className="font-semibold text-base line-clamp-2">{item.product_name}</h3>
           <p className="text-gray-500 text-sm">{item.type}</p>
         </div>
       </div>
@@ -36,7 +36,7 @@ export const CartItem = ({ item }) => {
         </div>
       </div>
 
-      <div className="font-semibold">{item.price.toLocaleString("vi-VN")} VND</div>
+      <div className="font-semibold">{Number(item.subtotal).toLocaleString("vi-VN")} VND</div>
 
       <Button
         className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white"

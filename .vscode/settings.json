@@ -7,6 +7,23 @@
             "driver": "PostgreSQL",
             "name": "Supabase - PuppyLobby",
             "connectString": "postgresql://postgres:khaibaolocnguyen@db.rruavcjmtgpxyznzwkhw.supabase.co:5432/postgres"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://postgres:khaibaolocnguyen@db.rruavcjmtgpxyznzwkhw.supabase.co:5432/postgres",
+            "name": "petcare"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://postgres:khaibaolocnguyen@db.rruavcjmtgpxyznzwkhw.supabase.co:5432/postgres",
+            "name": "DB_PetCare",
+            "group": "02"
         }
     ]
 }

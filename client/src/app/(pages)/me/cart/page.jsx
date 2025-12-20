@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SectionHeader } from "../components/SectionHeader";
 import { CartItem } from "./components/CartItem";
 import { PriceSummary } from "./components/PriceSummary";
@@ -8,58 +8,37 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { se } from "date-fns/locale";
 
 export default function MeCartPage() {
-  const cartList = [
-    {
-      id: "1",
-      name: "Dog Treat",
-      type: "Food",
-      image: "/auth-bg.jpg",
-      quantity: 1,
-      price: 200000
-    },
-    {
-      id: "2",
-      name: "Cat Toy",
-      type: "Toy",
-      image: "/auth-bg.jpg",
-      quantity: 2,
-      price: 150000
-    },
-    {
-      id: "1",
-      name: "Dog Treat",
-      type: "Food",
-      image: "/auth-bg.jpg",
-      quantity: 1,
-      price: 200000
-    },
-    {
-      id: "2",
-      name: "Cat Toy",
-      type: "Toy",
-      image: "/auth-bg.jpg",
-      quantity: 2,
-      price: 150000
-    },
-    {
-      id: "1",
-      name: "Dog Treat",
-      type: "Food",
-      image: "/auth-bg.jpg",
-      quantity: 1,
-      price: 200000
-    },
-    {
-      id: "2",
-      name: "Cat Toy",
-      type: "Toy",
-      image: "/auth-bg.jpg",
-      quantity: 2,
-      price: 150000
-    }
-  ]
+  const [cartList, setCartList] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  useEffect(() => {
+    // Fetch cart data from server
+    const fetchCartData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/cart`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+        });
+        const data = await response.json();
+        if (data.code === "success") {
+          setCartList(data.cartItems);
+          setTotalAmount(data.totalAmount);
+        }
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      }
+    };
+
+    fetchCartData();
+  }, []);
+
+  //console.log("Cart List:", data.totalAmount);
+
   const [onlineBanking, setOnlineBanking] = useState(false);
 
   return (
@@ -73,7 +52,7 @@ export default function MeCartPage() {
           ))}
         </div>
         <div className="w-2/5 sticky top-20 h-fit bg-[var(--main)] p-5 rounded-xl text-white">
-          <PriceSummary total={350000} discount={0} />
+          <PriceSummary total={totalAmount} discount={0} />
           <div className="mt-5">Choose payment method</div>
           <RadioGroup 
             defaultValue="cod"

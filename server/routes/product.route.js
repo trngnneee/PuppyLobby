@@ -2,7 +2,7 @@ import express from "express"
 import multer from "multer"
 import { storage } from "../middleware/cloudinary.middleware.js"
 import db from "./../utils/db.js"
-
+import * as authMiddleware from "../middleware/auth.middleware.js"
 const router = express.Router()
 
 const upload = multer({ storage: storage })
@@ -164,4 +164,92 @@ router.post("/update/:productId", upload.array('files', 5), async (req, res) => 
 
 });
 
+
+router.post("/add_to_cart", authMiddleware.verifyToken, async (req, res) => {
+  console.log('customer_id:', req.account.customer_id);
+  console.log('product_id:', req.body.product_id);
+  console.log('quantity:', req.body.quantity);
+  const result = await db.raw(`SELECT add_invoice_product(?, ?, ?);`,
+    [
+      req.account.customer_id,
+      req.body.product_id,
+      req.body.quantity
+    ]
+  );
+
+  const response = result.rows[0].add_invoice_product;
+  console.log('Response from add_invoice_product:', response);
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Product added to cart successfully",
+  });
+
+
+});
+
+router.get("/cart", authMiddleware.verifyToken,  	async (req, res) => {
+    const result = await db.raw(
+        `
+        SELECT invoice_id
+        FROM invoice
+        WHERE customer_id = ?
+          AND status = 'pending'
+        ORDER BY created_at DESC
+        LIMIT 1
+        `,
+        [req.account.customer_id]
+      );
+    
+    const response = result.rows[0];
+    if (!response) {
+      return res.json({
+        code: "success",
+        message: "Cart is empty",
+        cartItems: [],
+        totalAmount: 0
+      });
+    }
+    const invoice_id = response.invoice_id;
+
+    const cartResult = await db.raw(
+      `
+      SELECT
+        p.images,
+        ip.product_id,
+        p.product_name,
+        p.price,
+        p.type,
+        ip.quantity,
+        (ip.quantity * p.price) AS subtotal
+      FROM invoiceproduct ip
+      JOIN product p ON ip.product_id = p.product_id
+      WHERE ip.invoice_id = ?
+      `,
+      [invoice_id]
+    );
+
+    const cartItems = cartResult.rows;
+    const totalAmount = await db.raw(
+      `
+      SELECT get_product_total(?)
+      `,
+      [req.account.customer_id]
+    );
+
+    const total = totalAmount.rows[0].get_product_total;
+
+    res.json({
+      code: "success",
+      message: "Cart fetched successfully",
+      cartItems: cartItems,
+      totalAmount: total
+    });
+});
 export default router
