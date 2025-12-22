@@ -194,65 +194,7 @@ router.post("/add_to_cart", authMiddleware.verifyToken, async (req, res) => {
 
 });
 
-router.get("/cart", authMiddleware.verifyToken,  	async (req, res) => {
-    const result = await db.raw(
-        `
-        SELECT invoice_id
-        FROM invoice
-        WHERE customer_id = ?
-          AND status = 'pending'
-        ORDER BY created_at DESC
-        LIMIT 1
-        `,
-        [req.account.customer_id]
-      );
-    
-    const response = result.rows[0];
-    if (!response) {
-      return res.json({
-        code: "success",
-        message: "Cart is empty",
-        cartItems: [],
-        totalAmount: 0
-      });
-    }
-    const invoice_id = response.invoice_id;
 
-    const cartResult = await db.raw(
-      `
-      SELECT
-        p.images,
-        ip.product_id,
-        p.product_name,
-        p.price,
-        p.type,
-        ip.invoice_id,
-        ip.quantity
-      FROM invoiceproduct ip
-      JOIN product p ON ip.product_id = p.product_id
-      WHERE ip.invoice_id = ?
-      ORDER BY p.product_id ASC
-      `,
-      [invoice_id]
-    );
-
-    const cartItems = cartResult.rows;
-    const totalAmount = await db.raw(
-      `
-      SELECT get_product_total(?)
-      `,
-      [req.account.customer_id]
-    );
-
-    const total = totalAmount.rows[0].get_product_total;
-
-    res.json({
-      code: "success",
-      message: "Cart fetched successfully",
-      cartItems: cartItems,
-      totalAmount: total
-    });
-});
 
 router.post("/update_cart_item", authMiddleware.verifyToken, async (req, res) => {
   const { invoice_id, product_id, quantity } = req.body;

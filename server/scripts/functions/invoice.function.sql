@@ -331,3 +331,33 @@ begin
   return v_total;
 end;
 $$;
+
+
+CREATE OR REPLACE FUNCTION get_invoice_total_price(
+  p_customer_id uuid
+)
+RETURNS numeric AS $$
+DECLARE
+    v_invoice_id uuid;
+    v_total_price numeric;
+BEGIN
+    SELECT invoice_id
+    INTO v_invoice_id 
+    FROM invoice
+    WHERE customer_id = p_customer_id
+      AND status = 'pending'
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    if v_invoice_id is null then
+    return 0;
+    end if;
+
+    SELECT total_price
+    INTO v_total_price
+    FROM invoice
+    WHERE invoice_id = v_invoice_id;
+
+    RETURN v_total_price;
+END;
+$$ LANGUAGE plpgsql;

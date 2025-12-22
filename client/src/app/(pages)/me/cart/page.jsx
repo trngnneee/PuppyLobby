@@ -16,7 +16,7 @@ export default function MeCartPage() {
   
   const fetchCartData = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/cart`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
         method: "GET",
         credentials: "include",
       });
@@ -32,25 +32,24 @@ export default function MeCartPage() {
   
   useEffect(() => {
     // Fetch cart data from server
-    const fetchCartData = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/cart`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-        });
-        const data = await response.json();
-        if (data.code === "success") {
-          setCartList(data.cartItems);
-          setTotalAmount(data.totalAmount);
-        }
-      } catch (error) {
-        console.error("Error fetching cart data:", error);
-      }
-    };
-
+    // const fetchCartData = async () => {
+    //   try {
+    //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json"
+    //       },
+    //       credentials: "include",
+    //     });
+    //     const data = await response.json();
+    //     if (data.code === "success") {
+    //       setCartList(data.cartItems);
+    //       setTotalAmount(data.totalAmount);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching cart data:", error);
+    //   }
+    // };
     fetchCartData();
   }, []);
 

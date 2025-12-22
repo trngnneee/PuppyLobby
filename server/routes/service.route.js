@@ -262,7 +262,7 @@ router.post('/vaccine-single/update/:booking_id', async (req, res) => {
   await db('vaccinationsingleservice').where({ booking_id: booking_id }).update({
     dosage: dosage,
   });
-
+  
   await db('servicebooking').where({ booking_id: booking_id }).update({
     price: price,
     status: status,

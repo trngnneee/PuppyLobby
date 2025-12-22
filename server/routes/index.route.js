@@ -8,6 +8,7 @@ import vaccinePackageRouter from './vaccine-package.route.js';
 import customerRouter from './customer.route.js';
 import authRouter from './auth.route.js';
 import petRouter from './pet.route.js';
+import cartRouter from './cart.route.js';
 
 const router = express.Router();
 
@@ -28,5 +29,7 @@ router.use("/vaccine-package", vaccinePackageRouter);
 router.use("/customer", customerRouter);
 
 router.use('/pet', petRouter);
+
+router.use('/cart', cartRouter);
 
 export default router;

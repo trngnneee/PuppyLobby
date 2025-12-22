@@ -134,7 +134,7 @@ export const Step2UIVaccineSingle = ({
           >
             {vaccineList.length > 0 ? vaccineList.map((item) => (
               <VaccineItem
-                key={item.vaccine_id}
+                key={item.vaccine_info.vaccine_id}
                 item={item}
               />
             )) : (
