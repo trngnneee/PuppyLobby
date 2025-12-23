@@ -111,7 +111,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         'vaccine_name', v.vaccine_name,
         'dosage', vs.dosage
         )
-        ORDER BY vs.scheduled_week
+        ORDER BY vs.scheduled_week DESC
         ) AS vaccines
       FROM servicebooking sb
       JOIN pet p ON p.pet_id = sb.pet_id

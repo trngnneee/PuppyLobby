@@ -34,7 +34,7 @@ export const MedicalItem = ({ item }) => {
       <div>
         <p className="text-sm font-medium text-gray-600">Symptoms</p>
         <p className="text-base">
-          {item.symptoms || '-'}
+          {item.symptom || '-'}
         </p>
       </div>
 
