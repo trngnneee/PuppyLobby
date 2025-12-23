@@ -71,7 +71,7 @@ export const AccessoryTable = ({searchKey}) => {
           </div>
         ) : productList.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid=cols-4 gap-8 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-8">
               {productList.map((item, index) => (
                 <ProductCard key={item.product_info?.id || index} item={item} index={index} />
               ))}

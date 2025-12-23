@@ -40,11 +40,11 @@ router.get("/detail/:id", async (req, res) => {
 })
 
 router.post("/update/:id", async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.rams;
   const { price, branches } = req.body;
 
-  try{
-    await db.transaction (async trx => {
+  try {
+    await db.transaction(async trx => {
       await trx('service').where({ service_id: id }).update({
         service_base_price: price,
       });
@@ -59,7 +59,7 @@ router.post("/update/:id", async (req, res) => {
 
     })
   }
-  catch (error){
+  catch (error) {
     return res.status(500).json({
       code: "error",
       message: "Transaction failed: " + error.message,
@@ -174,6 +174,52 @@ router.post('/medical-exam/update/:booking_id', async (req, res) => {
   })
 })
 
+router.get('/medical-exam/list-customer/:customer_id', async (req, res) => {
+  const { customer_id } = req.params;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
+  // ===== QUERY DATA =====
+  const dataQuery = db('servicebooking')
+    .select(
+      'medicalexamination.*',
+      'pet.pet_name',
+      'servicebooking.date',
+      'servicebooking.status',
+      'employee.employee_name'
+    )
+    .join('medicalexamination', 'servicebooking.booking_id', 'medicalexamination.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('pet', 'servicebooking.pet_id', 'pet.pet_id')
+    .join('employee', 'servicebooking.employee_id', 'employee.employee_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Medical Examination')
+    .limit(limit)
+    .offset(offset);
+
+  // ===== QUERY COUNT =====
+  const totalCountResult = await db('servicebooking')
+    .count('* as count')
+    .join('medicalexamination', 'servicebooking.booking_id', 'medicalexamination.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Medical Examination')
+    .first();
+
+  const result = await dataQuery;
+
+  res.json({
+    code: "success",
+    message: "Medical exam list fetched successfully",
+    medicalExamList: result,
+    totalPages: Math.ceil(totalCountResult.count / limit),
+  });
+});
+
 router.post('/vaccine-single/book', authMiddleware.verifyToken, async (req, res) => {
   const result = await db.raw(
     `SELECT create_vaccine_single(?, ?, ?, ?, ?, ?, ?);`,
@@ -274,6 +320,54 @@ router.post('/vaccine-single/update/:booking_id', async (req, res) => {
   })
 })
 
+router.get('/vaccine-single/list-customer/:customer_id', async (req, res) => {
+  const { customer_id } = req.params;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
+  // ===== QUERY DATA =====
+  const dataQuery = db('servicebooking')
+    .select(
+      'vaccinationsingleservice.*',
+      'pet.pet_name',
+      'servicebooking.date',
+      'servicebooking.status',
+      'employee.employee_name',
+      'vaccine.vaccine_name'
+    )
+    .join('vaccinationsingleservice', 'servicebooking.booking_id', 'vaccinationsingleservice.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('pet', 'servicebooking.pet_id', 'pet.pet_id')
+    .join('employee', 'servicebooking.employee_id', 'employee.employee_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .join('vaccine', 'vaccinationsingleservice.vaccine_id', 'vaccine.vaccine_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Vaccine Single Service')
+    .limit(limit)
+    .offset(offset);
+
+  // ===== QUERY COUNT =====
+  const totalCountResult = await db('servicebooking')
+    .count('* as count')
+    .join('vaccinationsingleservice', 'servicebooking.booking_id', 'vaccinationsingleservice.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Vaccine Single Service')
+    .first();
+
+  const result = await dataQuery;
+
+  res.json({
+    code: "success",
+    message: "Vaccination list fetched successfully",
+    vaccinationList: result,
+    totalPages: Math.ceil(totalCountResult.count / limit),
+  });
+});
+
 router.post('/vaccine-package/book', authMiddleware.verifyToken, async (req, res) => {
   const result = await db.raw(
     `SELECT create_vaccine_package(?, ?, ?, ?, ?, ?, ?);`,
@@ -366,7 +460,7 @@ router.get('/vaccine-package/detail/:booking_id', async (req, res) => {
   );
   const vaccinePackageDetail = result?.rows[0];
 
-  if (!vaccinePackageDetail) {  
+  if (!vaccinePackageDetail) {
     return res.json({
       code: "not_found",
       message: "Vaccine package detail not found",
@@ -393,6 +487,59 @@ router.post('/vaccine-package/update/:booking_id', async (req, res) => {
     code: "success",
     message: "Vaccine package updated successfully",
   })
+});
+
+router.get('/vaccine-package/list-customer/:customer_id', async (req, res) => {
+  const { customer_id } = req.params;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
+  // ===== QUERY DATA =====
+  const dataQuery = db('servicebooking')
+    .select(
+      'vaccinationpackage.*',
+      'vaccinationpackageservice.start_date',
+      'vaccinationpackageservice.end_date',
+      'pet.pet_name',
+      'servicebooking.date',
+      'servicebooking.status',
+      'employee.employee_name',
+    )
+    .join('vaccinationpackageservice', 'servicebooking.booking_id', 'vaccinationpackageservice.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('pet', 'servicebooking.pet_id', 'pet.pet_id')
+    .join('employee', 'servicebooking.employee_id', 'employee.employee_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .join('vaccinationpackage', 'vaccinationpackageservice.package_id', 'vaccinationpackage.package_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Vaccine Package Service')
+    .limit(limit)
+    .offset(offset);
+
+  // ===== QUERY COUNT =====
+  const totalCountResult = await db('servicebooking')
+    .count('* as count')
+    .join('vaccinationpackageservice', 'servicebooking.booking_id', 'vaccinationpackageservice.booking_id')
+    .join('service', 'service.service_id', 'servicebooking.service_id')
+    .join('invoice', 'servicebooking.invoice_id', 'invoice.invoice_id')
+    .where('invoice.customer_id', customer_id)
+    .andWhere('service.service_name', 'Vaccine Single Service')
+    .first();
+
+  const result = await dataQuery;
+  for (const row of result) {
+    const schedules = await db('vaccinationschedule').join('vaccine', 'vaccinationschedule.vaccine_id', 'vaccine.vaccine_id').where({ package_id: row.package_id }).select('vaccinationschedule.scheduled_week', 'vaccine.vaccine_name');
+    row.schedules = schedules;
+  }
+
+  res.json({
+    code: "success",
+    message: "Vaccination list fetched successfully",
+    vaccinationList: result,
+    totalPages: Math.ceil(totalCountResult.count / limit),
+  });
 });
 
 export default router;

@@ -136,7 +136,7 @@ export const Step2UIVaccinePackage = ({
           >
             {vaccinePackageList.length > 0 ? vaccinePackageList.map((item) => (
               <VaccinePackageItem
-                key={item.package_id}
+                key={item.vaccine_package_info.package_id}
                 item={item}
               />
             )) : (

@@ -78,7 +78,6 @@ router.get("/list", async (req, res) => {
     [keyword, page, pageSize]
   );
   const vaccinePackageList = result.rows;
-  console.log ('vaccinePackageList:', vaccinePackageList);
   const totalCount = vaccinePackageList.length > 0 ? vaccinePackageList[0].total_count : 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   res.json({

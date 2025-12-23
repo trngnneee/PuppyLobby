@@ -1,0 +1,1 @@
+select * from account where email = 'loc@gmail.com'

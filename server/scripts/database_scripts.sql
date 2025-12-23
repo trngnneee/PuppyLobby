@@ -110,7 +110,7 @@ create table Invoice (
   invoice_id uuid primary key default gen_random_uuid (),
   created_at timestamp default current_timestamp,
   payment_method text,
-  total_price numeric check (total_price > 0),
+  total_price numeric check (total_price >= 0),
   status text,
   employee_id uuid references Employee (employee_id),
   customer_id uuid references Customer (customer_id)

@@ -283,12 +283,50 @@ end
 $$ language plpgsql VOLATILE;
 
 
+-------------------- Remove product by ID --------------------
 
+create or replace function remove_product (
+    p_product_id uuid
+)
+returns jsonb
+as
+$$
+declare
+    v_product_type text;
+begin
 
+    -- Check if product exists
+    select type into v_product_type from product where product_id = p_product_id;
+    
+    if v_product_type is null then
+        return jsonb_build_object(
+            'code', 'not_found',
+            'message', 'Product not found'
+        );
+    end if;
 
+    -- Delete from subtype tables based on product type
+    if v_product_type = 'medicine' then
+        delete from medicine where product_id = p_product_id;
+    elsif v_product_type = 'food' then
+        delete from food where product_id = p_product_id;
+    elsif v_product_type = 'accessory' then
+        delete from accessory where product_id = p_product_id;
+    end if;
 
+    -- Delete from product table
+    delete from product where product_id = p_product_id;
 
+    return jsonb_build_object(
+        'code', 'success',
+        'message', 'Product removed successfully'
+    );
 
+    exception when others then
+        return jsonb_build_object(
+            'code', 'error',
+            'message', sqlerrm
+        );
 
-
-
+end
+$$ language plpgsql VOLATILE;

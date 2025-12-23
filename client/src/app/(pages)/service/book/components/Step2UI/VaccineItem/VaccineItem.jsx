@@ -9,34 +9,34 @@ export const VaccineItem = ({ item }) => {
       className="flex cursor-pointer items-center justify-between rounded-lg border p-4 hover:bg-muted/50 transition"
     >
       <RadioGroupItem
-        id={item.vaccine_id}
-        value={item.vaccine_id}
+        id={item.vaccine_info.vaccine_id}
+        value={item.vaccine_info.vaccine_id}
         className="mr-3"
       />
 
       <div className="flex flex-1 flex-col gap-1">
         <span className="font-medium text-sm">
-          {item.vaccine_name}
+          {item.vaccine_info.vaccine_name}
         </span>
 
         <span className="text-[10px] text-muted-foreground">
-          NSX: {formatDate(item.manufacture_date)}
+          NSX: {formatDate(item.vaccine_info.manufacture_date)}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          Nhập: {formatDate(item.entry_date)}
+          Nhập: {formatDate(item.vaccine_info.entry_date)}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          HSD: {formatDate(item.expiry_date)}
+          HSD: {formatDate(item.vaccine_info.expiry_date)}
         </span>
       </div>
 
       <div className="flex flex-col items-end gap-1">
         <span className="text-sm">
-          SL: <b>{item.quantity}</b>
+          SL: <b>{item.vaccine_info.quantity}</b>
         </span>
 
         <span className="text-sm font-semibold text-primary">
-          {Number(item.price).toLocaleString("vi-VN")} ₫
+          {Number(item.vaccine_info.price).toLocaleString("vi-VN")} ₫
         </span>
       </div>
     </Label>

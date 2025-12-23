@@ -2,7 +2,7 @@ import express from "express"
 import multer from "multer"
 import { storage } from "../middleware/cloudinary.middleware.js"
 import db from "./../utils/db.js"
-
+import * as authMiddleware from "../middleware/auth.middleware.js"
 const router = express.Router()
 
 const upload = multer({ storage: storage })
@@ -163,5 +163,91 @@ router.post("/update/:productId", upload.array('files', 5), async (req, res) => 
   });
 
 });
+
+
+router.post("/add_to_cart", authMiddleware.verifyToken, async (req, res) => {
+  console.log('customer_id:', req.account.customer_id);
+  console.log('product_id:', req.body.product_id);
+  console.log('quantity:', req.body.quantity);
+  const result = await db.raw(`SELECT add_invoice_product(?, ?, ?);`,
+    [
+      req.account.customer_id,
+      req.body.product_id,
+      req.body.quantity
+    ]
+  );
+
+  const response = result.rows[0].add_invoice_product;
+  console.log('Response from add_invoice_product:', response);
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Product added to cart successfully",
+  });
+
+
+});
+
+
+
+router.post("/update_cart_item", authMiddleware.verifyToken, async (req, res) => {
+  const { invoice_id, product_id, quantity } = req.body;
+  //console.log('Update cart item:', req.body);
+  //console.log('invoice_id:', invoice_id);
+  //console.log('product_id:', product_id);
+  //console.log('quantity:', quantity);
+  const result = await db.raw(`SELECT update_invoice_product(?, ?, ?);`,
+    [
+      invoice_id,  
+      product_id,
+      quantity
+    ]
+  );
+
+  //console.log('Result from update_invoice_product:', result.rows[0]);
+  const response = result.rows[0].update_invoice_product;
+  console.log('Response from update_invoice_product:', response);
+
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Cart item updated successfully"
+  });
+});
+
+router.post("/remove_cart_item", authMiddleware.verifyToken, async (req, res) => {
+  const { invoice_id, product_id } = req.body;
+  const result = await db.raw(`SELECT remove_invoice_product(?, ?);`,
+    [
+      invoice_id,
+      product_id
+    ]
+  );
+  const response = result.rows[0].remove_invoice_product;
+  console.log('Response from remove_invoice_product:', response);
+  if (response.code === 'error') {
+    return res.json({
+      code: "error",
+      message: response.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Cart item removed successfully"
+  });
+} );
 
 export default router

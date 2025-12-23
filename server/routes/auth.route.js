@@ -71,6 +71,7 @@ router.get('/verify', async (req, res) => {
             message: "Token is valid",
             userInfo: {
               id: existCustomer.account_id,
+              customer_id: existCustomer.customer_id,
               username: existCustomer.username,
               email: existCustomer.email,
               customer_name: existCustomer.customer_name,

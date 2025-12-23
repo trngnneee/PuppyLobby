@@ -16,19 +16,14 @@ export const Header = () => {
       name: "HOME",
       link: "/",
     },
-    ...(userInfo?.role === "customer"
-      ? [
-        {
-          name: "BOOKING A SERVICES",
-          link: "/service/book",
-        },
-
-        {
-          name: "PRODUCTS",
-          link: "/product",
-        }
-      ]
-      : []),
+    {
+      name: "BOOKING A SERVICES",
+      link: "/service/book",
+    },
+    {
+      name: "PRODUCTS",
+      link: "/product",
+    }
   ];
 
   const NavItem = ({ item }) => {
