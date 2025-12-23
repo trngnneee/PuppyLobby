@@ -15,6 +15,7 @@ export default function ManageWorkLayout({ children }) {
     { label: "Vaccine Package Service", href: "/work/manage/vaccine-package" },
   ] : [
     { label: "Onsite Service", href: "/work/manage/onsite-service" },
+    { label: "Payment Check", href: "/work/manage/payment-check" }
   ])
   const pathname = usePathname()
 
