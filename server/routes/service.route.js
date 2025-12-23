@@ -542,4 +542,88 @@ router.get('/vaccine-package/list-customer/:customer_id', async (req, res) => {
   });
 });
 
+router.post('/onsite/medical-examination/create', async (req, res) => {
+  const result = await db.raw(
+    `SELECT create_service_booking(?, ?, ?, ?, ?, ?);`,
+    [
+      req.body.service_id,
+      req.body.date,
+      req.body.branch_id,
+      req.body.employee_id,
+      req.body.pet_id,
+      req.body.customer_id
+    ]
+  );
+
+  const data = result.rows[0].create_service_booking;
+  if (data.code == "error") {
+    return res.json({
+      code: "error",
+      message: data.message,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Service booked successfully",
+  })
+  
+  res.json({
+    code: "success",
+    message: "Onsite medical examination service created successfully",
+  })
+})
+
+router.post('/onsite/vaccine-single/create', async (req, res) => {
+  const result = await db.raw(
+    `SELECT create_vaccine_single(?, ?, ?, ?, ?, ?, ?);`,
+    [
+      req.body.service_id,
+      req.body.date,
+      req.body.branch_id,
+      req.body.employee_id,
+      req.body.pet_id,
+      req.body.customer_id,
+      req.body.vaccine_id
+    ]
+  );
+  const data = result.rows[0].create_vaccine_single;
+  if (data.code == "error") {
+    return res.json({
+      code: "error",
+      message: data.message,
+    });
+  }
+  res.json({
+    code: "success",
+    message: "Onsite vaccine single service created successfully",
+  })
+})
+
+router.post('/onsite/vaccine-package/create', async (req, res) => {
+  const result = await db.raw(
+    `SELECT create_vaccine_package(?, ?, ?, ?, ?, ?, ?);`,
+    [
+      req.body.service_id,
+      req.body.date,
+      req.body.branch_id,
+      req.body.employee_id,
+      req.body.pet_id,
+      req.body.customer_id,
+      req.body.package_id
+    ]
+  );
+  const data = result.rows[0].create_vaccine_package;
+  if (data.code == "error") {
+    return res.json({
+      code: "error",
+      message: data.message,
+    });
+  }
+  res.json({
+    code: "success",
+    message: "Onsite vaccine package service created successfully",
+  })
+})
+
 export default router;

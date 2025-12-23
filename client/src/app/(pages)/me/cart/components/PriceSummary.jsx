@@ -7,7 +7,7 @@ export const PriceSummary = ({
 
       <div className="flex justify-between text-sm">
         <span className="">Total:</span>
-        <span className="font-medium">{total.toLocaleString()} VND</span>
+        <span className="font-medium">{parseInt(total).toLocaleString('vi-VN')} VND</span>
       </div>
 
       <div className="flex justify-between text-sm">
@@ -20,7 +20,7 @@ export const PriceSummary = ({
       <div className="flex justify-between text-base font-bold">
         <span className="">Payment:</span>
         <span className="text-lg">
-          {(total - discount).toLocaleString()} VND
+          {(parseInt(total) - parseInt(discount)).toLocaleString('vi-VN')} VND
         </span>
       </div>
     </div>

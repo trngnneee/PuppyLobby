@@ -56,8 +56,7 @@ router.post('/auth/signin', async (req, res) => {
   }
 
   const existAccount = await db.select('*').from('account').where({ username, email, role_id: role_id.role_id }).first();
-  if (!existAccount) 
-  {
+  if (!existAccount) {
     return res.json({
       code: "error",
       message: "Account does not exist",
@@ -128,6 +127,62 @@ router.patch('/profile/reset-password', verifyToken, async (req, res) => {
   res.json({
     code: "success",
     message: "Password updated successfully"
+  })
+})
+
+router.get('/find', async (req, res) => {
+  const { phone_number } = req.query;
+
+  const existCustomer = await db('customer').where({ phone_number }).first();
+
+  if (!existCustomer) {
+    return res.json({
+      code: "error",
+      message: "Customer does not exist"
+    })
+  }
+
+  res.json({
+    code: "success",
+    message: "Customer exists!",
+    existCustomer: existCustomer
+  })
+})
+
+router.post('/create', async (req, res) => {
+  const { customer_name, phone_number, cccd } = req.body;
+
+  const result = await db('customer').insert({
+    customer_name,
+    phone_number,
+    cccd
+  })
+    .returning('customer_id');
+
+  res.json({
+    code: "success",
+    message: "Create customer successfully!",
+    customer_id: result[0].customer_id
+  })
+})
+
+router.get('/anonymous-list', async (req, res) => {
+  const result = await db.raw(
+    `
+      select *
+      from customer 
+      where customer_id not in (
+      select customer.customer_id
+      from customeraccount
+      join customer on customeraccount.customer_id = customer.customer_id
+      )
+    `
+  );
+
+  res.json({
+    code: "success",
+    message: "Fetch anonymous customer list successfully!",
+    customers: result.rows
   })
 })
 
