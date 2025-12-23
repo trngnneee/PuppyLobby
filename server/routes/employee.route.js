@@ -221,7 +221,7 @@ router.get('/list/:branch_id', async (req, res) => {
 
   const result = await db.raw(
     `
-    SELECT employee.employee_id, employee.employee_name
+    SELECT DISTINCT employee.employee_id, employee.employee_name
     FROM employeehistory
     JOIN employee ON employeehistory.employee_id = employee.employee_id
     JOIN veterinarian ON employee.employee_id = veterinarian.employee_id

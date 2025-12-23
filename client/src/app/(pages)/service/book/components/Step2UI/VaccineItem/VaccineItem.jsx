@@ -20,13 +20,13 @@ export const VaccineItem = ({ item }) => {
         </span>
 
         <span className="text-[10px] text-muted-foreground">
-          NSX: {formatDate(item.vaccine_info.manufacture_date)}
+          Manufacture date: {formatDate(item.vaccine_info.manufacture_date)}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          Nhập: {formatDate(item.vaccine_info.entry_date)}
+          Entry date: {formatDate(item.vaccine_info.entry_date)}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          HSD: {formatDate(item.vaccine_info.expiry_date)}
+          Expiry date: {formatDate(item.vaccine_info.expiry_date)}
         </span>
       </div>
 

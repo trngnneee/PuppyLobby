@@ -14,11 +14,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { statusOption } from "@/config/variable.config";
 import Link from "next/link";
 import { toast } from "sonner";
+import { paramsBuilder } from "@/utils/params";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { MedicineItem } from "./components/MedicineItem";
+import { MedicineItemSkeleton } from "./components/MedicineItemSkeleton";
+import PaginationComponent from "@/components/common/Pagination";
 
 export default function MedicalExamDetailPage() {
   const { id } = useParams();
   const [date, setDate] = useState(null);
   const [status, setStatus] = useState("");
+  const [prescription, setPrescription] = useState([]);
   const router = useRouter();
 
   const [medicalExamDetail, setMedicalExamDetail] = useState(null);
@@ -37,12 +43,36 @@ export default function MedicalExamDetailPage() {
     fetchData();
   }, []);
 
+  const [medicineList, setMedicineList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  useEffect(() => {
+    const fetchData = async () => {
+      const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/product_types`, {
+        type: "medicine",
+        page: currentPage,
+        pageSize: 9,
+      })
+      await fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code == "success") {
+            setMedicineList(data.productList);
+            setTotalPages(data.totalPages);
+          }
+        });
+    }
+    fetchData();
+  }, [currentPage]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const finalData = {
       symptom: e.target.symptom.value,
       diagnosis: e.target.diagnosis.value,
-      prescription: e.target.prescription.value,
+      prescription: prescription
+        .map(p => `${p.product_name} - ${p.dosage}mg`)
+        .join("\n"),
       price: e.target.price.value,
       next_appointment: formatDateReverse(date),
       status: status,
@@ -55,7 +85,7 @@ export default function MedicalExamDetailPage() {
       body: JSON.stringify(finalData),
     })
       .then((res) => res.json())
-      .then((data) => {return data});
+      .then((data) => { return data });
 
     toast.promise(promise, {
       loading: "Updating medical exam...",
@@ -103,12 +133,39 @@ export default function MedicalExamDetailPage() {
                   id="prescription"
                   name="prescription"
                   defaultValue={medicalExamDetail?.prescription}
+                  readOnly
+                  value={prescription
+                    .map(p => `${p.product_name} - ${p.dosage}mg`)
+                    .join("\n")
+                  }
+                  onChange={() => { }}
+                  rows={10}
                 />
               </div>
             </div>
-            <div className="w-full">
-
+          </div>
+          <div className="mb-10">
+            <div
+              className="grid grid-cols-3 gap-3 mb-5"
+            >
+              {medicineList.length > 0 ? medicineList.map((item) => (
+                <MedicineItem
+                  key={item.product_info.product_id}
+                  item={item}
+                  prescription={prescription}
+                  setPrescription={setPrescription}
+                />
+              )) : (
+                [...Array(3)].map((_, index) => (
+                  <MedicineItemSkeleton key={index} />
+                ))
+              )}
             </div>
+            <PaginationComponent
+              numberOfPages={totalPages}
+              currentPage={currentPage}
+              controlPage={(value) => setCurrentPage(value)}
+            />
           </div>
           <div className="flex gap-[30px]">
             <div className="w-full">

@@ -74,6 +74,19 @@ export function middleware(req) {
 
     return NextResponse.next();
   }
+  if (pathname.startsWith("/service/book")) {
+    // Employee không được vào customer
+    if (employeeToken) {
+      return NextResponse.redirect(
+        new URL("/employee/manage", req.url)
+      );
+    }
+    if (!customerToken) {
+      return NextResponse.redirect(
+        new URL("/me/auth/signin", req.url)
+      );
+    }
+  }
 
   return NextResponse.next();
 }
@@ -89,6 +102,6 @@ export const config = {
     "/work/manage/:path*",
     // Customer
     "/me/:path*",
-    "/service/booking/:path*",
+    "/service/book/:path*",
   ],
 };
