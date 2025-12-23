@@ -9,6 +9,7 @@ import customerRouter from './customer.route.js';
 import authRouter from './auth.route.js';
 import petRouter from './pet.route.js';
 import cartRouter from './cart.route.js';
+import invoiceRouter from './invoice.route.js';
 
 const router = express.Router();
 
@@ -31,5 +32,7 @@ router.use("/customer", customerRouter);
 router.use('/pet', petRouter);
 
 router.use('/cart', cartRouter);
+
+router.use('/invoice', invoiceRouter);
 
 export default router;

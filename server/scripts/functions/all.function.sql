@@ -456,7 +456,7 @@ begin
       customer_id
     )
     values (
-      null,
+      now(),
       null,
       null,
       'pending',
@@ -544,7 +544,7 @@ begin
       customer_id
     )
     values (
-      null,
+      now(),
       null,
       null,
       'pending',
