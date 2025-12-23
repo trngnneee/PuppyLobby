@@ -156,7 +156,7 @@ export default function SiginPage() {
         <div id="agreeContainer" className="mb-[33px]"></div>
         <Button disabled={submit} className="w-full bg-[var(--main)] hover:bg-[var(--main-hover)]">Sign In</Button>
       </form>
-      <div className="mt-[26px] text-[var(--main)] text-center">Don't have an account? <Link className="font-bold hover:underline" href="/me/auth/signup">Sign Up</Link></div>
+      <div className="mt-[26px] text-[var(--main)] text-center">Dont have an account? <Link className="font-bold hover:underline" href="/me/auth/signup">Sign Up</Link></div>
     </>
   )
 }
