@@ -43,7 +43,6 @@ router.get("/list", async (req, res) => {
   const vaccineList = await query.rows;
   const totalCount = vaccineList.length > 0 ? parseInt(vaccineList[0].total_count) : 0;
   const totalPages = Math.ceil(totalCount / pageSize);
-  console.log(vaccineList);
   res.json({
     code: "success",
     message: "Vaccine list fetched successfully",
