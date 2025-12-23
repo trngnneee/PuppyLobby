@@ -1,16 +1,21 @@
 "use client"
 
+import { useAuth } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import { AuthProvider } from "@/provider/auth.provider"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 export default function ManageWorkLayout({ children }) {
-  const tabs = [
+  const { userInfo } = useAuth();
+
+  const tabs = (userInfo?.is_veterinarian ? [
     { label: "Medical Exam", href: "/work/manage/medical-exam" },
     { label: "Vaccine Single Service", href: "/work/manage/vaccine-single" },
     { label: "Vaccine Package Service", href: "/work/manage/vaccine-package" },
-  ]
+  ] : [
+    { label: "Onsite Service", href: "/work/manage/onsite-service" },
+  ])
   const pathname = usePathname()
 
   return (

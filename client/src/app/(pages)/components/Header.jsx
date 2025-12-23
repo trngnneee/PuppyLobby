@@ -16,14 +16,16 @@ export const Header = () => {
       name: "HOME",
       link: "/",
     },
-    {
-      name: "BOOKING A SERVICES",
-      link: "/service/book",
-    },
-    {
-      name: "PRODUCTS",
-      link: "/product",
-    }
+    ...(userInfo && userInfo.role == "employee") ? [] : [
+      {
+        name: "BOOKING A SERVICES",
+        link: "/service/book",
+      },
+      {
+        name: "PRODUCTS",
+        link: "/product",
+      }
+    ]
   ];
 
   const NavItem = ({ item }) => {
@@ -119,7 +121,9 @@ export const Header = () => {
             }
             {
               (
-                <Button onClick={() => router.push("/work/manage/medical-exam")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">WORK ASSIGNMENT</Button>
+                <Button onClick={() => {
+                  userInfo.is_veterinarian ? router.push("/work/manage/medical-exam") : router.push("/work/manage/onsite-service")
+                }} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">WORK ASSIGNMENT</Button>
               )
             }
             <Button

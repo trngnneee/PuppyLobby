@@ -18,6 +18,10 @@ router.get('/verify', async (req, res) => {
           `SELECT checkManager(?) AS is_manager`,
           [account_id]
         );
+        const is_veterinarian = await db.raw(
+          `SELECT checkVeterinarian(?) AS is_veterinarian`,
+          [account_id]
+        );
         return res.json({
           code: "success",
           message: "Token is valid",
@@ -27,6 +31,7 @@ router.get('/verify', async (req, res) => {
             username: existEmployee.username,
             email: existEmployee.email,
             is_manager: is_manager.rows[0].is_manager,
+            is_veterinarian: is_veterinarian.rows[0].is_veterinarian,
             role: 'employee'
           },
         });

@@ -157,7 +157,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-------------------- Check if an employee is an veterinarian --------------------
+CREATE OR REPLACE FUNCTION checkVeterinarian(
+  p_account_id uuid
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+  is_veterinarian BOOLEAN;
+BEGIN
+  SELECT 1
+  INTO is_veterinarian
+  FROM account a
+  JOIN employee e ON e.account_id = a.account_id
+  JOIN veterinarian v ON v.employee_id = e.employee_id
+  WHERE a.account_id = p_account_id
+  LIMIT 1;
 
+  RETURN COALESCE(is_veterinarian, FALSE);
+END;
+$$ LANGUAGE plpgsql;
 
 -------------------- Create new vaccine --------------------
 CREATE OR REPLACE FUNCTION add_vaccine(

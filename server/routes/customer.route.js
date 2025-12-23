@@ -131,4 +131,40 @@ router.patch('/profile/reset-password', verifyToken, async (req, res) => {
   })
 })
 
+router.get('/find', async (req, res) => {
+  const { phone_number } = req.query;
+
+  const existCustomer = await db('customer').where({ phone_number }).first();
+
+  if (!existCustomer) {
+    return res.json({
+      code: "error",
+      message: "Customer does not exist"
+    })
+  }
+  
+  res.json({
+    code: "success",
+    message: "Customer exists!",
+    existCustomer: existCustomer
+  })
+})
+
+router.post('/create', async (req, res) => {
+  const { customer_name, phone_number, cccd } = req.body;
+
+  const result = await db('customer').insert({
+    customer_name,
+    phone_number,
+    cccd
+  })
+    .returning('customer_id');
+  
+  res.json({
+    code: "success",
+    message: "Create customer successfully!",
+    customer_id: result[0].customer_id
+  }) 
+})
+
 export default router;

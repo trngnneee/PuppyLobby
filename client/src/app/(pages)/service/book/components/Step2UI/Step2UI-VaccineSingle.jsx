@@ -28,7 +28,8 @@ export const Step2UIVaccineSingle = ({
   const [vaccineList, setVaccineList] = useState([]);
   useEffect(() => {
     const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/vaccine/list`, {
-      page: currentPage
+      page: currentPage,
+      pageSize: 12
     })
     const fetchData = async () => {
       setVaccineList([]);
@@ -130,7 +131,7 @@ export const Step2UIVaccineSingle = ({
           <RadioGroup
             value={vaccine}
             onValueChange={setVaccine}
-            className="grid grid-cols-5 gap-3"
+            className="grid grid-cols-4 gap-3"
           >
             {vaccineList.length > 0 ? vaccineList.map((item) => (
               <VaccineItem
