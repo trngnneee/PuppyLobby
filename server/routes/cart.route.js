@@ -87,7 +87,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
       JOIN VaccinationSingleService vss ON vss.booking_id = sb.booking_id
       JOIN Vaccine v ON v.vaccine_id = vss.vaccine_id
       JOIN employee e ON e.employee_id = sb.employee_id
-      WHERE sb.invoice_id = ?
+      WHERE sb.invoice_id = ? AND sb.status = 'completed'
       `
       , [invoice_id]
     );
@@ -125,7 +125,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
       JOIN VaccinationSchedule vs ON vs.package_id = vp.package_id
       JOIN Vaccine v ON v.vaccine_id = vs.vaccine_id
       JOIN employee e ON e.employee_id = sb.employee_id
-      WHERE sb.invoice_id = ?
+      WHERE sb.invoice_id = ? AND sb.status = 'completed'
       GROUP BY
         sb.booking_id,
         p.pet_name,

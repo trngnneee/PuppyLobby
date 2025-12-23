@@ -47,8 +47,9 @@ export const MedicalItem = ({ item }) => {
 
       <div>
         <p className="text-sm font-medium text-gray-600">Prescription</p>
-        <ul className="list-disc list-inside text-base">
-          {item.prescription || '-'}
+        <ul className="list-disc list-inside text-[12px]" dangerouslySetInnerHTML={{
+          __html: item.prescription ? item.prescription.replace(/\n/g, "<br />") : '-',
+        }}>
         </ul>
       </div>
 
