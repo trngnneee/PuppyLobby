@@ -58,11 +58,13 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         me.prescription,
         sb.price,
         sb.status,
-        me.next_appointment
+        me.next_appointment,
+        e.employee_name
       FROM servicebooking sb
       JOIN pet p ON p.pet_id = sb.pet_id
       JOIN medicalexamination me ON me.booking_id = sb.booking_id
-      WHERE sb.invoice_id = ?;
+      JOIN employee e ON e.employee_id = sb.employee_id
+      WHERE sb.invoice_id = ? AND sb.status = 'completed'
       `, [invoice_id]
     );
     
@@ -78,11 +80,13 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         vss.dosage,
         sb.price,
         sb.status,
-        sb.date
+        sb.date,
+        e.employee_name
       FROM servicebooking sb
       JOIN pet p ON p.pet_id = sb.pet_id
       JOIN VaccinationSingleService vss ON vss.booking_id = sb.booking_id
       JOIN Vaccine v ON v.vaccine_id = vss.vaccine_id
+      JOIN employee e ON e.employee_id = sb.employee_id
       WHERE sb.invoice_id = ?
       `
       , [invoice_id]
@@ -104,6 +108,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         vp.discount_rate,
         sb.price,
         sb.status,
+        e.employee_name,
         json_agg(
         json_build_object(
         'scheduled_week', vs.scheduled_week,
@@ -119,6 +124,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
       JOIN VaccinationPackage vp ON vp.package_id = vps.package_id
       JOIN VaccinationSchedule vs ON vs.package_id = vp.package_id
       JOIN Vaccine v ON v.vaccine_id = vs.vaccine_id
+      JOIN employee e ON e.employee_id = sb.employee_id
       WHERE sb.invoice_id = ?
       GROUP BY
         sb.booking_id,
@@ -130,7 +136,8 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         vp.duration,
         vp.discount_rate,
         sb.price,
-        sb.status
+        sb.status,
+        e.employee_name
       `,[invoice_id]
     );
 

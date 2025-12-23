@@ -8,11 +8,17 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { se } from "date-fns/locale";
+import { MedicalItem } from "./components/MedicalItem";
+import { ItemSkeleton } from "./components/ItemSkeleton";
+import { VaccineSingleItem } from "./components/VaccineSingleItem";
+import { VaccinePackageItem } from "./components/VaccinePackageItem";
 
 export default function MeCartPage() {
   const [cartList, setCartList] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [medicalList, setMedicalList] = useState([]);
+  const [vaccineSingleList, setVaccineSingleList] = useState([]);
+  const [vaccinePackageList, setVaccinePackageList] = useState([]);
   
   const fetchCartData = async () => {
     try {
@@ -24,6 +30,9 @@ export default function MeCartPage() {
       if (data.code === "success") {
         setCartList(data.cartItems);
         setTotalAmount(data.totalAmount);
+        setMedicalList(data.medicalExaminations || []);
+        setVaccineSingleList(data.vaccinationSingles || []);
+        setVaccinePackageList(data.vaccinationCombos || []);
       }
     } catch (error) {
       console.error(error);
@@ -54,18 +63,38 @@ export default function MeCartPage() {
   }, []);
 
   //console.log("Cart List:", cartList);
-  console.log("Total Amount:", totalAmount);
   const [onlineBanking, setOnlineBanking] = useState(false);
 
   return (
     <>
       <SectionHeader title="Your Cart" />
-      <div className="text-gray-400">You have {cartList.length} items in your cart</div>
+      <div className="text-gray-400">You have {cartList.length + medicalList.length + vaccineSingleList.length + vaccinePackageList.length} items in your cart</div>
       <div className="flex justify-between gap-8 mt-[30px]">
         <div className="flex flex-col gap-4 w-3/5 border border-gray-300 p-3 rounded-lg">
           {cartList.map((item, index) => (
             <CartItem key={item.product_id} item={item} onUpdated={fetchCartData}/>
           ))}
+          {medicalList.length > 0 ? medicalList.map((item) => (
+            <MedicalItem key={item.booking_id} item={item} />
+          )) : (
+            [...Array(2)].map((_, index) => (
+              <ItemSkeleton key={index} />
+            ))
+          )}
+          {vaccineSingleList.length > 0 ? vaccineSingleList.map((item) => (
+            <VaccineSingleItem key={item.booking_id} item={item} />
+          )) : (
+            [...Array(2)].map((_, index) => (
+              <ItemSkeleton key={index} />
+            ))
+          )}
+          {vaccinePackageList.length > 0 ? vaccinePackageList.map((item) => (
+            <VaccinePackageItem key={item.booking_id} item={item} />
+          )) : (
+            [...Array(2)].map((_, index) => (
+              <ItemSkeleton key={index} />
+            ))
+          )}
         </div>
         <div className="w-2/5 sticky top-20 h-fit bg-[var(--main)] p-5 rounded-xl text-white">
           <PriceSummary total={totalAmount} discount={0} />
