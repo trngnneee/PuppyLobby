@@ -19,6 +19,7 @@ import { RadioGroup } from "@/components/ui/radio-group";
 import { MedicineItem } from "./components/MedicineItem";
 import { MedicineItemSkeleton } from "./components/MedicineItemSkeleton";
 import PaginationComponent from "@/components/common/Pagination";
+import { ArrowRightIcon, SearchIcon } from "lucide-react";
 
 export default function MedicalExamDetailPage() {
   const { id } = useParams();
@@ -46,12 +47,14 @@ export default function MedicalExamDetailPage() {
   const [medicineList, setMedicineList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [keyword, setKeyword] = useState("");
   useEffect(() => {
-    const fetchData = async () => {
+    const timeout = setTimeout(async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/product_types`, {
         type: "medicine",
         page: currentPage,
         pageSize: 9,
+        search: keyword,
       })
       await fetch(url)
         .then((res) => res.json())
@@ -61,9 +64,9 @@ export default function MedicalExamDetailPage() {
             setTotalPages(data.totalPages);
           }
         });
-    }
-    fetchData();
-  }, [currentPage]);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [currentPage, keyword]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -145,8 +148,30 @@ export default function MedicalExamDetailPage() {
             </div>
           </div>
           <div className="mb-10">
+            <div className="w-1/2">
+              <div className="relative">
+                <Input
+                  className="peer ps-9 pe-9"
+                  id="keyword"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="Search..."
+                  type="search"
+                />
+                <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+                  <SearchIcon size={16} />
+                </div>
+                <button
+                  aria-label="Submit search"
+                  className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                  type="button"
+                >
+                  <ArrowRightIcon aria-hidden="true" size={16} />
+                </button>
+              </div>
+            </div>
             <div
-              className="grid grid-cols-3 gap-3 mb-5"
+              className="grid grid-cols-3 gap-3 my-5"
             >
               {medicineList.length > 0 ? medicineList.map((item) => (
                 <MedicineItem
