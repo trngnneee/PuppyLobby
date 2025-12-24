@@ -2,7 +2,7 @@
 
 
 
-select get_product_type_list('medicine', '', 1, 15);
+
 
 
 ---------------Get list product by type, search, pagination----------------

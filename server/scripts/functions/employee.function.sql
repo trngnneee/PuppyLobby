@@ -66,3 +66,74 @@ as $$
 $$ language plpgsql stable;
 
 
+CREATE OR REPLACE FUNCTION get_employee_branch_history_list(
+    p_branch_id UUID,
+    p_page INT DEFAULT 1,
+    p_page_size INT DEFAULT 9,
+    p_keyword TEXT DEFAULT NULL
+)
+RETURNS TABLE (
+    employee_id UUID,
+    employee_name TEXT,
+    date_of_birth DATE,
+    gender GENDER_ENUM,
+    degree TEXT,
+    specialization TEXT,
+    is_current_employee BOOLEAN,
+    total_count BIGINT
+)
+LANGUAGE PLPGSQL
+STABLE
+AS $$
+DECLARE 
+    offset_value INT := (p_page - 1) * p_page_size;
+BEGIN
+    RETURN QUERY
+    WITH filtered_emp AS (
+        -- Bước 1: Lọc employees theo keyword và branch
+        SELECT DISTINCT e.employee_id
+        FROM employee e
+        INNER JOIN employeehistory eh ON e.employee_id = eh.employee_id
+        WHERE eh.branch_id = p_branch_id
+          AND (
+            p_keyword IS NULL 
+            OR p_keyword = ''
+            OR e.fts @@ plainto_tsquery('english', remove_accents(p_keyword) || ':*')
+          )
+    ),
+    employee_data AS (
+        -- Bước 2: Lấy thông tin chi tiết của employees (DISTINCT)
+        SELECT 
+            e.employee_id,
+            e.employee_name,
+            e.date_of_birth,
+            e.gender,
+            v.degree,
+            v.specialization,
+            CASE 
+                WHEN MAX(eh.end_date) IS NULL THEN TRUE
+                ELSE FALSE
+            END AS is_current_employee
+        FROM filtered_emp fe
+        INNER JOIN employee e ON e.employee_id = fe.employee_id
+        LEFT JOIN veterinarian v ON e.employee_id = v.employee_id
+        LEFT JOIN employeehistory eh ON e.employee_id = eh.employee_id 
+            AND eh.branch_id = p_branch_id
+        GROUP BY e.employee_id, e.employee_name, e.date_of_birth, e.gender, 
+                 v.degree, v.specialization
+    )
+    SELECT 
+        ed.employee_id,
+        ed.employee_name,
+        ed.date_of_birth,
+        ed.gender,
+        ed.degree,
+        ed.specialization,
+        ed.is_current_employee,
+        (SELECT COUNT(*) FROM employee_data) AS total_count
+    FROM employee_data ed
+    ORDER BY ed.employee_id
+    LIMIT p_page_size
+    OFFSET offset_value;
+END;
+$$;

@@ -48,5 +48,5 @@ add column
 create index product_fts on product using gin (fts);
 
 
-select * from employee
+
 
