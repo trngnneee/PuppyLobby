@@ -71,6 +71,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
 
     const medicalExaminations = medicalRecords.rows;
 
+    console.log("Medical Examinations: ", medicalExaminations);
     const vaccinationSingleRecords = await db.raw(
       `
       SELECT
@@ -93,7 +94,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
     );
 
     const vaccinationSingles = vaccinationSingleRecords.rows;
-
+    console.log("Vaccination Singles: ", vaccinationSingles);
 
     const vaccinationComboRecords = await db.raw(
       `
@@ -116,7 +117,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
         'vaccine_name', v.vaccine_name,
         'dosage', vs.dosage
         )
-        ORDER BY vs.scheduled_week
+        ORDER BY vs.scheduled_week DESC
         ) AS vaccines
       FROM servicebooking sb
       JOIN pet p ON p.pet_id = sb.pet_id
@@ -142,7 +143,7 @@ router.get("/", authMiddleware.verifyToken, async (req, res) => {
     );
 
     const vaccinationCombos = vaccinationComboRecords.rows;
-    
+    console.log("Vaccination Combos: ", vaccinationCombos);
     const totalAmount = await db.raw(
       `
       SELECT get_invoice_total_price(?)

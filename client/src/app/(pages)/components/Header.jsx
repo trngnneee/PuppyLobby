@@ -16,6 +16,11 @@ export const Header = () => {
       name: "HOME",
       link: "/",
     },
+
+    {
+      name: "FIND INVOICES",
+      link: "/invoice",
+    },
     ...(userInfo && userInfo.role == "employee") ? [] : [
       {
         name: "BOOKING A SERVICES",
