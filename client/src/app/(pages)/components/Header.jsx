@@ -116,7 +116,10 @@ export const Header = () => {
           <div className="flex items-center gap-3">
             {
               userInfo.is_manager && (
-                <Button onClick={() => router.push("/employee/manage")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE DASHBOARD</Button>
+                <>
+                  <Button onClick={() => router.push("/revenue")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">REVENUE</Button>
+                  <Button onClick={() => router.push("/employee/manage")} className="bg-[var(--main)] hover:bg-[var(--main-hover)] text-white font-bold animation">MANAGE DASHBOARD</Button>
+                </>
               )
             }
             {
