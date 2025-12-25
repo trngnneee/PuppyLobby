@@ -181,7 +181,7 @@ export default function RevenuePage() {
     }
 
     fetchSummaryData()
-  }, [appliedDateFrom, appliedDateTo, appliedBranch])
+  }, [appliedDateFrom, appliedDateTo, appliedBranch, appliedInterval])
 
   useEffect (() => {
     if (appliedBranch === "all")
