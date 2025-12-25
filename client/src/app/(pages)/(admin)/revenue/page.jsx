@@ -539,7 +539,7 @@ export default function RevenuePage() {
           <div className="bg-gradient-to-br from-rose-300 to-rose-700 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between mb-2">
               <BarChart3 className="w-8 h-8 opacity-80" />
-              <span className="text-sm font-medium opacity-90">Avg Daily Revenue</span>
+              <span className="text-sm font-medium opacity-90">Avg Revenue Per Interval</span>
             </div>
             <div className="text-3xl font-bold mb-1">{formatCurrencyShort(averageTotalRevenue)}</div>
             <div className="text-sm opacity-90">{formatCurrency(averageTotalRevenue)}</div>
