@@ -66,7 +66,7 @@ router.get("/product_types", async (req, res) => {
   
   const product = result.rows;
   res.json({
-    code: "success",
+    code: "success",  
     message: "Product types fetched successfully",
     productList: product,
     totalCount : product.length > 0 ? product[0].total_count : 0,

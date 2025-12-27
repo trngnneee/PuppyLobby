@@ -19,7 +19,7 @@ import { RadioGroup } from "@/components/ui/radio-group";
 import { MedicineItem } from "./components/MedicineItem";
 import { MedicineItemSkeleton } from "./components/MedicineItemSkeleton";
 import PaginationComponent from "@/components/common/Pagination";
-import { ArrowRightIcon, SearchIcon } from "lucide-react";
+import {SearchBar} from "@/app/(pages)/components/SearchBar";
 
 export default function MedicalExamDetailPage() {
   const { id } = useParams();
@@ -45,16 +45,18 @@ export default function MedicalExamDetailPage() {
   }, []);
 
   const [medicineList, setMedicineList] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [submitKeyword, setSubmitKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [keyword, setKeyword] = useState("");
+
   useEffect(() => {
     const timeout = setTimeout(async () => {
       const url = paramsBuilder(`${process.env.NEXT_PUBLIC_API_URL}/product/product_types`, {
         type: "medicine",
         page: currentPage,
         pageSize: 9,
-        search: keyword,
+        search: submitKeyword,
       })
       await fetch(url)
         .then((res) => res.json())
@@ -64,9 +66,9 @@ export default function MedicalExamDetailPage() {
             setTotalPages(data.totalPages);
           }
         });
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, [currentPage, keyword]);
+    })
+    fetchData();
+  }, [currentPage, submitKeyword]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -104,6 +106,11 @@ export default function MedicalExamDetailPage() {
     <>
       <SectionHeader title={`Medical Exam Detail - ${medicalExamDetail?.pet_name} - ${formatDate(medicalExamDetail?.date)}`} />
       <div className="bg-white border border-gray-100 shadow-xl p-5 rounded-md mt-5">
+        {/* Search */}
+        <div className="mb-5">
+          <div className="mb-2 font-medium text-sm text-[var(--main)]">Search Medicine</div>
+          <SearchBar keyword={keyword} setKeyword={setKeyword} setSubmitKeyword={setSubmitKeyword}></SearchBar>
+        </div>
         <form className="" onSubmit={handleSubmit}>
           <div className="flex gap-[30px]">
             <div className="w-full">
@@ -147,6 +154,7 @@ export default function MedicalExamDetailPage() {
               </div>
             </div>
           </div>
+
           <div className="mb-10">
             <div className="w-1/2">
               <div className="relative">

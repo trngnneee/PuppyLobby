@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post('/auth/signin', async (req, res) => {
   const { username, email, password, rememberLogin } = req.body;
+  console.log ("Signin request body:", req.body);
 
   const role_id = await db.select('role_id').from('role').where({ role_name: 'employee' }).first();
 
@@ -273,4 +274,30 @@ router.post('/history', async (req, res) => {
   })
 })
 
+
+router.get("/list/doctors/branch", async (req, res) => {
+  const branch_id = req.query.branch_id;
+  const page = req.query.page ? parseInt (req.query.page) : 1;
+  const keyword = req.query.keyword ? req.query.keyword.trim() : "";
+  const pageSize = 9;
+  const sqlQuery = await db.raw(
+    `
+      SELECT * FROM get_employee_branch_history_list(?, ?, ?, ?)
+    `,
+    [branch_id, page, pageSize, keyword]
+  );
+  const result = sqlQuery;
+  
+  const doctorList = result.rows;
+  const totalCount = doctorList.length > 0 ? parseInt(doctorList[0].total_count) : 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  console.log("Doctor list query result:", doctorList);
+  res.json({
+    code: "success",
+    message: "Doctor list for branch retrieved successfully",
+    doctorList: doctorList,
+    totalPages: totalPages,
+    totalCount: totalCount,
+  })
+});
 export default router;

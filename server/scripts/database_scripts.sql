@@ -24,6 +24,7 @@ create table Employee (
   gender gender_enum not null,
   manager_id uuid references Employee (employee_id),
   account_id uuid references Account (account_id) on delete cascade -- Xóa account thì xóa cả employee
+  branch_id uuid references Branch (branch_id)
 );
 
 -- Tạo bảng Veterinarian

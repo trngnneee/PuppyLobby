@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { useAuthContext } from "@/provider/auth.provider"
-import { BriefcaseMedicalIcon, Grid2X2, HeartHandshake, Syringe, User } from "lucide-react"
+import { BriefcaseMedicalIcon, DollarSign, Grid2X2, HeartHandshake, Syringe, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -36,7 +36,9 @@ export const EmployeeSider = () => {
       icon: BriefcaseMedicalIcon
     },
   ]
-  
+  if (pathName.includes("/revenue")){
+    return null;
+  }
   return (
     <div className="rounded-[20px] shadow-2xl gap-5 border border-gray-200 p-5 sticky top-20 self-start">
       <div className="flex flex-col gap-3 top-20">
