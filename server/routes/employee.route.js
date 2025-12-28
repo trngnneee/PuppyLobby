@@ -225,8 +225,8 @@ router.get('/list/:branch_id', async (req, res) => {
     FROM employeehistory
     JOIN employee ON employeehistory.employee_id = employee.employee_id
     JOIN veterinarian ON employee.employee_id = veterinarian.employee_id
-    WHERE branch_id = ? AND end_date IS NULL AND veterinarian.employee_id IS NOT NULL
-    `,
+    WHERE employeehistory.branch_id = ? AND employeehistory.end_date IS NULL AND veterinarian.employee_id IS NOT NULL 
+    `, 
     [branch_id]
   );
 
