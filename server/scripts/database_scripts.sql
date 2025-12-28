@@ -66,7 +66,6 @@ create table MembershipLevel (
 create table CustomerAccount (
   account_id uuid primary key references Account (account_id) on delete cascade, -- Xóa account thì xóa cả customeraccount
   loyalty_score numeric,
-  reach_target numeric,
   customer_id uuid references Customer (customer_id),
   level_id uuid references MembershipLevel (level_id)
 );

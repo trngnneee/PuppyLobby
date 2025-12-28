@@ -23,3 +23,10 @@ AFTER INSERT OR UPDATE OR DELETE ON ServiceBooking
 FOR EACH ROW
 EXECUTE FUNCTION update_invoice_total_price();
 
+
+CREATE TRIGGER trg_update_invoice_total_price
+AFTER INSERT OR UPDATE OR DELETE ON InvoiceProduct  
+FOR EACH ROW
+EXECUTE FUNCTION update_invoice_total_price();
+
+
