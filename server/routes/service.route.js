@@ -40,7 +40,7 @@ router.get("/detail/:id", async (req, res) => {
 })
 
 router.post("/update/:id", async (req, res) => {
-  const { id } = req.rams;
+  const { id } = req.params;
   const { price, branches } = req.body;
 
   try {

@@ -20,6 +20,8 @@ import { MedicineItem } from "./components/MedicineItem";
 import { MedicineItemSkeleton } from "./components/MedicineItemSkeleton";
 import PaginationComponent from "@/components/common/Pagination";
 import {SearchBar} from "@/app/(pages)/components/SearchBar";
+import {SearchIcon, ArrowRightIcon} from "lucide-react"
+
 
 export default function MedicalExamDetailPage() {
   const { id } = useParams();
@@ -67,7 +69,9 @@ export default function MedicalExamDetailPage() {
           }
         });
     })
-    fetchData();
+    return () => {
+      clearTimeout(timeout)
+    }
   }, [currentPage, submitKeyword]);
 
   const handleSubmit = (e) => {
