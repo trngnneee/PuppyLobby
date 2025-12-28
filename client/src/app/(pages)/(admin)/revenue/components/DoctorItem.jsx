@@ -44,7 +44,7 @@ export const DoctorItem = ({ item, doctor, setDoctor }) => {
         </div>
         
         <div className={`rounded-full px-3 py-1 text-xs font-medium ${
-          item.gender === "Male" 
+          item.gender === "male" 
             ? "bg-blue-100 text-blue-700" 
             : "bg-pink-100 text-pink-700"
         }`}>

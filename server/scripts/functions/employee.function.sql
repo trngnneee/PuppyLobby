@@ -2,6 +2,163 @@
 
 
 
+-------------------- Add employee --------------------
+CREATE OR REPLACE FUNCTION addEmployee(
+  p_username TEXT,
+  p_email TEXT,
+  p_password TEXT,
+  p_fullname TEXT,
+  p_date_of_birth DATE,
+  p_gender gender_enum,
+  p_manager_id TEXT,
+  p_type TEXT,
+  p_degree TEXT,
+  p_specialization TEXT
+)
+RETURNS JSON AS $$
+DECLARE
+  v_exist_username INT;
+  v_exist_email INT;
+  v_role_id UUID;
+  v_account_id UUID;
+  v_employee_id UUID;
+BEGIN
+  -- Check username exists
+  IF checkUsernameExists(p_username) THEN
+    RETURN json_build_object('code', 'error', 'message', 'Username already exists');
+  END IF;
+
+  -- Check email exists
+  IF checkEmailExists(p_email) THEN
+    RETURN json_build_object('code', 'error', 'message', 'Email already exists');
+  END IF;
+
+  IF v_exist_email > 0 THEN
+    RETURN json_build_object('code', 'error', 'message', 'Email already exists');
+  END IF;
+
+  -- Get employee role_id
+  SELECT role_id INTO v_role_id
+  FROM role
+  WHERE role_name = 'employee';
+
+  -- Insert account
+  INSERT INTO account(username, email, password, role_id)
+  VALUES(p_username, p_email, p_password, v_role_id)
+  RETURNING account_id INTO v_account_id;
+
+  -- Insert employee
+  INSERT INTO employee(employee_name, date_of_birth, gender, manager_id, account_id)
+  VALUES(p_fullname, p_date_of_birth, p_gender, NULLIF(p_manager_id, '')::UUID, v_account_id)
+  RETURNING employee_id INTO v_employee_id;
+
+  -- Insert veterinarian if needed
+  IF p_type = 'veterinarian' THEN
+    INSERT INTO veterinarian(employee_id, degree, specialization)
+    VALUES (v_employee_id, p_degree, p_specialization);
+  END IF;
+
+  RETURN json_build_object('code', 'success', 'message', 'Created employee successfully');
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-------------------- Assign Employee to work --------------------
+CREATE OR REPLACE FUNCTION assignEmployeeToBranch(
+  p_branch_id UUID,
+  p_employee_id UUID,
+  p_position TEXT,
+  p_start_date DATE,
+  p_end_date DATE,
+  p_salary NUMERIC
+)
+RETURNS JSON AS $$
+DECLARE
+  v_conflict_count INT;
+BEGIN
+  SELECT COUNT(*)
+  INTO v_conflict_count
+  FROM employeehistory
+  WHERE employee_id = p_employee_id
+    AND branch_id = p_branch_id
+    AND (
+         p_start_date <= end_date
+         AND p_end_date >= start_date
+    );
+
+  IF v_conflict_count > 0 THEN
+    RETURN json_build_object(
+      'code', 'error',
+      'message', 'Employee already assigned to this branch in the selected date range'
+    );
+  END IF;
+
+  -- update end-date để đóng lịch làm việc này
+  UPDATE employeehistory
+  SET end_date = p_start_date - INTERVAL '1 day'
+  WHERE employee_id = p_employee_id
+    AND end_date IS NULL;
+
+  INSERT INTO employeehistory (
+    employee_id, branch_id, position,
+    start_date, end_date, salary
+  )
+  VALUES (
+    p_employee_id, p_branch_id, p_position,
+    p_start_date, p_end_date, p_salary
+  );
+
+  RETURN json_build_object(
+    'code', 'success',
+    'message', 'Employee assigned successfully'
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-------------------- Check if an employee is an manager --------------------
+CREATE OR REPLACE FUNCTION checkManager(
+  p_account_id uuid
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+  is_manager BOOLEAN;
+BEGIN
+  SELECT (e.manager_id IS NULL)
+  INTO is_manager
+  FROM account a
+  JOIN employee e ON e.account_id = a.account_id
+  WHERE a.account_id = p_account_id
+  LIMIT 1;
+
+  RETURN COALESCE(is_manager, FALSE);
+END;
+$$ LANGUAGE plpgsql;
+
+-------------------- Check if an employee is an veterinarian --------------------
+CREATE OR REPLACE FUNCTION checkVeterinarian(
+  p_account_id uuid
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+  is_veterinarian BOOLEAN;
+BEGIN
+  SELECT 1
+  INTO is_veterinarian
+  FROM account a
+  JOIN employee e ON e.account_id = a.account_id
+  JOIN veterinarian v ON v.employee_id = e.employee_id
+  WHERE a.account_id = p_account_id
+  LIMIT 1;
+
+  RETURN COALESCE(is_veterinarian, FALSE);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 
 
 
