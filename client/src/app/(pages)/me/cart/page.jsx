@@ -12,6 +12,7 @@ import { MedicalItem } from "./components/MedicalItem";
 import { ItemSkeleton } from "./components/ItemSkeleton";
 import { VaccineSingleItem } from "./components/VaccineSingleItem";
 import { VaccinePackageItem } from "./components/VaccinePackageItem";
+import { toast } from "sonner";
 
 export default function MeCartPage() {
   const [cartList, setCartList] = useState([]);
@@ -19,6 +20,7 @@ export default function MeCartPage() {
   const [medicalList, setMedicalList] = useState([]);
   const [vaccineSingleList, setVaccineSingleList] = useState([]);
   const [vaccinePackageList, setVaccinePackageList] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const fetchCartData = async () => {
     try {
@@ -33,6 +35,7 @@ export default function MeCartPage() {
         setMedicalList(data.medicalExaminations || []);
         setVaccineSingleList(data.vaccinationSingles || []);
         setVaccinePackageList(data.vaccinationCombos || []);
+        setLoading(false);
       }
     } catch (error) {
       console.error(error);
@@ -64,6 +67,38 @@ export default function MeCartPage() {
 
   //console.log("Cart List:", cartList);
   const [onlineBanking, setOnlineBanking] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const promise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        paymentMethod: paymentMethod
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        return data;
+      });
+
+    toast.promise(promise, {
+      loading: "Processing your order...",
+      success: (data) => {
+        if (data.code === "success") {
+          fetchCartData();
+          return "Order placed successfully!";
+        } else {
+          throw new Error(data.message || "Failed to place order");
+        }
+      },
+      error: (err) => err.message || "Failed to place order"
+    })
+  }
 
   return (
     <>
@@ -76,32 +111,34 @@ export default function MeCartPage() {
           ))}
           {medicalList.length > 0 ? medicalList.map((item) => (
             <MedicalItem key={item.booking_id} item={item} />
-          )) : (
+          )) : loading ? (
             [...Array(2)].map((_, index) => (
               <ItemSkeleton key={index} />
             ))
-          )}
+          ) : null}
           {vaccineSingleList.length > 0 ? vaccineSingleList.map((item) => (
             <VaccineSingleItem key={item.booking_id} item={item} />
-          )) : (
+          )) : loading ? (
             [...Array(2)].map((_, index) => (
               <ItemSkeleton key={index} />
             ))
-          )}
+          ) : null}
           {vaccinePackageList.length > 0 ? vaccinePackageList.map((item) => (
             <VaccinePackageItem key={item.booking_id} item={item} />
-          )) : (
+          )) : loading ? (
             [...Array(2)].map((_, index) => (
               <ItemSkeleton key={index} />
             ))
-          )}
+          ) : null}
         </div>
-        <div className="w-2/5 sticky top-20 h-fit bg-[var(--main)] p-5 rounded-xl text-white">
+        <form onSubmit={handleSubmit} className="w-2/5 sticky top-20 h-fit bg-[var(--main)] p-5 rounded-xl text-white">
           <PriceSummary total={totalAmount} discount={0} />
           <div className="mt-5">Choose payment method</div>
           <RadioGroup 
             defaultValue="cod"
             className="mt-2"
+            onValueChange={(value) => setPaymentMethod(value)}
+            value={paymentMethod}
           >
             <div className="flex items-center gap-2">
               <RadioGroupItem value="cod" id={`cod`}  onClick={() => setOnlineBanking(false)} />
@@ -128,7 +165,7 @@ export default function MeCartPage() {
             <span>Checkout Now</span>
             <ArrowRight className="ml-2" />
           </Button>
-        </div>
+        </form>
       </div>
     </>
   )

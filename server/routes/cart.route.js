@@ -325,5 +325,31 @@ router.get("/:customer_id", async (req, res) => {
     });
 });
 
+router.post("/checkout", authMiddleware.verifyToken, async (req, res) => {
+  const { paymentMethod } = req.body;
+  const customer_id = req.account.customer_id;
+  try {
+    await db.raw(
+      `
+        UPDATE invoice
+        SET status = 'completed',
+            payment_method = ?,
+            created_at = NOW()
+        WHERE customer_id = ?
+      `,
+      [paymentMethod, customer_id]
+    );
+    res.json({
+      code: "success",
+      message: "Checkout successful"
+    });
+  } catch (error) {
+    console.error("Checkout error: ", error);
+    res.status(500).json({
+      code: "error",
+      message: "Checkout failed"
+    });
+  }
+});
 
 export default router
